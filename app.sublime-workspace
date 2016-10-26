@@ -1,0 +1,569 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"inter",
+				"interact"
+			],
+			[
+				"J",
+				"Japon"
+			],
+			[
+				"reul",
+				"result"
+			],
+			[
+				"date",
+				"dateSQL"
+			],
+			[
+				"time",
+				"timeSQL"
+			],
+			[
+				"tmp",
+				"tmp_chapter"
+			],
+			[
+				"curen",
+				"currentDate"
+			],
+			[
+				"current",
+				"CurrentDuration"
+			],
+			[
+				"curren",
+				"currentChapter"
+			],
+			[
+				"cu",
+				"CurrentDuration"
+			],
+			[
+				"c",
+				"currentChapter"
+			],
+			[
+				"keep",
+				"keepChapter"
+			],
+			[
+				"utf",
+				"utf8_encode"
+			],
+			[
+				"m",
+				"myFormatForView"
+			],
+			[
+				"html",
+				"htmlentities"
+			],
+			[
+				"forma",
+				"format_Date_FromSQL"
+			],
+			[
+				"M",
+				"M"
+			],
+			[
+				"req",
+				"req1\trequire_once …"
+			],
+			[
+				"margin",
+				"margin-bottom"
+			],
+			[
+				"font",
+				"font-size"
+			],
+			[
+				"id",
+				"id_client"
+			],
+			[
+				"nb",
+				"nbChapter"
+			],
+			[
+				"data",
+				"dataClient"
+			],
+			[
+				"print",
+				"print_r"
+			],
+			[
+				"fet",
+				"FETCH_ASSOC"
+			],
+			[
+				"get",
+				"_GET"
+			],
+			[
+				"type",
+				"typeRecherche"
+			],
+			[
+				"post",
+				"_POST"
+			],
+			[
+				"change",
+				"changeYear"
+			],
+			[
+				"Ina",
+				"Inactive_Warning"
+			],
+			[
+				"inv",
+				"InactiveTimer"
+			],
+			[
+				"on",
+				"onclick\tAttr"
+			],
+			[
+				"new",
+				"newPage"
+			],
+			[
+				"temp",
+				"tempNewPage"
+			],
+			[
+				"tem",
+				"tempNewPage"
+			],
+			[
+				"url",
+				"url_visite"
+			],
+			[
+				"calc",
+				"calcChapter"
+			],
+			[
+				"exe",
+				"execute"
+			],
+			[
+				"connection",
+				"connectionID"
+			],
+			[
+				"sess",
+				"_SESSION"
+			],
+			[
+				"var",
+				"var_dump"
+			],
+			[
+				"tex",
+				"text-decoration"
+			],
+			[
+				"text",
+				"text-align"
+			],
+			[
+				"ta",
+				"target\tAttr"
+			],
+			[
+				"add",
+				"addClass"
+			],
+			[
+				"DIV",
+				"div"
+			],
+			[
+				"DI",
+				"div"
+			],
+			[
+				"back",
+				"background-color"
+			],
+			[
+				"inline",
+				"inline-block"
+			],
+			[
+				"max",
+				"max-width"
+			],
+			[
+				"align",
+				"text-align"
+			],
+			[
+				"header",
+				"headerHidden"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/D/Users/Romain/Desktop/ProjectNode/package.json",
+		"/D/Users/Romain/Desktop/ProjectNode/app.js",
+		"/D/Users/Romain/Desktop/test.js",
+		"/D/Users/Romain/Desktop/ProjectNode/node_modules/express/package.json",
+		"/D/Users/Romain/Desktop/ProjectNode/node_modules/socket.io/package.json",
+		"/D/Users/Romain/Desktop/Japan Trip/Mon Projet/idée projet.txt",
+		"/D/cinder_master/blocks/Cinder-KCB2/cinderblock.xml",
+		"/D/Users/Romain/Desktop/ARFightSceneEXECUTABLE/ARFightScene/WindowsNoEditor/Manifest_NonUFSFiles.txt",
+		"/D/Users/Romain/Desktop/Alvyre 2016-10-13 at 8.28.16 PM/Earth/Earth.mtl",
+		"/D/cinder_master/blocks/Cinder-KCB2/README.md",
+		"/D/Users/Romain/Desktop/Cinder-KCB2/cinderblock.xml",
+		"/D/cinder_samples/README.md",
+		"/D/cinder_master/blocks/Cinder-KCB2/templates/Basic KCB2/template.xml",
+		"/D/cinder_master/blocks/Cinder-OpenCV/cinderblock.xml",
+		"/D/cinder_master/blocks/Box2D/cinderblock.xml",
+		"/D/Users/Romain/Desktop/ofxKinect2/README.md",
+		"/D/Users/Romain/Desktop/ofxKinectForWindows2-master/README.md",
+		"/D/cinder_master/include/boost/README.md",
+		"/D/Users/Romain/Desktop/OpenFramework/addons/ofxKinect/libs/libfreenect/src/core.c",
+		"/D/Users/Romain/Desktop/OpenFramework/addons/ofxKinect/README.md",
+		"/D/Users/Romain/Desktop/ofxKinectForWindows2-0.9.0_x86_VS2012/README.md",
+		"/D/Users/Romain/Desktop/OpenFramework/README.md",
+		"/D/Users/Romain/Desktop/OpenFramework/INSTALL.md",
+		"/D/Users/Romain/Desktop/libfreenect2-master/CMakeLists.txt",
+		"/D/Users/Romain/Desktop/libfreenect2-master/depends/INSTALL-windows.txt",
+		"/D/Users/Romain/Desktop/Open Frameworks/INSTALL.md",
+		"/C/Users/Romain/AppData/Local/Temp/Temp1_ofxKinectV2-master.zip/ofxKinectV2-master/README.md",
+		"/D/Users/Romain/Desktop/Open Frameworks/addons/ofxKinectV2/.gitignore",
+		"/D/Users/Romain/Desktop/Open Frameworks/addons/ofxKinectV2/README.md",
+		"/D/Users/Romain/Desktop/Japan Trip/Mon Projet/project Idea 1 EN.txt",
+		"/D/Users/Romain/Desktop/cinder/Cinder/.gitignore",
+		"/D/Users/Romain/Desktop/Japan Trip/Mon Projet/project Idea 1 EN",
+		"/D/Users/Romain/Desktop/Japan Trip/idée projet.txt",
+		"/D/Users/Romain/Desktop/Japon Sumi/idée projet",
+		"/D/Users/Romain/Desktop/portfolio/mobile/js/main.js",
+		"/D/Users/Romain/Desktop/portfolio/mobile/css/main.css",
+		"/D/Users/Romain/Desktop/fancyapps-fancyBox-v2.1.5-0-ge2248f4/fancyapps-fancyBox-18d1712/source/jquery.fancybox.css",
+		"/D/Users/Romain/Desktop/fancyapps-fancyBox-v2.1.5-0-ge2248f4/fancyapps-fancyBox-18d1712/source/jquery.fancybox.js",
+		"/D/Users/Romain/Desktop/fancyapps-fancyBox-v2.1.5-0-ge2248f4/fancyapps-fancyBox-18d1712/source/helpers/jquery.fancybox-thumbs.css",
+		"/C/Users/Romain/AppData/Local/Temp/fz3temp-1/bilan_gen_PDF.php",
+		"/D/Users/Romain/Desktop/portfolio/mobile/js/vendors/TweenMax.min.js",
+		"/D/Jeux/Steam/steamapps/libraryfolders.vdf",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/backOffice/gestion/temps/gestionTemps.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/backOffice/gestion/temps/addTime.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/backOffice/gestion/temps/time.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/backOffice/gestion/temps/bilan_gen_PDF.php",
+		"/C/Users/Romain/AppData/Local/Temp/fz3temp-1/bilan_gen_PDF_backup.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/updateClient.php",
+		"/C/Users/Romain/AppData/Local/Temp/fz3temp-1/index.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/sendPwd.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/deconnexion.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/backOffice/admin.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/backOffice/menu.php",
+		"/C/Users/Romain/AppData/Local/Temp/fz3temp-1/sendPwd.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/backOffice/sendPwd.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/validate.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/backOffice/statistiques.php",
+		"/C/Users/Romain/AppData/Local/Temp/fz3temp-1/login 2.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/login.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/backOffice/login.php",
+		"/C/Users/Romain/AppData/Local/Temp/fz3temp-1/security.php",
+		"/C/Users/Romain/AppData/Local/Temp/fz3temp-1/login.php",
+		"/C/Users/Romain/AppData/Local/Temp/fz3temp-1/config.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/backOffice/connexionPDO.php",
+		"/C/Users/Romain/AppData/Local/Temp/fz3temp-1/connexionPDO.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/index.php",
+		"/D/Users/Romain/Desktop/index.html",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/backOffice/gestion/temps/js/timepicker.js",
+		"/D/Users/Romain/Desktop/jquery.ui.timepicker.js",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/ActingMethod/www/backOffice/gestion/temps/addClients.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/backOffice/gestion/temps/gestionTemps.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/backOffice/gestion/temps/js/jquery-ui.js",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/backOffice/gestion/temps/js/jquery-1.10.2.js",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/backOffice/gestion/temps/css/jquery-ui.css",
+		"/D/Users/Romain/Desktop/jquery-ui-1.11.4.custom/jquery-ui.structure.css",
+		"/D/Users/Romain/Desktop/jquery-ui-1.11.4.custom/jquery-ui.js",
+		"/D/Users/Romain/Desktop/jquery-ui-1.11.4.custom/index.html",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/facture_gen_PDF.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/backOffice/security.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/login.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/backOffice/statistiques.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/backOffice/connexionPDO.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/Be-a-pimp/helpers/password.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/Be-a-pimp/controller/registrationController.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/Be-a-pimp/model/user.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/Be-a-pimp/lib/password_compat/password.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/param_connect.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/test.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/backOffice/connexion.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/Be-a-pimp/connexionDB.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/Be-a-pimp/config.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/backOffice/login.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/test123.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/.htaccess",
+		"/D/Users/Romain/Desktop/portfolio/Base/.htaccess",
+		"/C/Users/Romain/AppData/Local/Temp/fz3temp-1/main.css",
+		"/D/Users/Romain/Desktop/portfolio/Base/js/map.js",
+		"/D/Users/Romain/Desktop/portfolio/Base/js/main.js",
+		"/C/eula.2052.txt",
+		"/C/Program Files (x86)/Ubisoft/Ubisoft Game Launcher/Installed_files.txt",
+		"/C/Users/Romain/AppData/Roaming/Skype/My Skype Received Files/index(1).php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/Ebook1/index.php",
+		"/C/Users/Romain/AppData/Local/Temp/fz3temp-1/save_time_cust.php",
+		"/C/Users/Romain/AppData/Local/Temp/fz3temp-1/gestionTemps.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/backOffice/admin.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/backOffice/index.php",
+		"/D/Users/Romain/Desktop/ATT00001.htm",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/backOffice/menu.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/backOffice/gestion/administrateurs/menu.php",
+		"/D/Program Files (x86)/EasyPHP-DevServer-14.1VC9/data/localweb/projects/pHp Flo/www/Ebook1/save_time_cust.php",
+		"/C/Users/Romain/AppData/Roaming/Skype/My Skype Received Files/fc_elearning_simple_01.php",
+		"/C/Users/Romain/AppData/Roaming/Skype/My Skype Received Files/simple_customer_time.php",
+		"/C/Users/Romain/AppData/Roaming/Skype/My Skype Received Files/index.php",
+		"/D/Users/Romain/Desktop/portfolio/Base/css/main.css",
+		"/D/Users/Romain/Desktop/portfolio/Base/index.html",
+		"/D/Users/Romain/Desktop/portfolio/Base/contact.php",
+		"/D/Users/Romain/Desktop/portfolio/Ancient port folio/index.php",
+		"/D/Users/Romain/Desktop/portfolio/Ancient port folio/index2.html",
+		"/D/Users/Romain/Desktop/portfolio/Ancient port folio/css/main.css",
+		"/D/Users/Romain/Desktop/portfolio/Base/css/card.css",
+		"/D/Users/Romain/Desktop/portfolio/Base/media/SteamDiscover/about.html",
+		"/D/Users/Romain/Desktop/portfolio/Base/media/SteamDiscover/contact.php",
+		"/D/Users/Romain/Desktop/portfolio/Base/index2.html",
+		"/D/Users/Romain/Desktop/Nouveau document texte.txt",
+		"/D/Users/Romain/Desktop/dcraw-9.26-ms-64-bit/dcraw-9.26-ms-64-bit.exe",
+		"/D/Users/Romain/Desktop/portfolio/Base/browserconfig.xml",
+		"/D/Users/Romain/Desktop/RiftCoaster_HD-pc/Readme.txt",
+		"/D/Users/Romain/Desktop/portfolio/Ancient port folio/js/fancybox.js"
+	],
+	"find":
+	{
+		"height": 27.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"$(Configuration)",
+			"$(PlatformTarget)",
+			"fancybox-effects-b",
+			"NULL",
+			"CurrentDuration",
+			"time_added",
+			"bdd(",
+			"ePage",
+			"/",
+			"define when",
+			"dataClient",
+			"info_client",
+			"FILE",
+			"file",
+			"#",
+			"version",
+			"menu",
+			"/\n",
+			"saveTime",
+			"page_actu",
+			"direct_access",
+			"NOW",
+			"save_simple_customer_time",
+			"save_simple_start_time",
+			"\tinclude(\"fc_elearning_simple_01.php\");\nsave_simple_start_time",
+			"save_simple_start_time",
+			"540px",
+			"570",
+			"AddType video/ogg  .ogv\n",
+			"article",
+			";",
+			".stop",
+			"stop()",
+			"container",
+			"codrops",
+			"SELECTORS",
+			"body",
+			"clic",
+			"click",
+			"onclick",
+			"hidecard",
+			"close",
+			"hidden",
+			"demo",
+			"header",
+			"stroke",
+			"color",
+			"stroke",
+			"Demo",
+			"demo",
+			"Card.proto",
+			"demo-4",
+			"rf",
+			"./maps/"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"Debug",
+			"x86",
+			"currentDuration",
+			"html(",
+			"dataClient[0]",
+			"dataClient",
+			"97%",
+			"540",
+			"section",
+			"map",
+			"main",
+			"Main",
+			"main",
+			"map",
+			"./maps/forest/"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 27.0
+	},
+	"input":
+	{
+		"height": 34.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "app.sublime-project",
+	"replace":
+	{
+		"height": 50.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": false,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 319.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

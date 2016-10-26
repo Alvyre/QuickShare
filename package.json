@@ -1,0 +1,38 @@
+{
+  "name": "projectnode",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "~4.13.4",
+    "method-override": "^2.3.6",
+    "moment": "^2.15.1",
+    "mongoose": "^4.6.5",
+    "morgan": "^1.7.0",
+    "socket.io": "~1.5.0",
+    "vue": "~2.0.3"
+  },
+  "description": "Simple system to share informations between people in real time in a limited zone",
+  "main": "server.js",
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  },
+  "keywords": [
+    "informations",
+    "share",
+    "real-time"
+  ],
+  "author": "Alvyre",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Arctic76/Sharing-System.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Arctic76/Sharing-System/issues"
+  },
+  "homepage": "https://github.com/Arctic76/Sharing-System#readme"
+}
