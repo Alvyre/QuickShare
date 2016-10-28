@@ -2,11 +2,14 @@
 //======================================
 
 //require
-mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-moment	 = require('moment');
+var mongoose 	= require('mongoose');
+var Promise 	= require('bluebird');
+moment	 		= require('moment');
 moment().format();
 
+Promise.promisifyAll(mongoose);
+
+var Schema 	= mongoose.Schema
 // Schema
 //======================================
 
@@ -25,12 +28,6 @@ var PostSchema = new Schema({
 // Methods
 //======================================
 
-PostSchema.methods.getRemainingTime = function() {
-	var birthMoment = moment(this.birthdate);
-	var deathMoment = moment(this.expirydate);
-	var timeleft 	 = deathMoment.diff(birthMoment);
-	return timeleft.format('HH:mm:ss').toJSON();
-};
 
 
 // Model

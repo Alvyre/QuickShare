@@ -2,9 +2,12 @@
 //======================================
 
 //require
-mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var mongoose = require('mongoose');
+var Promise  = require('bluebird');
 
+Promise.promisifyAll(mongoose);
+
+var Schema = mongoose.Schema;
 // Schema
 //======================================
 

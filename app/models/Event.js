@@ -2,11 +2,14 @@
 //======================================
 
 //require
-mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-moment	 = require('moment');
+var mongoose 	= require('mongoose');
+var Promise		= require('bluebird');
+moment	 		= require('moment');
 moment().format();
 
+Promise.promisifyAll(mongoose);
+
+var Schema 		= mongoose.Schema;
 // Schema
 //======================================
 
@@ -18,8 +21,8 @@ var EventSchema = new Schema({
 	category		: { type: String, required: true },
 	location		: { type: String, required: true },
 	addInfo			: String,
-	userID			: { type: Schema.Types.ObjectId, required: true },
-	userList		: [{ type: Schema.Types.ObjectId, ref: 'User'}],
+	userID			: { type: String, required: true },
+	userList		: [String],
 	userLimit		: { type: Number, min: 0}, 
 	acceptOverload  : { type: Boolean, default: false, required: true }
 });
