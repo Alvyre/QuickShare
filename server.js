@@ -13,7 +13,7 @@ var methodOverride 	= require('method-override');		// simulate DELETE and PUT (e
 
 // Config
 
-mongoose.connect(database.url, function (err) {				// Connect to the mongoDB
+mongoose.connect(database.url, function (err) {			// Connect to the mongoDB
 	if(err) { 
 		throw err; 
 		console.log("Database connection Error");

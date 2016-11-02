@@ -5,6 +5,9 @@
 var mongoose = require('mongoose');
 var Promise  = require('bluebird');
 
+
+
+// Setup 
 Promise.promisifyAll(mongoose);
 
 var Schema = mongoose.Schema;
@@ -12,16 +15,15 @@ var Schema = mongoose.Schema;
 //======================================
 
 var UserSchema = new Schema({
-	username	: { type: String, required: true, index: {unique: true} },
-	password	: { type: String, required: true },
-	mail		: { type: String, required: true }
+	username		: { type: String, required: true, index: {unique: true} },
+	password		: { type: String, required: true },
+	mail			: { type: String, required: true },
+	isEmailVisible	: { type: Boolean, default: false}
 });
 
 
 // Methods
 //======================================
-
-
 
 // Model
 //======================================

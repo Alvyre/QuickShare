@@ -11,6 +11,14 @@ var Controller = {
 		return false;
 	},
 
+	isObjectIDValid: function(id) {
+		id += '';
+
+		if(id.match(/^[0-9a-fA-F]{24}$/))
+			return true;
+		return false;
+	},
+
 	isUserMailValid: function(mail) {
 		mail += ''; // Be sure to have a string input
 
@@ -18,6 +26,23 @@ var Controller = {
 			return true;
 		}
 		return false;
+	},
+
+	isUserPasswordValid: function(password) {
+		password += ''; // be sure to have string input
+
+		if( !validator.isEmpty(password) && validator.isLength(password, {min: 6, max: undefined}) ) {
+			return true;
+		}
+		return false;
+	},
+
+	checkBoolean: function(stringBool) {
+		if(stringBool === 'true')
+			return true;
+		if(stringBool === 'false')
+			return false;
+		return null;
 	},
 
 	sanitizeString: function(string) {

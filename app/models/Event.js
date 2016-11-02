@@ -5,7 +5,10 @@
 var mongoose 	= require('mongoose');
 var Promise		= require('bluebird');
 moment	 		= require('moment');
+
 moment().format();
+
+mongoose.Promise = require('bluebird');
 
 Promise.promisifyAll(mongoose);
 
