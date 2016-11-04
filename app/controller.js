@@ -45,6 +45,13 @@ var Controller = {
 		return null;
 	},
 
+	isVoteTypeValid: function(votetype) {
+		if(votetype === 'upvote' || votetype === 'downvote') {
+			return true;
+		}
+		return false;
+	},
+
 	sanitizeString: function(string) {
 		string = validator.escape(string);
 		if(validator.isEmail(string)) {
