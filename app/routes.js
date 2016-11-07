@@ -43,9 +43,9 @@ router
         })
         .then(function(results) {
             if(results.username != null)
-                res.json({message: 'Username already exists'});
+                res.json({success: false, message: 'Username already exists'});
             else if(results.mail != null)
-                res.json({message: 'Mail already exists'});
+                res.json({success: false, message: 'Mail already exists'});
             else {
                 var user = new User({
                     username:   tempUsername,
@@ -59,7 +59,7 @@ router
                     user.password = hash;
                     user.save(function(err, resp) {
                         if(err) {
-                            console.log('Error when trying to register an user');
+                            console.log('Error when trying to register an user: '+err);
                             res.send(err);
                         }
                         res.json({
@@ -76,7 +76,7 @@ router
         });
     }
     else {
-        res.json({message: 'Bad request :  invalid inputs'});
+        res.json({success: false, message: 'Bad request :  invalid inputs'});
     }
 })
 
@@ -100,7 +100,7 @@ router
                 bcrypt.compare(req.body.password, results.user.password, function(err, resp) {
                     if(err) {
                         console.log('Error when checking password: '+ err);
-                        res.json({message: 'Error when checking password'});
+                        res.json({success: false, message: 'Error when checking password'});
                     }
                     if(resp === true) {
                         var userData = {
@@ -121,12 +121,12 @@ router
                         });
                     }
                     else {
-                        res.json({message: 'wrong password'})
+                        res.json({success: false, message: 'wrong password'})
                     }
                 });
             }
             else {
-                res.json({message: 'User not found'});
+                res.json({success: false, message: 'User not found'});
             }
         });
     }
@@ -175,23 +175,23 @@ router
     // User ID checking
 
     if( !(Controller.isObjectIDValid(req.decoded.userID)) ) {
-        res.send({message: 'Invalid userID'});
+        res.send({success: false, message: 'Invalid userID'});
     }
     else{
         
         // DATE CHECKING
-        var tempExpiryDate = moment(req.decoded.expirydate, moment.ISO_8601);
+        var tempExpiryDate = moment(req.body.expirydate, moment.ISO_8601);
         var tempBirthDate = moment();
-        if(req.decoded.birthdate != '' && req.decoded.birthdate != undefined) {
-            tempBirthDate = moment(req.decoded.birthdate, moment.ISO_8601);
+        if(req.body.birthdate != '' && req.body.birthdate != undefined) {
+            tempBirthDate = moment(req.body.birthdate, moment.ISO_8601);
         }
         var timeFromNow = tempBirthDate.diff(moment());
         var timeFromBirth = tempExpiryDate.diff(tempBirthDate);
         if( timeFromNow < 0 || timeFromNow > 86400000) {                    // 24h in ms
-            res.send({message: 'Invalid birthdate'});
+            res.send({success: false, message: 'Invalid birthdate'});
         }
         else if( timeFromBirth < 0 || timeFromBirth > 86400000) {           // 24 in ms
-            res.send({message: 'Invalid expirydate'});
+            res.send({success: false, message: 'Invalid expirydate'});
         }
 
         // POST Handling
@@ -200,13 +200,13 @@ router
         	
     		var post = new Post({
 
-                title: 			Controller.sanitizeString(req.decoded.title),
-                description: 	Controller.sanitizeString(req.decoded.description),
+                title: 			Controller.sanitizeString(req.body.title),
+                description: 	Controller.sanitizeString(req.body.description),
                 birthdate: 		tempBirthDate,
                 expirydate: 	tempExpiryDate,
-                category: 		Controller.sanitizeString(req.decoded.category),
-                location: 		Controller.sanitizeString(req.decoded.location),
-                addInfo: 		Controller.sanitizeString(req.decoded.addInfo),
+                category: 		Controller.sanitizeString(req.body.category),
+                location: 		Controller.sanitizeString(req.body.location),
+                addInfo: 		Controller.sanitizeString(req.body.addInfo),
                 userID: 		req.decoded.userID,
             });
 
@@ -215,7 +215,7 @@ router
                     console.log('Error when adding post');
                     res.send(err);
         	    }
-        		res.json({message: 'Successfully added'});
+        		res.json({success: true, message: 'Successfully added'});
         	});
         }
 
@@ -225,16 +225,16 @@ router
         			
         	var event = new Event({
 
-                title: 			Controller.sanitizeString(req.decoded.title),
-                description: 	Controller.sanitizeString(req.decoded.description),
+                title: 			Controller.sanitizeString(req.body.title),
+                description: 	Controller.sanitizeString(req.body.description),
                 birthdate: 		tempBirthDate,
                 expirydate:     tempExpiryDate,
-                category: 		Controller.sanitizeString(req.decoded.category),
-                location: 		Controller.sanitizeString(req.decoded.location),
-                addInfo: 		Controller.sanitizeString(req.decoded.addInfo),
+                category: 		Controller.sanitizeString(req.body.category),
+                location: 		Controller.sanitizeString(req.body.location),
+                addInfo: 		Controller.sanitizeString(req.body.addInfo),
                 userID: 		req.decoded.userID,
-                userLimit: 		req.decoded.userLimit,
-                acceptOverload: req.decoded.acceptOverload
+                userLimit: 		req.body.userLimit,
+                acceptOverload: req.body.acceptOverload
 
             });
         	
@@ -244,11 +244,11 @@ router
        				console.log('Error when adding post');
        				res.send(err);
        			}
-       			res.json({message: 'Successfully added'});
+       			res.json({success: true, message: 'Successfully added'});
        		});
        	}
        	else {
-       		res.json({message: 'Error bad type request'});
+       		res.json({success: false, message: 'Error bad type request'});
        	}
     }
 })
@@ -280,7 +280,7 @@ router
 
     // Checking userID
     if( !(Controller.isObjectIDValid(req.params.id)) ) {
-        res.send({message: 'Invalid userID'});
+        res.send({success: false, message: 'Invalid userID'});
     }
     else {
         if(req.params.type === 'posts') {          // Handling Posts
@@ -313,22 +313,22 @@ router
     // IDs Cheking
 
     if( !(Controller.isObjectIDValid(req.decoded.userID)) ) {
-        res.send({message: 'Invalid userID'});
+        res.send({success: false, message: 'Invalid userID'});
     }
     else {
         var userID = req.decoded.userID;
 
     // DATE Checking
 
-        var tempBirthDate = moment(req.decoded.birthdate);
-        var tempExpiryDate = moment(req.decoded.expirydate);
+        var tempBirthDate = moment(req.body.birthdate);
+        var tempExpiryDate = moment(req.body.expirydate);
         var timeFromNow = tempBirthDate.diff(moment());
         var timeFromBirth = tempExpiryDate.diff(tempBirthDate);
         if( timeFromNow < 0 || timeFromNow > 86400000) {                    // 24h in ms
-            res.send({message: 'Invalid birthdate'});
+            res.send({success: false, message: 'Invalid birthdate'});
         }
         else if( timeFromBirth < 0 || timeFromBirth > 86400000) {           // 24h in ms
-            res.send({message: 'Invalid expirydate'});
+            res.send({success: false, message: 'Invalid expirydate'});
             console.log(timeFromBirth);
         }
 
@@ -336,33 +336,33 @@ router
 
         else if(req.params.type === 'posts') {
             if( !(Controller.isObjectIDValid(req.params.id)) ) {
-                res.send({message: 'Invalid Post ID'});
+                res.send({success: false, message: 'Invalid Post ID'});
             }
             else {
                 var postID = req.params.id;
                 Post.findOne({_id: postID, userID: userID}, function(err, post) {
                     if(err) {
                         console.log('Error when trying to get the post to update: '+err);
-                        res.send({message: 'Error when trying to get the post'});
+                        res.send({success: false, message: 'Error when trying to get the post'});
                     }
                     if(post) {
                         if(post.userID === userID) {
-                           post.updateInfos(req.decoded);
+                           post.updateInfos(req.body);
                             Post.update({_id: post._id}, post, function(err) {
                             if(err) {
                                 console.log('Error when updating post: '+err);
-                                res.send({message: 'Error when updating post'});
+                                res.send({success: false, message: 'Error when updating post'});
                             }
-                            res.send({message: 'Post updated'});
+                            res.send({success: true, message: 'Post updated'});
                         }); 
                         }
                         else {
-                            res.send({message: 'You are not authorized to update this post'});
+                            res.send({success: false, message: 'You are not authorized to update this post'});
                         }
                         
                     }
                     else {
-                        res.send({message: 'No post found'});
+                        res.send({success: false, message: 'No post found'});
                     }
                 });
             }
@@ -372,39 +372,39 @@ router
 
         else if(req.params.type === 'events') {
             if( !(Controller.isObjectIDValid(req.params.id)) ) {
-                res.send({message: 'Invalid Event ID'});
+                res.send({success: false, message: 'Invalid Event ID'});
             }
             else {
                 var eventID = req.params.id;
                 Event.findOne({_id: eventID, userID: userID}, function(err, event) {
                     if(err) {
                         console.log('Error when trying to get the event to update: '+err);
-                        res.send({message: 'Error when trying to get the event'});
+                        res.send({success: false, message: 'Error when trying to get the event'});
                     }
                     if(event) {
                         if(event.userID === userID) {
-                           event.updateInfos(req.decoded);
+                           event.updateInfos(req.body);
                             Event.update({_id: event._id}, event, function(err) {
                             if(err) {
                                 console.log('Error when updating event: '+err);
-                                res.send({message: 'Error when updating event'});
+                                res.send({success: false, message: 'Error when updating event'});
                             }
-                            res.send({message: 'Post updated'});
+                            res.send({success: true, message: 'Post updated'});
                             }); 
                         }
                         else {
-                            res.send({message: 'You are not authorized to update this event'});
+                            res.send({success: false, message: 'You are not authorized to update this event'});
                         }
                         
                     }
                     else {
-                        res.send({message: 'No event found'});
+                        res.send({success: false, message: 'No event found'});
                     }
                 });
             }
         }
         else {
-            res.send({message: 'Bad request'});
+            res.send({success: false, message: 'Bad request'});
         }
     }
 })
@@ -417,12 +417,12 @@ router
     
     // Cheking userID
     if( !(Controller.isObjectIDValid(req.decoded.userID)) ) {
-        res.send({message: 'Invalid userID'});
+        res.send({success: false, message: 'Invalid userID'});
     }
     else {
         if(req.params.type === 'posts') {       //Handling Posts
             if (!(Controller.isObjectIDValid(req.params.id)) )
-                res.send({message: 'Post ID is invalid'});
+                res.send({success: false, message: 'Post ID is invalid'});
             else {
                 Post.findOneAndRemove({_id: req.params.id, userID: req.decoded.userID}, function(err, post) {
                     if(err) {
@@ -431,17 +431,17 @@ router
                     }
                     if(post) {
                         console.log('Post removed');
-                        res.json({message: 'Post removed'});
+                        res.json({success: true, message: 'Post removed'});
                     }
                     else {
-                        res.send({message: 'There is no post with this ID or you are to authorized to delete it'});
+                        res.send({success: false, message: 'There is no post with this ID or you are to authorized to delete it'});
                     }
                 });
             }
         }
         else if(req.params.type === 'events') {     //Handling Events
             if (! (Controller.isObjectIDValid(req.params.id)) )
-                res.send({message: 'Evend ID is invalid'});
+                res.send({success: false, message: 'Evend ID is invalid'});
             else {
                 Event.findOneAndRemove({_id: req.params.id, userID: req.decoded.userID}, function(err, event) {
                     if(err) {
@@ -450,10 +450,10 @@ router
                     }
                     if(event) {
                         console.log('Event removed');
-                        res.json({message: 'Event removed'});
+                        res.json({success: true, message: 'Event removed'});
                     }
                     else {
-                        res.send({message: 'There is no event with this ID or you are not authorized to delete it'});
+                        res.send({success: false, message: 'There is no event with this ID or you are not authorized to delete it'});
                     }
                 });
             }
@@ -470,10 +470,10 @@ router
     // ID Checking
 
     if( !(Controller.isObjectIDValid(req.decoded.userID)) ) {
-        res.send({message: 'Invalid userID'});
+        res.send({success: false, message: 'Invalid userID'});
     }
     else if ( !(Controller.isObjectIDValid(req.params.id)) ) {
-        res.send({message: 'Invalid Event ID'});
+        res.send({success: false, message: 'Invalid Event ID'});
     }
     else {
         var userID  = req.decoded.userID;
@@ -481,27 +481,27 @@ router
         User.findOne({_id: userID}, function(err, user) {
             if(err) {
                 console.log('Error when checking user identity');
-                res.send({message: 'Error when checking user identity'});
+                res.send({success: false, message: 'Error when checking user identity'});
             }
             if(!user) {
-                res.send({message: 'Bad request : Unknown user id'});
+                res.send({success: false, message: 'Bad request : Unknown user id'});
             }
             else {
                 Event.findOne({_id: eventID}, function(err, event) {
                     if(err) {
                     console.log('Error when trying to find event to join: '+err);
-                    res.send({message: 'Error when to try to find the event'});
+                    res.send(err);
                     }
                     if(event) {
                         if(event.isFull()) {
-                            res.send({message: 'Event is full'});
+                            res.send({success: false, message: 'Event is full'});
                         }
                         else {
                             var isUserAlreadyIn = false;
                             for (var i = event.userList.length - 1; i >= 0; i--) {
                                 if(event.userList[i] === userID) {
                                     isUserAlreadyIn = true;
-                                    res.send({message: 'User already in the event'});
+                                    res.send({success: false, message: 'User already in the event'});
                                 }
                             }
                             if(!isUserAlreadyIn) {
@@ -509,15 +509,15 @@ router
                                 Event.update({_id: eventID}, event, function(err) {
                                     if(err) {
                                         console.log('Error when updating the event after user joined: '+err);
-                                        res.send({message: 'Error when updating the event'});
+                                        res.send({success: false, message: 'Error when updating the event'});
                                     }
-                                    res.send({message: 'Event joined'});
+                                    res.send({success: true, message: 'Event joined'});
                                 });
                             }
                         }
                     }
                     else {
-                        res.send({message: 'No event found'});
+                        res.send({success: false, message: 'No event found'});
                     }
                 });
             }
@@ -534,10 +534,10 @@ router
     // ID Checking
 
     if( !(Controller.isObjectIDValid(req.decoded.userID)) ) {
-        res.send({message: 'Invalid userID'});
+        res.send({success: false, message: 'Invalid userID'});
     }
     else if ( !(Controller.isObjectIDValid(req.params.id)) ) {
-        res.send({message: 'Invalid Event ID'});
+        res.send({success: false, message: 'Invalid Event ID'});
     }
     else {
         var eventID = req.params.id;
@@ -545,7 +545,7 @@ router
         Event.findOne({_id: eventID}, function(err, event) {
             if(err) {
                 console.log('Error when trying to find the event to leave: '+err);
-                res.send({message: 'Error when trying to find the event'});
+                res.send(err);
             }
             if(event) {
                 var isUserIn = false;
@@ -556,18 +556,19 @@ router
                         Event.update({_id: eventID}, event, function(err) {
                             if(err) {
                                 console.log('Error when updating event after user leaving: '+err);
+                                res.send(err);
                             }
-                            res.send({message: 'user removed from event'});
+                            res.send({success: true, message: 'user removed from event'});
                         });
                         
                     }
                 }
                 if(!isUserIn) {
-                    res.send({message: 'user not found in the event'});
+                    res.send({success: false, message: 'user not found in the event'});
                 }
             }
             else {
-                res.send({message: 'Event not found'});
+                res.send({success: false, message: 'Event not found'});
             }
         });
     }
@@ -582,10 +583,10 @@ router
     if( !(Controller.isObjectIDValid(req.params.id)) ||
         !(Controller.isObjectIDValid(req.decoded.userID)) ) {
         
-        res.send({message: 'Invalid ID'});
+        res.send({success: false, message: 'Invalid ID'});
     }
     else if ( !(Controller.isVoteTypeValid(req.params.votetype)) ) {
-        res.send({message: 'Bad request'});
+        res.send({success: false, message: 'Bad request'});
     }
     else {
         var userID      = req.decoded.userID;
@@ -612,9 +613,9 @@ router
                             Post.update({_id: infoID}, post, function(err) {
                                 if(err) {
                                     console.log('Error when updating the post: '+err);
-                                    res.send({message: 'Error when updating the post'});
+                                    res.send({success: false, message: 'Error when updating the post'});
                                 }
-                                res.send({message: 'Vote updated !'});
+                                res.send({success: true, message: 'Vote updated !'});
                             }); 
                         }
                         if(isVoteExist) break;
@@ -626,14 +627,14 @@ router
                         Post.update({_id: infoID}, post, function(err) {
                         if(err) {
                             console.log('Error when updating the post: '+err);
-                            res.send({message: 'Error when updating the post'});
+                            res.send({success: true, message: 'Error when updating the post'});
                         }
-                        res.send({message: 'Vote sent !'});
+                        res.send({success: true, message: 'Vote sent !'});
                         });
                     } 
                 }
                 else {
-                    res.send({message: 'No post found'});
+                    res.send({success: true, message: 'No post found'});
                 }
             });
         } // END IF POST
@@ -657,9 +658,9 @@ router
                             Event.update({_id: infoID}, event, function(err) {
                                 if(err) {
                                     console.log('Error when updating the event: '+err);
-                                    res.send({message: 'Error when updating the event'});
+                                    res.send({success: false, message: 'Error when updating the event'});
                                 }
-                                res.send({message: 'Vote updated !'});
+                                res.send({success: false, message: 'Vote updated !'});
                             }); 
                         }
                         if(isVoteExist) break;
@@ -671,19 +672,19 @@ router
                         Event.update({_id: infoID}, event, function(err) {
                         if(err) {
                             console.log('Error when updating the event: '+err);
-                            res.send({message: 'Error when updating the event'});
+                            res.send({success: false, message: 'Error when updating the event'});
                         }
-                        res.send({message: 'Vote sent !'});
+                        res.send({success: true, message: 'Vote sent !'});
                         });
                     } 
                 }
                 else {
-                    res.send({message: 'No event found'});
+                    res.send({success: false, message: 'No event found'});
                 }
             });    
         } // END IF EVENT
         else {
-            res.send({message: 'Bad request'});
+            res.send({success: false, message: 'Bad request'});
         }
     }
 })
@@ -704,8 +705,11 @@ router
             if(user.isEmailVisible === false)
                 user.mail = '';
             });
+            res.json(users);
         }
-        res.json(users);
+        else {
+            res.json({success: false, message: 'No users found'});
+        }
     });
 })
 
@@ -730,7 +734,7 @@ router
         });
     }
     else {
-        res.json({message: 'Bad request'});
+        res.json({success: false, message: 'Bad request'});
     }
 })
 
@@ -756,45 +760,43 @@ router
         });    
     }
     else {
-        res.json({message: 'Bad request'});
+        res.json({success: false, message: 'Bad request'});
     }
     
 })
 
 
-// POST update user // TODO SECURITY
+// POST update user
 //=============================================
 
 .post('/user/update', function(req, res) {
     
     var checkPwd    = false;
     var checkEmail  = false;
-    if(Controller.checkBoolean(req.decoded.isNewPwd) && Controller.isUserPasswordValid(req.decoded.password)) {
+    if(Controller.checkBoolean(req.body.isNewPwd) && Controller.isUserPasswordValid(req.decoded.password)) {
         checkPwd = true;
     }
-    if( Controller.checkBoolean(req.decoded.isNewEmail) && Controller.isUserMailValid(req.decoded.mail)) {
+    if( Controller.checkBoolean(req.body.isNewEmail) && Controller.isUserMailValid(req.decoded.mail)) {
         checkEmail = true;
     }
     
     if(checkPwd === false && checkEmail === false) {
-        //console.log('checkpwd: ' +checkPwd +' checkemail: ' +checkEmail);
-        res.send({message: 'Bad request nothing to change'});
+        res.send({success: false, message: 'Bad request: nothing to change'});
     }
     else {
 
         var username            = Controller.sanitizeString(req.decoded.username);
-        var newPassword         = req.decoded.password;
-        var newEmail            = Controller.sanitizeString(req.decoded.mail);
-        var newIsEmailVisible   = Controller.checkBoolean(req.decoded.isEmailVisible);
+        var newPassword         = req.body.newPassword;
+        var newEmail            = Controller.sanitizeString(req.body.newEmail);
+        var newIsEmailVisible   = Controller.checkBoolean(req.body.isEmailVisible);
 
         Promise.props({
-            user: User.findOne({username: username}).execAsync(),
-            mail: User.findOne({mail: newEmail}).execAsync()
+            user: User.findOne({username: username}).execAsync()
         })
         .then(function(results) {
             if(results.user != null) {
-                if(results.mail != null)
-                    res.send({message: 'Email already exists'});
+                if(results.user.mail != null)
+                    res.send({success: false, message: 'Email already exists'});
                 else {
                     if(newIsEmailVisible != null)
                         results.user.isEmailVisible = newIsEmailVisible; 
@@ -808,7 +810,7 @@ router
                                     console.log('Error when trying to update the user: '+user.username);
                                     res.send(err);
                                 }
-                                res.json({message: 'Successfully updated'});
+                                res.send({success: true, message: 'Successfully updated'});
                             });  
                         });
                     }
@@ -818,27 +820,28 @@ router
                                 console.log('Error when trying to update the user: '+user.username);
                                 res.send(err);
                             }
-                            res.json({message: 'Successfully updated'});
+                            res.send({success: true, message: 'Successfully updated'});
                         });
                     }
                 }
 
             }
             else 
-                res.send({message: 'User doesn\'t exist'});
+                res.send({success: false, message: 'User doesn\'t exist'});
         });  
     }
 })
 
 
-// DELETE user // TODO SECURITY
+// DELETE user
 //=============================================
 
 .delete('/user/delete/', function(req, res) {
     if(! (Controller.isObjectIDValid(req.decoded.userID)) ) {
-        res.send({message: 'Invalid ID'});
+        res.send({success: false, message: 'Invalid ID'});
     }
     else {
+
         var userID = req.decoded.userID;
         User.findOneAndRemove({_id: userID}, function(err, user) {
             if(err) {
@@ -846,11 +849,10 @@ router
                 res.send(err);
             }
             if(user){
-                //console.log('User Deleted');
-                res.send({message: 'User Deleted'});
+                res.send({success: true, message: 'User Deleted'});
             }
             else {
-                res.send({message: 'User not found'});
+                res.send({success: false, message: 'User not found'});
             }
         });
     }
