@@ -1,19 +1,24 @@
-// BASE SETUP
-// ====================================
+// Getting Packages
+//======================================
 
 var express 		= require('express');
 var app     		= express();						// create the app with express
-var port    		= process.env.PORT || 8080;			// define the port
 var mongoose		= require('mongoose');				// mongoose for mongodb
-var database 		= require('./config/database'); 	// Database information
+var config 	 		= require('./config/config'); 	// Database information
 var morgan			= require('morgan');				// log requests to the console (express4)
 var bodyParser		= require('body-parser');			// pull information from HTML POST (express4)
 var router  		= require('./app/routes');			// Routes of the app
 var methodOverride 	= require('method-override');		// simulate DELETE and PUT (express4)
+var http			= require('http').Server(app);
+var fs 				= require('fs');
+var io 				= require('socket.io')(http);
 
-// Config
 
-mongoose.connect(database.url, function (err) {			// Connect to the mongoDB
+// Configuration
+//======================================
+
+var port = process.env.PORT || 8080;						// define the port
+mongoose.connect(config.database, function (err) {			// Connect to the mongoDB
 	if(err) { 
 		throw err; 
 		console.log("Database connection Error");
@@ -26,14 +31,24 @@ app.use(bodyParser.json());											// parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' }));		// parse application/vnd.api+json as json
 app.use(methodOverride());
 
+
 // ROUTES
 // ==============================================
 
 app.use('/api', router);
 
+
+//Socket io
+// ==============================================
+
+io.on('connection', function(socket) {
+	console.log('a user connected');
+});
+
+
 // START THE SERVER
 // ==============================================
 
-app.listen(port, function(){
+http.listen(port, function(){
 	console.log('Server listening on port' + port);
 });

@@ -1,6 +1,7 @@
 // Requires
 var express     = require('express');
 var router      = express.Router();
+var secretKey   = require('../config/config').secret;
 var moment		= require('moment');
 var Promise		= require('bluebird');
 var Post 		= require('./models/Post');
@@ -8,6 +9,7 @@ var Event 		= require('./models/Event');
 var User		= require('./models/User');
 var Controller  = require('./controller.js');
 var bcrypt      = require('bcrypt');
+var jwt         = require('jsonwebtoken'); // used to create, sign, and verify tokens
 
 //hash setup
 const saltRounds = 10;
@@ -18,6 +20,153 @@ module.exports  = router;
 // API Routes
 router
 
+// POST register
+//==============================================
+
+.post('/user/register', function(req, res) {
+    
+    //Checking inputs
+
+    if( Controller.isUsernameValid(req.body.username) && 
+        Controller.isUserMailValid(req.body.mail) && 
+        Controller.isUserPasswordValid(req.body.password)) {
+
+        var tempUsername   = Controller.sanitizeString(req.body.username);
+        var tempUserMail   = Controller.sanitizeString(req.body.mail);
+        var isEmailVisible = Controller.checkBoolean(req.body.isEmailVisible);
+
+        // Checking database for email or username
+        
+        Promise.props({
+           username: User.findOne({username: tempUsername}, 'username').execAsync(),
+           mail: User.findOne({mail: tempUserMail}, 'mail').execAsync()
+        })
+        .then(function(results) {
+            if(results.username != null)
+                res.json({message: 'Username already exists'});
+            else if(results.mail != null)
+                res.json({message: 'Mail already exists'});
+            else {
+                var user = new User({
+                    username:   tempUsername,
+                    password:   req.body.password,
+                    mail:       tempUserMail
+                });
+                if(isEmailVisible)
+                    user.isEmailVisible = true;
+                //Hash password and save
+                bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+                    user.password = hash;
+                    user.save(function(err, resp) {
+                        if(err) {
+                            console.log('Error when trying to register an user');
+                            res.send(err);
+                        }
+                        res.json({
+                            success: true,
+                            message: 'Successfully registered !'
+                        });
+                    });  
+                });
+            }
+        })
+        .catch(function(err) {
+            console.log(err);
+            res.sendStatus(500); // oops - we're even handling errors!
+        });
+    }
+    else {
+        res.json({message: 'Bad request :  invalid inputs'});
+    }
+})
+
+
+// LOGIN
+//==============================================
+
+.post('/user/login', function(req, res) {
+
+    //Checking inputs
+
+    if( Controller.isUsernameValid(req.body.username) && 
+        Controller.isUserPasswordValid(req.body.password)) {
+
+        Promise.props({
+            user: User.findOne({username: req.body.username}).execAsync()
+        })
+        .then(function(results) {
+            if(results.user != null) {
+                // Load hash from your password DB.
+                bcrypt.compare(req.body.password, results.user.password, function(err, resp) {
+                    if(err) {
+                        console.log('Error when checking password: '+ err);
+                        res.json({message: 'Error when checking password'});
+                    }
+                    if(resp === true) {
+                        var userData = {
+                            id: results.user._id,
+                            username: results.user.username,
+                            mail: results.user.mail,
+                            isEmailVisible: results.user.isEmailVisible
+                        };
+                        var token = jwt.sign(userData, secretKey, {
+                            expiresIn: '24h',
+                            issuer: 'API-auth',
+                            audience: 'web-frontend'
+                        });
+                        res.json({
+                            success: true,
+                            message: 'User connected',
+                            token: token
+                        });
+                    }
+                    else {
+                        res.json({message: 'wrong password'})
+                    }
+                });
+            }
+            else {
+                res.json({message: 'User not found'});
+            }
+        });
+    }
+})
+
+
+// Checking token
+//===========================================
+
+.use(function(req, res, next) {
+
+    //check header or url params or post params for token
+    var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+    //decode token
+    if(token) {
+
+        //verifies secret and checks exp
+        jwt.verify(token, secretKey, function(err, decoded) {
+            if(err) {
+                return res.json({ success: false, message: 'Failed to authenticate token'});
+            }
+            else {
+                //if everything good save to request for use in other Routes
+                req.decoded = decoded;
+                next();
+            }
+        });
+    }
+    else {
+
+        //if there is no token : return error
+        return res.status(403).send({
+            success: false,
+            message: 'No token provided.'
+        });
+    }
+})
+
+
 // POST & GET  new informations (TODO: Security)
 //=============================================
 
@@ -25,17 +174,16 @@ router
 
     // User ID checking
 
-    if( !(Controller.isObjectIDValid(req.body.userID)) ) {
+    if( !(Controller.isObjectIDValid(req.decoded.userID)) ) {
         res.send({message: 'Invalid userID'});
     }
     else{
         
         // DATE CHECKING
-
-        var tempExpiryDate = moment(req.body.expirydate, moment.ISO_8601);
+        var tempExpiryDate = moment(req.decoded.expirydate, moment.ISO_8601);
         var tempBirthDate = moment();
-        if(req.body.birthdate != '' && req.body.birthdate != undefined) {
-            tempBirthDate = moment(req.body.birthdate, moment.ISO_8601);
+        if(req.decoded.birthdate != '' && req.decoded.birthdate != undefined) {
+            tempBirthDate = moment(req.decoded.birthdate, moment.ISO_8601);
         }
         var timeFromNow = tempBirthDate.diff(moment());
         var timeFromBirth = tempExpiryDate.diff(tempBirthDate);
@@ -52,14 +200,14 @@ router
         	
     		var post = new Post({
 
-                title: 			Controller.sanitizeString(req.body.title),
-                description: 	Controller.sanitizeString(req.body.description),
+                title: 			Controller.sanitizeString(req.decoded.title),
+                description: 	Controller.sanitizeString(req.decoded.description),
                 birthdate: 		tempBirthDate,
                 expirydate: 	tempExpiryDate,
-                category: 		Controller.sanitizeString(req.body.category),
-                location: 		Controller.sanitizeString(req.body.location),
-                addInfo: 		Controller.sanitizeString(req.body.addInfo),
-                userID: 		req.body.userID,
+                category: 		Controller.sanitizeString(req.decoded.category),
+                location: 		Controller.sanitizeString(req.decoded.location),
+                addInfo: 		Controller.sanitizeString(req.decoded.addInfo),
+                userID: 		req.decoded.userID,
             });
 
         	post.save(function(err, resp) {
@@ -77,20 +225,20 @@ router
         			
         	var event = new Event({
 
-                title: 			Controller.sanitizeString(req.body.title),
-                description: 	Controller.sanitizeString(req.body.description),
+                title: 			Controller.sanitizeString(req.decoded.title),
+                description: 	Controller.sanitizeString(req.decoded.description),
                 birthdate: 		tempBirthDate,
                 expirydate:     tempExpiryDate,
-                category: 		Controller.sanitizeString(req.body.category),
-                location: 		Controller.sanitizeString(req.body.location),
-                addInfo: 		Controller.sanitizeString(req.body.addInfo),
-                userID: 		req.body.userID,
-                userLimit: 		req.body.userLimit,
-                acceptOverload: req.body.acceptOverload
+                category: 		Controller.sanitizeString(req.decoded.category),
+                location: 		Controller.sanitizeString(req.decoded.location),
+                addInfo: 		Controller.sanitizeString(req.decoded.addInfo),
+                userID: 		req.decoded.userID,
+                userLimit: 		req.decoded.userLimit,
+                acceptOverload: req.decoded.acceptOverload
 
             });
         	
-            event.userList.push(req.body.userID);
+            event.userList.push(req.decoded.userID);
         	event.save(function(err, resp) {
        			if(err) {
        				console.log('Error when adding post');
@@ -164,16 +312,16 @@ router
     
     // IDs Cheking
 
-    if( !(Controller.isObjectIDValid(req.body.userID)) ) {
+    if( !(Controller.isObjectIDValid(req.decoded.userID)) ) {
         res.send({message: 'Invalid userID'});
     }
     else {
-        var userID = req.body.userID;
+        var userID = req.decoded.userID;
 
     // DATE Checking
 
-        var tempBirthDate = moment(req.body.birthdate);
-        var tempExpiryDate = moment(req.body.expirydate);
+        var tempBirthDate = moment(req.decoded.birthdate);
+        var tempExpiryDate = moment(req.decoded.expirydate);
         var timeFromNow = tempBirthDate.diff(moment());
         var timeFromBirth = tempExpiryDate.diff(tempBirthDate);
         if( timeFromNow < 0 || timeFromNow > 86400000) {                    // 24h in ms
@@ -199,7 +347,7 @@ router
                     }
                     if(post) {
                         if(post.userID === userID) {
-                           post.updateInfos(req.body);
+                           post.updateInfos(req.decoded);
                             Post.update({_id: post._id}, post, function(err) {
                             if(err) {
                                 console.log('Error when updating post: '+err);
@@ -235,7 +383,7 @@ router
                     }
                     if(event) {
                         if(event.userID === userID) {
-                           event.updateInfos(req.body);
+                           event.updateInfos(req.decoded);
                             Event.update({_id: event._id}, event, function(err) {
                             if(err) {
                                 console.log('Error when updating event: '+err);
@@ -268,7 +416,7 @@ router
 .delete('/infos/delete/:type/:id', function(req, res) {
     
     // Cheking userID
-    if( !(Controller.isObjectIDValid(req.body.userID)) ) {
+    if( !(Controller.isObjectIDValid(req.decoded.userID)) ) {
         res.send({message: 'Invalid userID'});
     }
     else {
@@ -276,7 +424,7 @@ router
             if (!(Controller.isObjectIDValid(req.params.id)) )
                 res.send({message: 'Post ID is invalid'});
             else {
-                Post.findOneAndRemove({_id: req.params.id, userID: req.body.userID}, function(err, post) {
+                Post.findOneAndRemove({_id: req.params.id, userID: req.decoded.userID}, function(err, post) {
                     if(err) {
                         console.log('Error when trying to delete the post');
                         res.send(err);
@@ -295,7 +443,7 @@ router
             if (! (Controller.isObjectIDValid(req.params.id)) )
                 res.send({message: 'Evend ID is invalid'});
             else {
-                Event.findOneAndRemove({_id: req.params.id, userID: req.body.userID}, function(err, event) {
+                Event.findOneAndRemove({_id: req.params.id, userID: req.decoded.userID}, function(err, event) {
                     if(err) {
                         console.log('Error when trying to get the event to delete');
                         res.send(err);
@@ -321,14 +469,14 @@ router
 
     // ID Checking
 
-    if( !(Controller.isObjectIDValid(req.body.userID)) ) {
+    if( !(Controller.isObjectIDValid(req.decoded.userID)) ) {
         res.send({message: 'Invalid userID'});
     }
     else if ( !(Controller.isObjectIDValid(req.params.id)) ) {
         res.send({message: 'Invalid Event ID'});
     }
     else {
-        var userID  = req.body.userID;
+        var userID  = req.decoded.userID;
         var eventID = req.params.id;
         User.findOne({_id: userID}, function(err, user) {
             if(err) {
@@ -385,7 +533,7 @@ router
 
     // ID Checking
 
-    if( !(Controller.isObjectIDValid(req.body.userID)) ) {
+    if( !(Controller.isObjectIDValid(req.decoded.userID)) ) {
         res.send({message: 'Invalid userID'});
     }
     else if ( !(Controller.isObjectIDValid(req.params.id)) ) {
@@ -393,7 +541,7 @@ router
     }
     else {
         var eventID = req.params.id;
-        var userID  = req.body.userID;
+        var userID  = req.decoded.userID;
         Event.findOne({_id: eventID}, function(err, event) {
             if(err) {
                 console.log('Error when trying to find the event to leave: '+err);
@@ -432,7 +580,7 @@ router
 
 .post('/infos/:type/:id/:votetype', function(req, res) {
     if( !(Controller.isObjectIDValid(req.params.id)) ||
-        !(Controller.isObjectIDValid(req.body.userID)) ) {
+        !(Controller.isObjectIDValid(req.decoded.userID)) ) {
         
         res.send({message: 'Invalid ID'});
     }
@@ -440,7 +588,7 @@ router
         res.send({message: 'Bad request'});
     }
     else {
-        var userID      = req.body.userID;
+        var userID      = req.decoded.userID;
         var infoID      = req.params.id;
         var votetype    = req.params.votetype === 'upvote'?(1):(-1);
         
@@ -542,98 +690,6 @@ router
 
 
 
-// POST register (TODO: Security)
-//==============================================
-
-.post('/user/register', function(req, res) {
-	
-    //Checking inputs
-
-    if( Controller.isUsernameValid(req.body.username) && 
-        Controller.isUserMailValid(req.body.mail) && 
-        Controller.isUserPasswordValid(req.body.password)) {
-
-        var tempUsername   = Controller.sanitizeString(req.body.username);
-        var tempUserMail   = Controller.sanitizeString(req.body.mail);
-        var isEmailVisible = Controller.checkBoolean(req.body.isEmailVisible);
-
-    	// Checking database for email or username
-    	
-        Promise.props({
-           username: User.findOne({username: tempUsername}, 'username').execAsync(),
-           mail: User.findOne({mail: tempUserMail}, 'mail').execAsync()
-        })
-        .then(function(results) {
-            if(results.username != null)
-                res.json({message: 'Username already exists'});
-            else if(results.mail != null)
-                res.json({message: 'Mail already exists'});
-            else {
-                var user = new User({
-                    username: 	tempUsername,
-                    password: 	req.body.password,
-                    mail: 		tempUserMail
-                });
-                if(isEmailVisible)
-                    user.isEmailVisible = true;
-                //Hash password and save
-                bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
-                    user.password = hash;
-                    user.save(function(err, resp) {
-                        if(err) {
-                            console.log('Error when trying to register an user');
-                            res.send(err);
-                        }
-                        res.json({message: 'Successfully registered'});
-                    });  
-                });
-            }
-        })
-        .catch(function(err) {
-            console.log(err);
-		    res.sendStatus(500); // oops - we're even handling errors!
-        });
-    }
-    else {
-    	res.json({message: 'Bad request :  invalid inputs'});
-    }
-})
-
-
-// LOGIN Todo Security
-//==============================================
-
-.post('/user/login', function(req, res) {
-
-    //Checking inputs
-
-    if( Controller.isUsernameValid(req.body.username) && 
-        Controller.isUserPasswordValid(req.body.password)) {
-
-        Promise.props({
-            username: User.findOne({username: req.body.username}).execAsync()
-        })
-        .then(function(results) {
-            if(results.username != null) {
-                // Load hash from your password DB.
-                bcrypt.compare(req.body.password, results.username.password, function(err, resp) {
-                    if(err) {
-                        console.log('Error when checking password: '+ err);
-                        res.json({message: 'Error when checking password'});
-                    }
-                    if(resp === true) {
-                        res.json({message: 'connected'});
-                    }
-                    else {
-                        res.json({message: 'wrong password'})
-                    }
-                });
-            }
-        });
-    }
-})
-
-
 // GET all users
 //==============================================
 
@@ -713,10 +769,10 @@ router
     
     var checkPwd    = false;
     var checkEmail  = false;
-    if(Controller.checkBoolean(req.body.isNewPwd) && Controller.isUserPasswordValid(req.body.password)) {
+    if(Controller.checkBoolean(req.decoded.isNewPwd) && Controller.isUserPasswordValid(req.decoded.password)) {
         checkPwd = true;
     }
-    if( Controller.checkBoolean(req.body.isNewEmail) && Controller.isUserMailValid(req.body.mail)) {
+    if( Controller.checkBoolean(req.decoded.isNewEmail) && Controller.isUserMailValid(req.decoded.mail)) {
         checkEmail = true;
     }
     
@@ -726,10 +782,10 @@ router
     }
     else {
 
-        var username            = Controller.sanitizeString(req.body.username);
-        var newPassword         = req.body.password;
-        var newEmail            = Controller.sanitizeString(req.body.mail);
-        var newIsEmailVisible   = Controller.checkBoolean(req.body.isEmailVisible);
+        var username            = Controller.sanitizeString(req.decoded.username);
+        var newPassword         = req.decoded.password;
+        var newEmail            = Controller.sanitizeString(req.decoded.mail);
+        var newIsEmailVisible   = Controller.checkBoolean(req.decoded.isEmailVisible);
 
         Promise.props({
             user: User.findOne({username: username}).execAsync(),
@@ -779,11 +835,11 @@ router
 //=============================================
 
 .delete('/user/delete/', function(req, res) {
-    if(! (Controller.isObjectIDValid(req.body.userID)) ) {
+    if(! (Controller.isObjectIDValid(req.decoded.userID)) ) {
         res.send({message: 'Invalid ID'});
     }
     else {
-        var userID = req.body.userID;
+        var userID = req.decoded.userID;
         User.findOneAndRemove({_id: userID}, function(err, user) {
             if(err) {
                 console.log('Error when deleting user');
