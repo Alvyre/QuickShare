@@ -44,7 +44,7 @@ app.use('/api', router); // redirect to the API Router
 
 // redirect to the Front view
 app.get('*', function(req, res) {
-        res.sendFile('public/index.html'); // redirect to front
+        res.sendFile(__dirname+'/public/index.html'); // redirect to front
     });
 
 

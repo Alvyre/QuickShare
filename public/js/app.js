@@ -66,7 +66,7 @@ Vue.http.headers.common['Authorization'] = 'Basic YXBpOnBhc3N3b3Jk';
 //======================================
 
 new Vue({
-	el: '#infos',
+	el: '#app',
 	data: {
 		isInfoActive: true,
 		isEventActive: true,
@@ -82,9 +82,8 @@ new Vue({
 			location: {type: String},
 			addInfo: {type: String},
 			userID: {type: String}
-
-
-		}
+		},
+		isConnected: false
 	}, 
 	mounted: function() {
 		this.fetchInfos();
