@@ -13,7 +13,6 @@ var http			= require('http').Server(app);
 var fs 				= require('fs');
 var io 				= require('socket.io')(http);
 
-
 // Configuration
 //======================================
 
@@ -25,6 +24,11 @@ mongoose.connect(config.database, function (err) {			// Connect to the mongoDB
 	}
 });
 app.use(express.static(__dirname + '/public'));						// set static files location
+app.use('/scripts/bootstrap', express.static(__dirname + '/node_modules/bootstrap/dist/'));
+app.use('/scripts/vue', express.static(__dirname + '/node_modules/vue/dist/'));
+app.use('/scripts/vue-resource', express.static(__dirname + '/node_modules/vue-resource/dist/'));
+app.use('/scripts/moment', express.static(__dirname + '/node_modules/moment/min/'));
+
 app.use(morgan('dev'));												// log every request to the console
 app.use(bodyParser.urlencoded({'extended':'true'}));				// parse application/x-www-form-urlencoded
 app.use(bodyParser.json());											// parse application/json
@@ -35,7 +39,13 @@ app.use(methodOverride());
 // ROUTES
 // ==============================================
 
-app.use('/api', router);
+//redirect to the API
+app.use('/api', router); // redirect to the API Router
+
+// redirect to the Front view
+app.get('*', function(req, res) {
+        res.sendFile('public/index.html'); // redirect to front
+    });
 
 
 //Socket io

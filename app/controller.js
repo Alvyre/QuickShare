@@ -53,6 +53,7 @@ var Controller = {
 	},
 
 	sanitizeString: function(string) {
+		string += '';
 		string = validator.escape(string);
 		if(validator.isEmail(string)) {
 			string = validator.normalizeEmail(string, [{	

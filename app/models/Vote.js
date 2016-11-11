@@ -11,7 +11,7 @@ Promise.promisifyAll(mongoose);
 //=========================================
 
 var schema = new mongoose.Schema({
-	userID 		: { type: String, required: true, index: {unique: true} },
+	userID 		: { type: String, required: true },
 	value		: { type: Number, required: true, default: 0}
 });
 

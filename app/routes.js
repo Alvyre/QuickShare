@@ -104,7 +104,7 @@ router
                     }
                     if(resp === true) {
                         var userData = {
-                            id: results.user._id,
+                            userID: results.user._id,
                             username: results.user.username,
                             mail: results.user.mail,
                             isEmailVisible: results.user.isEmailVisible
@@ -130,6 +130,33 @@ router
             }
         });
     }
+})
+
+
+// Getting informations by type
+//===========================================
+
+.get('/infos/:type', function(req, res) {
+    if(req.params.type === 'posts') {           // Handling Posts
+        Post.find().sort({voteCount: -1}).exec(function(err, posts) {
+            if(err) {
+                console.log('Error when trying to get all posts');
+                res.send(err);
+            }
+        res.json(posts);
+        });
+    }  
+    else if(req.params.type === 'events') {     // Handling Events
+        Event.find().sort({voteCount: -1}).exec(function(err, events) {
+        if(err) {
+            console.log('Error when trying to get all events');
+            res.send(err);
+        }
+        res.json(events);
+        });
+    }
+    else 
+        res.send({success: false, message: 'error bad \'type\' as request'});
 })
 
 
@@ -167,7 +194,7 @@ router
 })
 
 
-// POST & GET  new informations (TODO: Security)
+// POST new informations
 //=============================================
 
 .post('/infos/:type', function(req, res) {
@@ -196,7 +223,7 @@ router
 
         // POST Handling
 
-        if(req.params.type === 'posts') {
+        else if(req.params.type === 'posts') {
         	
     		var post = new Post({
 
@@ -215,7 +242,9 @@ router
                     console.log('Error when adding post');
                     res.send(err);
         	    }
-        		res.json({success: true, message: 'Successfully added'});
+                else {
+                    res.json({success: true, message: 'Successfully added'});
+                }
         	});
         }
 
@@ -240,9 +269,9 @@ router
         	
             event.userList.push(req.decoded.userID);
         	event.save(function(err, resp) {
-       			if(err) {
-       				console.log('Error when adding post');
-       				res.send(err);
+                if(err) {
+                    console.log('Error when adding post');
+                    res.send(err);
        			}
        			res.json({success: true, message: 'Successfully added'});
        		});
@@ -251,29 +280,6 @@ router
        		res.json({success: false, message: 'Error bad type request'});
        	}
     }
-})
-
-.get('/infos/:type', function(req, res) {
-    if(req.params.type === 'posts') {           // Handling Posts
-        Post.find().sort({voteCount: -1}).exec(function(err, posts) {
-            if(err) {
-                console.log('Error when trying to get all posts');
-                res.send(err);
-            }
-        res.json(posts);
-        });
-    }  
-    else if(req.params.type === 'events') {     // Handling Events
-        Event.find().sort({voteCount: -1}).exec(function(err, events) {
-        if(err) {
-            console.log('Error when trying to get all events');
-            res.send(err);
-        }
-        res.json(events);
-        });
-    }
-    else 
-        res.send('error bad \'type\' as request');
 })
 
 .get('/infos/:type/user/id/:id', function(req, res) {
