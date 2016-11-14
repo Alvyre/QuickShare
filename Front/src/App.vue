@@ -2,9 +2,10 @@
   <div id="app">
     <navigation :isConnected="false"></navigation>
 
-  <router-view></router-view>
+    <router-view></router-view>
 
     <footerVue></footerVue>
+    <br>
   </div>
 </template>
 
@@ -16,7 +17,6 @@
     name: 'app',
     data () {
       return {
-        msg: 'Welcome'
       }
     },
     components: {
@@ -38,5 +38,8 @@
     text-align:left;
     /* inline-block space fix */
     margin-right:-4px;
+}
+.right {
+  float:right;
 }
 </style>

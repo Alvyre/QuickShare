@@ -6,8 +6,7 @@ var router      = express.Router();
 var secretKey   = require('../config/config').secret;
 var moment		= require('moment');
 var Promise		= require('bluebird');
-var Post 		= require('./models/Post');
-var Event 		= require('./models/Event');
+var Info 		= require('./models/Info');
 var User		= require('./models/User');
 var Controller  = require('./controller.js');
 var bcrypt      = require('bcrypt');
@@ -149,29 +148,15 @@ router
 // Getting informations by type
 //===========================================
 
-.get('/infos/:type', function(req, res) {
-    if(req.params.type === 'posts') {           // Handling Posts
-        Post.find().sort({voteCount: -1}).exec(function(err, posts) {
-            if(err) {
-                console.log('Error when trying to get all posts');
-                res.status(500).send(err);
-            }
-        res.status(200).json(posts);
-        });
-    }  
-    else if(req.params.type === 'events') {     // Handling Events
-        Event.find().sort({voteCount: -1}).exec(function(err, events) {
+.get('/infos/', function(req, res) {
+    Info.find().sort({voteCount: -1}).exec(function(err, infos) {
         if(err) {
-            console.log('Error when trying to get all events');
+            console.log('Error when trying to get all infos');
             res.status(500).send(err);
         }
-        res.status(200).json(events);
-        });
-    }
-    else 
-        res.status(400).send({success: false, message: 'error bad \'type\' as request'});
+    res.status(200).json(infos);
+    });
 })
-
 
 // Checking token
 //===========================================
@@ -210,7 +195,7 @@ router
 // POST new informations
 //=============================================
 
-.post('/infos/:type', function(req, res) {
+.post('/infos', function(req, res) {
 
     // User ID checking
 
@@ -233,12 +218,9 @@ router
         else if( timeFromBirth < 0 || timeFromBirth > 86400000) {           // 24 in ms
             res.status(400).send({success: false, message: 'Invalid expirydate'});
         }
-
-        // POST Handling
-
-        else if(req.params.type === 'posts') {
+        else {
         	
-    		var post = new Post({
+    		var info = new Info({
 
                 title: 			Controller.sanitizeString(req.body.title),
                 description: 	Controller.sanitizeString(req.body.description),
@@ -247,12 +229,16 @@ router
                 category: 		Controller.sanitizeString(req.body.category),
                 location: 		Controller.sanitizeString(req.body.location),
                 addInfo: 		Controller.sanitizeString(req.body.addInfo),
-                userID: 		req.decoded.userID,
+                userID: 		req.decoded.userID
             });
-
-        	post.save(function(err, resp) {
+            if(info.category === 'Event') {
+                info.userLimit = req.body.userLimit;
+                info.acceptOverload = req.body.acceptOverload;
+                info.userList.push(req.decoded.userID);
+            }
+        	info.save(function(err, resp) {
                 if(err) {
-                    console.log('Error when adding post');
+                    console.log('Error when adding info');
                     res.status(500).send(err);
         	    }
                 else {
@@ -260,66 +246,25 @@ router
                 }
         	});
         }
-
-        // EVENT Handling
-
-        else if(req.params.type === 'events') {                           
-        			
-        	var event = new Event({
-
-                title: 			Controller.sanitizeString(req.body.title),
-                description: 	Controller.sanitizeString(req.body.description),
-                birthdate: 		tempBirthDate,
-                expirydate:     tempExpiryDate,
-                category: 		Controller.sanitizeString(req.body.category),
-                location: 		Controller.sanitizeString(req.body.location),
-                addInfo: 		Controller.sanitizeString(req.body.addInfo),
-                userID: 		req.decoded.userID,
-                userLimit: 		req.body.userLimit,
-                acceptOverload: req.body.acceptOverload
-
-            });
-        	
-            event.userList.push(req.decoded.userID);
-        	event.save(function(err, resp) {
-                if(err) {
-                    console.log('Error when adding post');
-                    res.status(500).send(err);
-       			}
-       			res.status(200).json({success: true, message: 'Successfully added'});
-       		});
-       	}
-       	else {
-       		res.status(400).json({success: false, message: 'Error bad type request'});
-       	}
     }
 })
 
-.get('/infos/:type/user/id/:id', function(req, res) {
+.get('/infos/user/:id', function(req, res) {
 
     // Checking userID
     if( !(Controller.isObjectIDValid(req.params.id)) ) {
         res.status(400).send({success: false, message: 'Invalid userID'});
     }
     else {
-        if(req.params.type === 'posts') {          // Handling Posts
-            Post.find({userID: req.params.id}, function(err, posts) {
+            Info.find({userID: req.params.id}, function(err, infos) {
                 if(err) {
-                    console.log('Error when trying to get events for User ID: '+req.params.id);
+                    console.log('Error when trying to get infos for User ID: '+req.params.id);
                     res.status(500).send(err);
                 }
-                res.status(200).json(posts);
+                else {
+                    res.status(200).json(infos);
+                }
             });
-        }
-        else if(req.params.type === 'events') {     // Handling Events
-            Events.find({userID: req.params.id}, function(err, events) {
-                if(err) {
-                    console.log('Error when trying to get events for User ID: '+req.params.id);
-                    res.status(500).send(err);
-                }
-                res.status(200).json(events);
-            })
-        }
     }
 })
 
@@ -327,7 +272,7 @@ router
 // UPDATE informations
 //==============================================
 
-.post('/infos/update/:type/:id', function(req, res) {
+.post('/infos/update/:id', function(req, res) {
     
     // IDs Cheking
 
@@ -353,77 +298,38 @@ router
 
     // POST Handling
 
-        else if(req.params.type === 'posts') {
+        else {
             if( !(Controller.isObjectIDValid(req.params.id)) ) {
-                res.status(400).send({success: false, message: 'Invalid Post ID'});
+                res.status(400).send({success: false, message: 'Invalid Info ID'});
             }
             else {
-                var postID = req.params.id;
-                Post.findOne({_id: postID, userID: userID}, function(err, post) {
+                var infoID = req.params.id;
+                Info.findOne({_id: infoID, userID: userID}, function(err, info) {
                     if(err) {
-                        console.log('Error when trying to get the post to update: '+err);
-                        res.status(500).send({success: false, message: 'Error when trying to get the post'});
+                        console.log('Error when trying to get the info to update: '+err);
+                        res.status(500).send({success: false, message: 'Error when trying to get the info'});
                     }
-                    if(post) {
-                        if(post.userID === userID) {
-                           post.updateInfos(req.body);
-                            Post.update({_id: post._id}, post, function(err) {
+                    if(info) {
+                        if(info.userID === userID) {
+                           info.updateInfos(req.body);
+                            Info.update({_id: info._id}, info, function(err) {
                             if(err) {
-                                console.log('Error when updating post: '+err);
-                                res.status(500).send({success: false, message: 'Error when updating post'});
+                                console.log('Error when updating info: '+err);
+                                res.status(500).send({success: false, message: 'Error when updating info'});
                             }
-                            res.status(200).send({success: true, message: 'Post updated'});
+                            res.status(200).send({success: true, message: 'Info updated'});
                         }); 
                         }
                         else {
-                            res.status(403).send({success: false, message: 'You are not authorized to update this post'});
+                            res.status(403).send({success: false, message: 'You are not authorized to update this info'});
                         }
                         
                     }
                     else {
-                        res.status(404).send({success: false, message: 'No post found'});
+                        res.status(404).send({success: false, message: 'No info found'});
                     }
                 });
             }
-        }
-    
-    // EVENT Handling
-
-        else if(req.params.type === 'events') {
-            if( !(Controller.isObjectIDValid(req.params.id)) ) {
-                res.status(400).send({success: false, message: 'Invalid Event ID'});
-            }
-            else {
-                var eventID = req.params.id;
-                Event.findOne({_id: eventID, userID: userID}, function(err, event) {
-                    if(err) {
-                        console.log('Error when trying to get the event to update: '+err);
-                        res.status(500).send({success: false, message: 'Error when trying to get the event'});
-                    }
-                    if(event) {
-                        if(event.userID === userID) {
-                           event.updateInfos(req.body);
-                            Event.update({_id: event._id}, event, function(err) {
-                            if(err) {
-                                console.log('Error when updating event: '+err);
-                                res.status(500).send({success: false, message: 'Error when updating event'});
-                            }
-                            res.status(200).send({success: true, message: 'Post updated'});
-                            }); 
-                        }
-                        else {
-                            res.status(403).send({success: false, message: 'You are not authorized to update this event'});
-                        }
-                        
-                    }
-                    else {
-                        res.status(404).send({success: false, message: 'No event found'});
-                    }
-                });
-            }
-        }
-        else {
-            res.status(400).send({success: false, message: 'Bad request'});
         }
     }
 })
@@ -432,51 +338,30 @@ router
 // DELETE informations // todo Security
 //==============================================
 
-.delete('/infos/delete/:type/:id', function(req, res) {
+.delete('/infos/delete/:id', function(req, res) {
     
     // Cheking userID
     if( !(Controller.isObjectIDValid(req.decoded.userID)) ) {
         res.status(400).send({success: false, message: 'Invalid userID'});
     }
     else {
-        if(req.params.type === 'posts') {       //Handling Posts
             if (!(Controller.isObjectIDValid(req.params.id)) )
-                res.status(400).send({success: false, message: 'Post ID is invalid'});
+                res.status(400).send({success: false, message: 'Info ID is invalid'});
             else {
-                Post.findOneAndRemove({_id: req.params.id, userID: req.decoded.userID}, function(err, post) {
+                Info.findOneAndRemove({_id: req.params.id, userID: req.decoded.userID}, function(err, info) {
                     if(err) {
-                        console.log('Error when trying to delete the post');
+                        console.log('Error when trying to delete the info');
                         res.status(500).send(err);
                     }
-                    if(post) {
-                        console.log('Post removed');
-                        res.status(200).json({success: true, message: 'Post removed'});
+                    if(info) {
+                        console.log('Info removed');
+                        res.status(200).json({success: true, message: 'Info removed'});
                     }
                     else {
-                        res.status(404).send({success: false, message: 'There is no post with this ID or you are to authorized to delete it'});
+                        res.status(404).send({success: false, message: 'There is no info with this ID or you are to authorized to delete it'});
                     }
                 });
             }
-        }
-        else if(req.params.type === 'events') {     //Handling Events
-            if (! (Controller.isObjectIDValid(req.params.id)) )
-                res.status(400).send({success: false, message: 'Evend ID is invalid'});
-            else {
-                Event.findOneAndRemove({_id: req.params.id, userID: req.decoded.userID}, function(err, event) {
-                    if(err) {
-                        console.log('Error when trying to get the event to delete');
-                        res.status(500).send(err);
-                    }
-                    if(event) {
-                        console.log('Event removed');
-                        res.status(200).json({success: true, message: 'Event removed'});
-                    }
-                    else {
-                        res.status(404).send({success: false, message: 'There is no event with this ID or you are not authorized to delete it'});
-                    }
-                });
-            }
-        }
     }
 })
 
@@ -484,7 +369,7 @@ router
 // JOIN Event
 //==============================================
 
-.post('/infos/events/:id/join', function(req, res) {
+.post('/infos/:id/join', function(req, res) {
 
     // ID Checking
 
@@ -506,33 +391,38 @@ router
                 res.status(404).send({success: false, message: 'Bad request : Unknown user id'});
             }
             else {
-                Event.findOne({_id: eventID}, function(err, event) {
+                Info.findOne({_id: eventID}, function(err, event) {
                     if(err) {
                     console.log('Error when trying to find event to join: '+err);
                     res.status(500).send(err);
                     }
                     if(event) {
-                        if(event.isFull()) {
-                            res.status(409).send({success: false, message: 'Event is full'});
-                        }
-                        else {
-                            var isUserAlreadyIn = false;
-                            for (var i = event.userList.length - 1; i >= 0; i--) {
-                                if(event.userList[i] === userID) {
-                                    isUserAlreadyIn = true;
-                                    res.status(409).send({success: false, message: 'User already in the event'});
-                                }
+                        if(event.category === 'Event') {
+                          if(event.isFull()) {
+                                res.status(409).send({success: false, message: 'Event is full'});
                             }
-                            if(!isUserAlreadyIn) {
-                                event.userList.push(userID);
-                                Event.update({_id: eventID}, event, function(err) {
-                                    if(err) {
-                                        console.log('Error when updating the event after user joined: '+err);
-                                        res.status(500).send({success: false, message: 'Error when updating the event'});
+                            else {
+                                var isUserAlreadyIn = false;
+                                for (var i = event.userList.length - 1; i >= 0; i--) {
+                                    if(event.userList[i] === userID) {
+                                        isUserAlreadyIn = true;
+                                        res.status(409).send({success: false, message: 'User already in the event'});
                                     }
-                                    res.status(200).send({success: true, message: 'Event joined'});
-                                });
-                            }
+                                }
+                                if(!isUserAlreadyIn) {
+                                    event.userList.push(userID);
+                                    Info.update({_id: eventID}, event, function(err) {
+                                        if(err) {
+                                            console.log('Error when updating the event after user joined: '+err);
+                                            res.status(500).send({success: false, message: 'Error when updating the event'});
+                                        }
+                                        res.status(200).send({success: true, message: 'Event joined'});
+                                    });
+                                }
+                            }  
+                        } 
+                        else {
+                            res.status(404).send({success: false, message: 'No event found'});
                         }
                     }
                     else {
@@ -548,7 +438,7 @@ router
 // LEAVE Event
 //=============================================
 
-.post('/infos/events/:id/leave', function(req, res) {
+.post('/infos/:id/leave', function(req, res) {
 
     // ID Checking
 
@@ -561,29 +451,33 @@ router
     else {
         var eventID = req.params.id;
         var userID  = req.decoded.userID;
-        Event.findOne({_id: eventID}, function(err, event) {
+        Info.findOne({_id: eventID}, function(err, event) {
             if(err) {
                 console.log('Error when trying to find the event to leave: '+err);
                 res.status(500).send(err);
             }
             if(event) {
-                var isUserIn = false;
-                for (var i = event.userList.length - 1; i >= 0; i--) {
-                    if(event.userList[i] === userID) {
-                        isUserIn = true;
-                        event.userList.pull(userID);
-                        Event.update({_id: eventID}, event, function(err) {
-                            if(err) {
-                                console.log('Error when updating event after user leaving: '+err);
-                                res.status(500).send(err);
-                            }
-                            res.status(200).send({success: true, message: 'user removed from event'});
-                        });
-                        
+                if(event.category === 'Event') {
+                    var isUserIn = false;
+                    for (var i = event.userList.length - 1; i >= 0; i--) {
+                        if(event.userList[i] === userID) {
+                            isUserIn = true;
+                            event.userList.pull(userID);
+                            Info.update({_id: eventID}, event, function(err) {
+                                if(err) {
+                                    console.log('Error when updating event after user leaving: '+err);
+                                    res.status(500).send(err);
+                                }
+                                res.status(200).send({success: true, message: 'user removed from event'});
+                            });
+                        }
+                    }
+                    if(!isUserIn) {
+                        res.status(404).send({success: false, message: 'user not found in the event'});
                     }
                 }
-                if(!isUserIn) {
-                    res.status(404).send({success: false, message: 'user not found in the event'});
+                else {
+                    res.status(404).send({success: false, message: 'Event not found'});
                 }
             }
             else {
@@ -591,14 +485,13 @@ router
             }
         });
     }
-
 }) 
 
 
 // POST add upvote/downvote
 //==============================================
 
-.post('/infos/:type/:id/:votetype', function(req, res) {
+.post('/infos/:id/:votetype', function(req, res) {
     if( !(Controller.isObjectIDValid(req.params.id)) ||
         !(Controller.isObjectIDValid(req.decoded.userID)) ) {
         
@@ -612,27 +505,25 @@ router
         var infoID      = req.params.id;
         var votetype    = req.params.votetype === 'upvote'?(1):(-1);
         
-        if(req.params.type === 'posts') {
-            // We search if the post exists
-            Post.findOne({_id: infoID}, function(err, post) {
+            Info.findOne({_id: infoID}, function(err, info) {
                 if(err) {
                     console.log('Error when updating votes');
                     res.status(500).send(err);
                 }
-                if(post) {
+                if(info) {
                     var vote;
                     var isVoteExist = false;
                     // We search if the user already added a vote
-                    for (var i = 0; i < post.votes.length; i++) {
-                        vote = post.votes[i];
+                    for (var i = 0; i < info.votes.length; i++) {
+                        vote = info.votes[i];
                         if(vote.userID === userID) {
                             isVoteExist = true;
                             vote.value = votetype;
-                            post.updateVoteCount();
-                            Post.update({_id: infoID}, post, function(err) {
+                            info.updateVoteCount();
+                            Info.update({_id: infoID}, info, function(err) {
                                 if(err) {
-                                    console.log('Error when updating the post: '+err);
-                                    res.status(500).send({success: false, message: 'Error when updating the post'});
+                                    console.log('Error when updating the info: '+err);
+                                    res.status(500).send({success: false, message: 'Error when updating the info'});
                                 }
                                 res.status(200).send({success: true, message: 'Vote updated !'});
                             }); 
@@ -641,70 +532,21 @@ router
                     } // END FOR
                     // If no vote found, we add a new one
                     if(!isVoteExist) {
-                        post.votes.push({userID: userID, value: votetype});
-                        post.updateVoteCount();
-                        Post.update({_id: infoID}, post, function(err) {
+                        info.votes.push({userID: userID, value: votetype});
+                        info.updateVoteCount();
+                        Info.update({_id: infoID}, info, function(err) {
                         if(err) {
-                            console.log('Error when updating the post: '+err);
-                            res.status(500).send({success: true, message: 'Error when updating the post'});
+                            console.log('Error when updating the info: '+err);
+                            res.status(500).send({success: true, message: 'Error when updating the info'});
                         }
                         res.status(200).send({success: true, message: 'Vote sent !'});
                         });
                     } 
                 }
                 else {
-                    res.status(404).send({success: true, message: 'No post found'});
+                    res.status(404).send({success: true, message: 'No info found'});
                 }
             });
-        } // END IF POST
-        else if(req.params.type === 'events') {
-            // We search if the event exists
-            Event.findOne({_id: infoID}, function(err, event) {
-                if(err) {
-                    console.log('Error when updating votes');
-                    res.status(500).send(err);
-                }
-                if(event) {
-                    var vote;
-                    var isVoteExist = false;
-                    // We search if the user already added a vote
-                    for (var i = 0; i < event.votes.length; i++) {
-                        vote = event.votes[i];
-                        if(vote.userID === userID) {
-                            isVoteExist = true;
-                            vote.value = votetype;
-                            event.updateVoteCount();
-                            Event.update({_id: infoID}, event, function(err) {
-                                if(err) {
-                                    console.log('Error when updating the event: '+err);
-                                    res.status(500).send({success: false, message: 'Error when updating the event'});
-                                }
-                                res.status(200).send({success: true, message: 'Vote updated !'});
-                            }); 
-                        }
-                        if(isVoteExist) break;
-                    } // END FOR
-                    // If no vote found, we add a new one
-                    if(!isVoteExist) {
-                        event.votes.push({userID: userID, value: votetype});
-                        event.updateVoteCount();
-                        Event.update({_id: infoID}, event, function(err) {
-                        if(err) {
-                            console.log('Error when updating the event: '+err);
-                            res.status(500).send({success: false, message: 'Error when updating the event'});
-                        }
-                        res.status(200).send({success: true, message: 'Vote sent !'});
-                        });
-                    } 
-                }
-                else {
-                    res.status(404).send({success: false, message: 'No event found'});
-                }
-            });    
-        } // END IF EVENT
-        else {
-            res.status(400).send({success: false, message: 'Bad request'});
-        }
     }
 })
 

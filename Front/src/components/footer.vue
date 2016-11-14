@@ -1,7 +1,11 @@
 <template>
 	<div id="footer-vue">
 		<footer>
-			Footer ©2016-2017
+			<div class="row row-centered">
+				<div class="col-xs-12 col-sm-12">
+					Sharinfo ©2016-2017
+				</div>
+			</div>
 		</footer>
 	</div>
 </template>

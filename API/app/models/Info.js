@@ -1,6 +1,6 @@
 'use strict';
 
-// define EVENT Model
+// define INFO Model
 //======================================
 
 //require
@@ -19,18 +19,18 @@ var Schema 		= mongoose.Schema;
 // Schema
 //======================================
 
-var EventSchema = new Schema({
+var InfoSchema = new Schema({
 	title			: { type: String, required: true },
 	description 	: { type: String, required: true, default: '' },
 	birthdate		: { type: Date,   required: true, default: moment() },
 	expirydate		: { type: Date,   required: true },
-	category		: { type: String, required: true, default: 'undefined' },
+	category		: { type: String, required: true, default: 'Info' },
 	location		: { type: String, required: true, default: '' },
-	addInfo			: String,
+	addInfo			: { type: String, default: ''},
 	userID			: { type: String, required: true },
-	userList		: [String],
-	userLimit		: { type: Number, min: 0}, 
-	acceptOverload  : { type: Boolean, default: false, required: true },
+	userList		: { type: [String], default: []},
+	userLimit		: { type: Number, min: 0, default: 0}, 
+	acceptOverload  : { type: Boolean, default: false },
 	votes			: { type: [Vote.schema], default: [] },
 	voteCount		: { type: Number, default: 0}
 });
@@ -39,14 +39,14 @@ var EventSchema = new Schema({
 // Methods
 //======================================
 
-EventSchema.methods.getRemainingTime = function() {
+InfoSchema.methods.getRemainingTime = function() {
 	var birthMoment = moment(this.birthdate);
 	var deathMoment = moment(this.expirydate);
 	var timeleft 	 = deathMoment.diff(birthMoment);
 	return timeleft.format('HH:mm:ss').toJSON();
 };
 
-EventSchema.methods.isFull = function() {
+InfoSchema.methods.isFull = function() {
 	if(this.acceptOverload)
 		return false;
 	else if(this.userList.length >= this.userLimit)
@@ -55,11 +55,11 @@ EventSchema.methods.isFull = function() {
 		return false;
 };
 
-EventSchema.methods.getCurrentSize = function() {
+InfoSchema.methods.getCurrentSize = function() {
 	return this.userList.length;
 }
 
-EventSchema.methods.updateVoteCount = function() {
+InfoSchema.methods.updateVoteCount = function() {
 
 	var total = 0;
 	var vote;
@@ -70,7 +70,7 @@ EventSchema.methods.updateVoteCount = function() {
 	this.voteCount = total;
 };
 
-EventSchema.methods.updateInfos = function(data) {
+InfoSchema.methods.updateInfos = function(data) {
 	if(data.title && data.title != '') {
 		this.title = Controller.sanitizeString(data.title); 
 	}
@@ -105,10 +105,10 @@ EventSchema.methods.updateInfos = function(data) {
 // Model
 //======================================
 
-var Event = mongoose.model('Event', EventSchema);
+var Info = mongoose.model('Info', InfoSchema);
 
 
 // Exports
 //======================================
 
-module.exports = Event;
+module.exports = Info;
