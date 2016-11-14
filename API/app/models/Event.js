@@ -1,12 +1,13 @@
-// define POST Model
+'use strict';
+
+// define EVENT Model
 //======================================
 
 //require
 var mongoose 	= require('mongoose');
-var Promise 	= require('bluebird');
-moment	 		= require('moment');
+var Promise		= require('bluebird');
+var moment 		= require('moment');
 var Vote 		= require('./Vote');
-var Controller  = require('../controller');
 
 moment().format();
 
@@ -14,28 +15,51 @@ mongoose.Promise = require('bluebird');
 
 Promise.promisifyAll(mongoose);
 
-var Schema 	= mongoose.Schema;
+var Schema 		= mongoose.Schema;
 // Schema
 //======================================
 
-var PostSchema = new Schema({
-	title		: { type: String, required: true },
-	description : { type: String, required: true, default: '' },
-	birthdate	: { type: Date,   required: true, default: Date.now },
-	expirydate	: { type: Date,   required: true },
-	category	: { type: String, required: true, default: 'undefined' },
-	location	: { type: String, required: true, default: '' },
-	addInfo		: String,
-	userID		: { type: String, required: true },
-	votes		: { type: [Vote.schema], default: [] },
-	voteCount	: { type: Number, default: 0}
+var EventSchema = new Schema({
+	title			: { type: String, required: true },
+	description 	: { type: String, required: true, default: '' },
+	birthdate		: { type: Date,   required: true, default: moment() },
+	expirydate		: { type: Date,   required: true },
+	category		: { type: String, required: true, default: 'undefined' },
+	location		: { type: String, required: true, default: '' },
+	addInfo			: String,
+	userID			: { type: String, required: true },
+	userList		: [String],
+	userLimit		: { type: Number, min: 0}, 
+	acceptOverload  : { type: Boolean, default: false, required: true },
+	votes			: { type: [Vote.schema], default: [] },
+	voteCount		: { type: Number, default: 0}
 });
 
 
 // Methods
 //======================================
 
-PostSchema.methods.updateVoteCount = function() {
+EventSchema.methods.getRemainingTime = function() {
+	var birthMoment = moment(this.birthdate);
+	var deathMoment = moment(this.expirydate);
+	var timeleft 	 = deathMoment.diff(birthMoment);
+	return timeleft.format('HH:mm:ss').toJSON();
+};
+
+EventSchema.methods.isFull = function() {
+	if(this.acceptOverload)
+		return false;
+	else if(this.userList.length >= this.userLimit)
+		return true;
+	else
+		return false;
+};
+
+EventSchema.methods.getCurrentSize = function() {
+	return this.userList.length;
+}
+
+EventSchema.methods.updateVoteCount = function() {
 
 	var total = 0;
 	var vote;
@@ -46,7 +70,7 @@ PostSchema.methods.updateVoteCount = function() {
 	this.voteCount = total;
 };
 
-PostSchema.methods.updateInfos = function(data) {
+EventSchema.methods.updateInfos = function(data) {
 	if(data.title && data.title != '') {
 		this.title = Controller.sanitizeString(data.title); 
 	}
@@ -81,10 +105,10 @@ PostSchema.methods.updateInfos = function(data) {
 // Model
 //======================================
 
-var Post = mongoose.model('Post', PostSchema);
+var Event = mongoose.model('Event', EventSchema);
 
 
 // Exports
 //======================================
 
-module.exports = Post;
+module.exports = Event;
