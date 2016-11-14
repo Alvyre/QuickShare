@@ -1,4 +1,4 @@
-[ ![License](https://img.shields.io/badge/License-GPL3.0-blue.svg)](https://github.com/Arctic76/Sharing-System/blob/master/LICENSE) [ ![Node](https://img.shields.io/badge/Node-4.6.0-blue.svg)](https://nodejs.org/en/) [ ![Express](https://img.shields.io/badge/Express.js-4.13.4-blue.svg)](http://expressjs.com/) [ ![Vue](https://img.shields.io/badge/Vue.js-2.0.1-blue.svg)](https://vuejs.org/) [ ![JWT] (https://img.shields.io/badge/JWT-7.1.9-blue.svg)](https://jwt.io/)
+[![License](https://img.shields.io/badge/License-GPL3.0-blue.svg)](https://github.com/Arctic76/Sharing-System/blob/master/LICENSE) [ ![Node](https://img.shields.io/badge/Node-4.6.0-blue.svg)](https://nodejs.org/en/) [ ![Express](https://img.shields.io/badge/Express.js-4.13.4-blue.svg)](http://expressjs.com/) [ ![Vue](https://img.shields.io/badge/Vue.js-2.0.1-blue.svg)](https://vuejs.org/) [ ![JWT] (https://img.shields.io/badge/JWT-7.1.9-blue.svg)](https://jwt.io/)
 
 **Shar'info**
 =============
