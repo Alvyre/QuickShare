@@ -12,15 +12,16 @@
 							<span class="icon-bar"></span>
 							<span class="icon-bar"></span>
 						</button>
-						<a class="navbar-brand" href="#">Sharinfo.io</a>
+						<a class="navbar-brand" href="#">Sharinfo.</a>
 					</div>
 					<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 						<ul class="nav navbar-nav navbar-right">
 							<li><a href="/">Home</a></li>
 							<li><a href="/about">About</a></li>
 							<li><a href="/contact">Contact</a></li>
-							<li v-if="isConnected"><a href="/login">Logout</a></li>
-							<li v-if="!isConnected"><a href="/logout">Login</a></li>
+							<li v-if="isConnected"><a href="">Logout</a></li>
+							<li v-if="!isConnected"><a href="/sign-in">Sign in</a></li>
+							<li v-if='!isConnected'><a href="/sign-up">Sign up</a></li>
 						</ul>
 					</div><!-- /.navbar-collapse -->
 				</div><!-- /.container-fluid -->

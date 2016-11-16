@@ -12,14 +12,14 @@ module.exports = {
     rules: [
       {
         test: /\.vue$/,
-        loader: 'vue',
+        loader: 'vue-loader',
         options: {
           // vue-loader options go here
         }
       },
       {
         test: /\.js$/,
-        loader: 'babel',
+        loader: 'babel-loader',
         exclude: /node_modules/
       },
       {
@@ -28,11 +28,7 @@ module.exports = {
         options: {
           name: '[name].[ext]?[hash]'
         }
-      },
-      {test: /\.(png|woff|woff2|eot|ttf|svg)$/, loader: 'url-loader?limit=100000' },
-      {test: /\.css$/, loaders: 'css-loader', exclude: /bower_components/},
-      {test: /\.json/, loader: 'json-loader'}
-
+      }
     ]
   },
   resolve: {
@@ -41,9 +37,14 @@ module.exports = {
     }
   },
   devServer: {
+    inline: true,
     historyApiFallback: true,
     noInfo: true,
-    port: 8081
+    port: 8081,
+    watchOptions: {
+      aggregateTimeout: 300,
+      poll: 1000
+    }
   },
   devtool: '#eval-source-map'
 }

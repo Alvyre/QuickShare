@@ -13,9 +13,15 @@ var methodOverride 	= require('method-override');		// simulate DELETE and PUT (e
 var http			= require('http').Server(app);
 var fs 				= require('fs');
 var io 				= require('socket.io')(http);
+var cors			= require('cors');
 
 // Configuration
 //======================================
+
+var corsOptions = {
+  origin: 'http://localhost:8081',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
 
 var port = process.env.PORT || 8080;						// define the port
 mongoose.connect(config.database, function (err) {			// Connect to the mongoDB
@@ -35,17 +41,20 @@ app.use(bodyParser.urlencoded({'extended':'true'}));				// parse application/x-w
 app.use(bodyParser.json());											// parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' }));		// parse application/vnd.api+json as json
 app.use(methodOverride());
-
+app.use(cors(corsOptions));
 
 // ROUTES
 // ==============================================
+
+//Enable Preflight request cors
+app.options('*', cors()); // include before other routes
 
 //redirect to the API
 app.use('/api', router); // redirect to the API Router
 
 // redirect to the Front view
 app.get('*', function(req, res) {
-        res.sendFile(__dirname+'/public/index.html'); // redirect to front
+        res.sendFile(__dirname+'/public/404.html'); // redirect to front
     });
 
 

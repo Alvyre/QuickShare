@@ -4,6 +4,7 @@
 var express     = require('express');
 var router      = express.Router();
 var secretKey   = require('../config/config').secret;
+var gRecapSecret= require('../config/config').googleSecret;
 var moment		= require('moment');
 var Promise		= require('bluebird');
 var Info 		= require('./models/Info');
@@ -11,9 +12,17 @@ var User		= require('./models/User');
 var Controller  = require('./controller.js');
 var bcrypt      = require('bcrypt');
 var jwt         = require('jsonwebtoken'); // used to create, sign, and verify tokens
+var reCAPTCHA   =require('recaptcha2')
 
 //hash setup
 const saltRounds = 10;
+
+//reCAPTCHA setup
+
+var recaptcha=new reCAPTCHA({
+    siteKey:'6LeKFAwUAAAAAL1miQAbHCzWG9eM1dS6JpjRovmN',
+    secretKey: gRecapSecret
+});
 
 // Export the router
 module.exports  = router;
@@ -22,20 +31,10 @@ module.exports  = router;
 router
 
 
-// Allow CORS
-//==============================================
-
-.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-})
-
-
 // POST register
 //==============================================
 
-.post('/user/register', function(req, res) {
+.post('/user/register', function(req, res, next) {
     
     //Checking inputs
 
@@ -47,48 +46,65 @@ router
         var tempUserMail   = Controller.sanitizeString(req.body.mail);
         var isEmailVisible = Controller.checkBoolean(req.body.isEmailVisible);
 
-        // Checking database for email or username
-        
-        Promise.props({
-           username: User.findOne({username: tempUsername}, 'username').execAsync(),
-           mail: User.findOne({mail: tempUserMail}, 'mail').execAsync()
-        })
-        .then(function(results) {
-            if(results.username != null)
-                res.status(400).json({success: false, message: 'Username already exists'});
-            else if(results.mail != null)
-                res.status(400).json({success: false, message: 'Mail already exists'});
-            else {
-                var user = new User({
-                    username:   tempUsername,
-                    password:   req.body.password,
-                    mail:       tempUserMail
-                });
-                if(isEmailVisible)
-                    user.isEmailVisible = true;
-                //Hash password and save
-                bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
-                    user.password = hash;
-                    user.save(function(err, resp) {
-                        if(err) {
-                            console.log('Error when trying to register an user: '+err);
-                            res.status(500).send(err);
-                        }
-                        res.status(200).json({
-                            success: true,
-                            message: 'Successfully registered !'
+        // Checking Google Recaptcha
+
+        if(req.body.gRecaptchaResponse === undefined || req.body.gRecaptchaResponse === '' || req.body.gRecaptchaResponse === null) {
+            res.status(400).json({message: 'No Captcha found.'});
+        }
+        else{
+            var key = req.body.gRecaptchaResponse;
+            recaptcha.validate(key)
+            .then(function(){
+                
+                // Checking database for email or username
+                
+                Promise.props({
+                   username: User.findOne({username: tempUsername}, 'username').execAsync(),
+                   mail: User.findOne({mail: tempUserMail}, 'mail').execAsync()
+                })
+                .then(function(results) {
+                    if(results.username != null)
+                        res.status(400).json({success: false, message: 'Username already exists'});
+                    else if(results.mail != null)
+                        res.status(400).json({success: false, message: 'Mail already exists'});
+                    else {
+                        var user = new User({
+                            username:   tempUsername,
+                            password:   req.body.password,
+                            mail:       tempUserMail
                         });
-                    });  
+                        if(isEmailVisible)
+                            user.isEmailVisible = true;
+                        //Hash password and save
+                        bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+                            user.password = hash;
+                            user.save(function(err, resp) {
+                                if(err) {
+                                    console.log('Error when trying to register an user: '+err);
+                                    res.status(500).send(err);
+                                }
+                                res.status(200).json({
+                                    success: true,
+                                    message: 'Successfully registered !'
+                                });
+                            });  
+                        });
+                    }
+                })
+                .catch(function(err) {
+                    console.log(err);
+                    res.status(500); // oops - we're even handling errors!
                 });
-            }
-        })
-        .catch(function(err) {
-            console.log(err);
-            res.sendStatus(500); // oops - we're even handling errors!
-        });
+            })
+            .catch(function(errorCodes){
+                // invalid
+                res.status(500).json({message: 'Unknown error when validate the Captcha'})
+                console.log(recaptcha.translateErrors(errorCodes));// translate error codes to human readable text
+            });
+        } // End ELSE Google recaptcha
     }
     else {
-        res.status(400).json({success: false, message: 'Bad request :  invalid inputs'});
+        res.status(400).json({success: false, message: 'Bad request, invalid inputs'});
     }
 })
 
@@ -96,7 +112,7 @@ router
 // LOGIN
 //==============================================
 
-.post('/user/login', function(req, res) {
+.post('/user/login', function(req, res, next) {
 
     //Checking inputs
 
@@ -148,7 +164,7 @@ router
 // Getting informations by type
 //===========================================
 
-.get('/infos/', function(req, res) {
+.get('/infos/', function(req, res, next) {
     Info.find().sort({voteCount: -1}).exec(function(err, infos) {
         if(err) {
             console.log('Error when trying to get all infos');
@@ -195,7 +211,7 @@ router
 // POST new informations
 //=============================================
 
-.post('/infos', function(req, res) {
+.post('/infos', function(req, res, next) {
 
     // User ID checking
 
@@ -249,7 +265,7 @@ router
     }
 })
 
-.get('/infos/user/:id', function(req, res) {
+.get('/infos/user/:id', function(req, res, next) {
 
     // Checking userID
     if( !(Controller.isObjectIDValid(req.params.id)) ) {
@@ -272,7 +288,7 @@ router
 // UPDATE informations
 //==============================================
 
-.post('/infos/update/:id', function(req, res) {
+.post('/infos/update/:id', function(req, res, next) {
     
     // IDs Cheking
 
@@ -338,7 +354,7 @@ router
 // DELETE informations // todo Security
 //==============================================
 
-.delete('/infos/delete/:id', function(req, res) {
+.delete('/infos/delete/:id', function(req, res, next) {
     
     // Cheking userID
     if( !(Controller.isObjectIDValid(req.decoded.userID)) ) {
@@ -369,7 +385,7 @@ router
 // JOIN Event
 //==============================================
 
-.post('/infos/:id/join', function(req, res) {
+.post('/infos/:id/join', function(req, res, next) {
 
     // ID Checking
 
@@ -438,7 +454,7 @@ router
 // LEAVE Event
 //=============================================
 
-.post('/infos/:id/leave', function(req, res) {
+.post('/infos/:id/leave', function(req, res, next) {
 
     // ID Checking
 
@@ -491,7 +507,7 @@ router
 // POST add upvote/downvote
 //==============================================
 
-.post('/infos/:id/:votetype', function(req, res) {
+.post('/infos/:id/:votetype', function(req, res, next) {
     if( !(Controller.isObjectIDValid(req.params.id)) ||
         !(Controller.isObjectIDValid(req.decoded.userID)) ) {
         
@@ -505,48 +521,48 @@ router
         var infoID      = req.params.id;
         var votetype    = req.params.votetype === 'upvote'?(1):(-1);
         
-            Info.findOne({_id: infoID}, function(err, info) {
-                if(err) {
-                    console.log('Error when updating votes');
-                    res.status(500).send(err);
-                }
-                if(info) {
-                    var vote;
-                    var isVoteExist = false;
-                    // We search if the user already added a vote
-                    for (var i = 0; i < info.votes.length; i++) {
-                        vote = info.votes[i];
-                        if(vote.userID === userID) {
-                            isVoteExist = true;
-                            vote.value = votetype;
-                            info.updateVoteCount();
-                            Info.update({_id: infoID}, info, function(err) {
-                                if(err) {
-                                    console.log('Error when updating the info: '+err);
-                                    res.status(500).send({success: false, message: 'Error when updating the info'});
-                                }
-                                res.status(200).send({success: true, message: 'Vote updated !'});
-                            }); 
-                        }
-                        if(isVoteExist) break;
-                    } // END FOR
-                    // If no vote found, we add a new one
-                    if(!isVoteExist) {
-                        info.votes.push({userID: userID, value: votetype});
+        Info.findOne({_id: infoID}, function(err, info) {
+            if(err) {
+                console.log('Error when updating votes');
+                res.status(500).send(err);
+            }
+            if(info) {
+                var vote;
+                var isVoteExist = false;
+                // We search if the user already added a vote
+                for (var i = 0; i < info.votes.length; i++) {
+                    vote = info.votes[i];
+                    if(vote.userID === userID) {
+                        isVoteExist = true;
+                        vote.value = votetype;
                         info.updateVoteCount();
                         Info.update({_id: infoID}, info, function(err) {
-                        if(err) {
-                            console.log('Error when updating the info: '+err);
-                            res.status(500).send({success: true, message: 'Error when updating the info'});
-                        }
-                        res.status(200).send({success: true, message: 'Vote sent !'});
-                        });
-                    } 
-                }
-                else {
-                    res.status(404).send({success: true, message: 'No info found'});
-                }
-            });
+                            if(err) {
+                                console.log('Error when updating the info: '+err);
+                                res.status(500).send({success: false, message: 'Error when updating the info'});
+                            }
+                            res.status(200).send({success: true, message: 'Vote updated !'});
+                        }); 
+                    }
+                    if(isVoteExist) break;
+                } // END FOR
+                // If no vote found, we add a new one
+                if(!isVoteExist) {
+                    info.votes.push({userID: userID, value: votetype});
+                    info.updateVoteCount();
+                    Info.update({_id: infoID}, info, function(err) {
+                    if(err) {
+                        console.log('Error when updating the info: '+err);
+                        res.status(500).send({success: true, message: 'Error when updating the info'});
+                    }
+                    res.status(200).send({success: true, message: 'Vote sent !'});
+                    });
+                } 
+            }
+            else {
+                res.status(404).send({success: true, message: 'No info found'});
+            }
+        });
     }
 })
 
@@ -555,7 +571,7 @@ router
 // GET all users
 //==============================================
 
-.get('/users', function(req, res) {
+.get('/users', function(req, res, next) {
     User.find({}, '-password', function(err, users) {
         if(err) {
             console.log('Error when trying to get all users');
@@ -578,7 +594,7 @@ router
 // GET user by ID
 //==============================================
 
-.get('/user/id/:id', function(req, res) {
+.get('/user/id/:id', function(req, res, next) {
     if(Controller.isObjectIDValid(req.params.id)) {
         var id = req.params.id;
         User.findOne({_id: id}, '-password', function(err, user) {
@@ -603,7 +619,7 @@ router
 // GET user by name
 //==============================================
 
-.get('/user/name/:name', function(req, res) {
+.get('/user/name/:name', function(req, res, next) {
     if(Controller.isUsernameValid(req.params.name)) {
         var name = Controller.sanitizeString(req.params.name);
 
@@ -629,7 +645,7 @@ router
 // POST update user
 //=============================================
 
-.post('/user/update', function(req, res) {
+.post('/user/update', function(req, res, next) {
     
     var checkPwd    = false;
     var checkEmail  = false;
@@ -695,7 +711,7 @@ router
 // DELETE user
 //=============================================
 
-.delete('/user/delete/', function(req, res) {
+.delete('/user/delete/', function(req, res, next) {
     if(! (Controller.isObjectIDValid(req.decoded.userID)) ) {
         res.status(400).send({success: false, message: 'Invalid ID'});
     }
@@ -721,6 +737,6 @@ router
 // ERRORS
 //=============================================   
 .use(function(req, res, next){
-    res.setHeader('Content-Type', 'text/plain');
+    console.log(err);
     res.status(404).send('Error 404 : Request not found');
 });

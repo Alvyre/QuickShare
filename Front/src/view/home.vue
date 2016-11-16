@@ -128,17 +128,7 @@
 				infoActive: 'active',
 				eventActive: 'active',
 				helpActive: 'active',
-				infos: [],
-				info: {
-					title: {type: String},
-					description: {type: String},
-					birthdate: {type: Date},
-					expirydate: {type: Date},
-					category: {type: String},
-					location: {type: String},
-					addInfo: {type: String},
-					userID: {type: String}	
-				}
+				infos: []
 			}	
 		},
 		mounted () {
