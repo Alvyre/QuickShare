@@ -99,7 +99,7 @@ router
             .catch(function(errorCodes){
                 // invalid
                 res.status(500).json({message: 'Unknown error when validate the Captcha'})
-                console.log(recaptcha.translateErrors(errorCodes));// translate error codes to human readable text
+                console.log('reCAPTCHA error: ' +recaptcha.translateErrors(errorCodes));// translate error codes to human readable text
             });
         } // End ELSE Google recaptcha
     }
