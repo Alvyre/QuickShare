@@ -2,7 +2,7 @@
 <template>
 	<div id="nav">
 		<nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
-			<div class="container-fluid">
+			<div class="container">
 				<!-- Brand and toggle get grouped for better mobile display -->
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -18,11 +18,12 @@
 						<li><a href="/">Home</a></li>
 						<li><a href="/about">About</a></li>
 						<li><a href="/contact">Contact</a></li>
-						<li v-if="isConnected"><a href="/login">Logout</a></li>
-						<li v-if="!isConnected"><a href="/logout">Login</a></li>
+						<li v-if="isConnected"><a href="/logout">Logout</a></li>
+						<li v-if="!isConnected"><a href="/sign-up">Sign-up</a></li>
+						<li v-if="!isConnected"><a href="/sign-in">Login</a></li>
 					</ul>
 				</div><!-- /.navbar-collapse -->
-			</div><!-- /.container-fluid -->
+			</div><!-- /.container -->
 		</nav>
 		</div>
 </template>
@@ -31,10 +32,7 @@
 	export default {
 		name: 'nav',
 		props: {
-			isConnected: {type: Boolean, default: false},
-			isHomeActive: {type: Boolean, default: false},
-			isAboutActive: {type: Boolean, default: false},
-			isContactActive: {type: Boolean, default: false}
+			isConnected: {type: Boolean, default: false}
 		},
 		data () {
 			return {}
@@ -43,5 +41,7 @@
 </script>
 
 <style>
-	
+	.navbar-toggle{
+		margin-right: 25px;
+	}
 </style>

@@ -18,17 +18,15 @@
 							<strong>{{successMsg}}</strong>
 						</div>
 
-						<div class="form-group">
+						<div class="form-group" :class="className">
 							<label for="name">Name</label>
-							<input type="text" class="form-control" id="inputName" required='required' v-model="inputName">
-							<br v-if="checkName">
-							<div id="infoName" class="alert alert-warning" v-show="checkName">Please type a name in a range from 3 to 6 characters</div>
+							<input type="text" class="form-control" id="inputName" required='required' aria-describedby="infoName" v-model="inputName">
+							<div id="infoName" class="help-block" v-show="checkName">Please type a name in a range from 3 to 6 characters</div>
 						</div>
 						<div class="form-group">
 							<label for="password">Password</label>
-							<input type="password" name="password" id="inputPas" class="form-control" required="required" title="" v-model="inputPas">
-							<br v-if="checkPwd">
-							<div id="infoPas" class="alert alert-warning" v-show="checkPwd">Please type a password with at least 6 characters</div>
+							<input type="password" name="password" id="inputPas" class="form-control" required="required" aria-describedby="infoPas" v-model="inputPas">
+							<div id="infoPas" class="help-block">Please type a password with at least 6 characters</div>
 						</div>
 						<div class="form-group">
 							<label for="mail">Email</label>
@@ -117,15 +115,38 @@
 			},
 			checkPwd () {
 				return ( this.inputPas.length > 0 &&
-						 this.inputPas.length < 6)
+						 this.inputPas.length < 6);
+			},
+			checkEmail () {
+				//var regexp = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  				//return regexp.test(this.inputMail);
+  				return false;
+			},
+			className () {
+				return {
+					'has-success': 	this.inputName.length >= 3 && this.inputName.length <= 6,
+					'has-error': 	this.checkName
+				};
 			}
+/*			classPwd () {
+				return {
+					'has-success': 	this.inputPas.length >= 6,
+					'has-error': 	this.checkPwd
+				};
+			},
+			classEmail () {
+				return {
+					'has-success': 	this.checkEmail,
+					'has-error': 	!(this.checkEmail)	
+				};
+			}*/
 		}
 	}
 </script>
 
 <style>
 	.g-recaptcha{
-		width: 304px;
+		width: 304px;>
 		height: 78px;
 		margin: 0 auto;
 	}
