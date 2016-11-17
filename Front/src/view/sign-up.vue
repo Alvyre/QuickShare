@@ -21,16 +21,17 @@
 						<div class="form-group" :class="className">
 							<label for="name">Name</label>
 							<input type="text" class="form-control" id="inputName" required='required' aria-describedby="infoName" v-model="inputName">
-							<div id="infoName" class="help-block" v-show="checkName">Please type a name in a range from 3 to 6 characters</div>
+							<div id="infoName" class="help-block" v-show="checkName">Please type a name in a range from 3 to 6 characters.</div>
 						</div>
-						<div class="form-group">
+						<div class="form-group" :class="classPwd">
 							<label for="password">Password</label>
 							<input type="password" name="password" id="inputPas" class="form-control" required="required" aria-describedby="infoPas" v-model="inputPas">
-							<div id="infoPas" class="help-block">Please type a password with at least 6 characters</div>
+							<div id="infoPas" class="help-block" v-show="checkPwd">Please type a password with at least 6 characters.</div>
 						</div>
-						<div class="form-group">
+						<div class="form-group" :class="classEmail">
 							<label for="mail">Email</label>
 							<input type="email" name="mail" id="inputMail" class="form-control" value="" required="required" title="" v-model="inputMail">
+							<div id="infoEmail" class="help-block" v-show="checkEmail">Please type a correct email address.</div>
 						</div>
 						<div class="form-group">
 							<div class="checkbox checkbox-inline">
@@ -118,17 +119,21 @@
 						 this.inputPas.length < 6);
 			},
 			checkEmail () {
-				//var regexp = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  				//return regexp.test(this.inputMail);
-  				return false;
+				var regexp = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  				if(this.inputMail.length > 0) {
+  					return !regexp.test(this.inputMail);
+  				}
+  				else {
+  					return false;
+  				}
 			},
 			className () {
 				return {
 					'has-success': 	this.inputName.length >= 3 && this.inputName.length <= 6,
 					'has-error': 	this.checkName
 				};
-			}
-/*			classPwd () {
+			},
+			classPwd () {
 				return {
 					'has-success': 	this.inputPas.length >= 6,
 					'has-error': 	this.checkPwd
@@ -136,10 +141,10 @@
 			},
 			classEmail () {
 				return {
-					'has-success': 	this.checkEmail,
-					'has-error': 	!(this.checkEmail)	
+					'has-success': 	!this.checkEmail && this.inputMail.length > 0,
+					'has-error': 	(this.checkEmail && this.inputMail.length > 0)
 				};
-			}*/
+			}
 		}
 	}
 </script>
