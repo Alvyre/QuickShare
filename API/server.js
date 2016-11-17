@@ -14,6 +14,7 @@ var http			= require('http').Server(app);
 var fs 				= require('fs');
 var io 				= require('socket.io')(http);
 var cors			= require('cors');
+var cookieParser 	= require('cookie-parser');
 
 // Configuration
 //======================================
@@ -30,6 +31,7 @@ mongoose.connect(config.database, function (err) {			// Connect to the mongoDB
 		console.log("Database connection Error");
 	}
 });
+app.use(cookieParser());
 app.use(express.static(__dirname + '/public'));						// set static files location
 app.use('/scripts/bootstrap', express.static(__dirname + '/node_modules/bootstrap/dist/'));
 app.use('/scripts/vue', express.static(__dirname + '/node_modules/vue/dist/'));
@@ -49,13 +51,21 @@ app.use(cors(corsOptions));
 //Enable Preflight request cors
 app.options('*', cors()); // include before other routes
 
+
+app.use('*', function(req, res, next) {
+	let cookie = cookieParser.signedCookie(req.signedCookies.token, config.cookieSecret);
+	if(cookie != undefined && cookie != false) {
+		req.token = cookie; 
+	}
+	next();
+});
 //redirect to the API
 app.use('/api', router); // redirect to the API Router
 
 // redirect to the Front view
 app.get('*', function(req, res) {
         res.sendFile(__dirname+'/public/404.html'); // redirect to front
-    });
+});
 
 
 //Socket io

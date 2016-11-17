@@ -12,7 +12,8 @@ var User		= require('./models/User');
 var Controller  = require('./controller.js');
 var bcrypt      = require('bcrypt');
 var jwt         = require('jsonwebtoken'); // used to create, sign, and verify tokens
-var reCAPTCHA   =require('recaptcha2')
+var reCAPTCHA   = require('recaptcha2');
+
 
 //hash setup
 const saltRounds = 10;
@@ -119,44 +120,65 @@ router
     if( Controller.isUsernameValid(req.body.username) && 
         Controller.isUserPasswordValid(req.body.password)) {
 
-        Promise.props({
-            user: User.findOne({username: req.body.username}).execAsync()
-        })
-        .then(function(results) {
-            if(results.user != null) {
-                // Load hash from your password DB.
-                bcrypt.compare(req.body.password, results.user.password, function(err, resp) {
-                    if(err) {
-                        console.log('Error when checking password: '+ err);
-                        res.status(500).json({success: false, message: 'Error when checking password'});
-                    }
-                    if(resp === true) {
-                        var userData = {
-                            userID: results.user._id,
-                            username: results.user.username,
-                            mail: results.user.mail,
-                            isEmailVisible: results.user.isEmailVisible
-                        };
-                        var token = jwt.sign(userData, secretKey, {
-                            expiresIn: '24h',
-                            issuer: 'API-auth',
-                            audience: 'web-frontend'
-                        });
-                        res.status(200).json({
-                            success: true,
-                            message: 'User connected',
-                            token: token
+    // Checking Google Recaptcha
+
+        if(req.body.gRecaptchaResponse === undefined || req.body.gRecaptchaResponse === '' || req.body.gRecaptchaResponse === null) {
+            res.status(400).json({message: 'No Captcha found.'});
+        }
+        else{
+            var key = req.body.gRecaptchaResponse;
+            recaptcha.validate(key)
+            .then(function(){
+
+                Promise.props({
+                    user: User.findOne({username: req.body.username}).execAsync()
+                })
+                .then(function(results) {
+                    if(results.user != null) {
+                        // Load hash from your password DB.
+                        bcrypt.compare(req.body.password, results.user.password, function(err, resp) {
+                            if(err) {
+                                console.log('Error when checking password: '+ err);
+                                res.status(500).json({success: false, message: 'Error when checking password'});
+                            }
+                            if(resp === true) {
+                                // we check if a cookie already exists
+                                var cookie = req.cookies.token;
+                                if (cookie === undefined) {
+
+                                    var userData = {
+                                        userID: results.user._id,
+                                        username: results.user.username,
+                                        mail: results.user.mail,
+                                        isEmailVisible: results.user.isEmailVisible
+                                    };
+                                    var token = jwt.sign(userData, secretKey, {
+                                        expiresIn: '24h',
+                                        issuer: 'API-auth',
+                                        audience: 'web-frontend'
+                                    });
+                                    res.cookie('token', token, {
+                                            domain: 'localhost:8080',
+                                            secure: true,
+                                            httpOnly: true, 
+                                            expires: new Date(Date.now()+ 86400000)}); // 24h
+                                }
+                                res.status(200).json({
+                                    success: true,
+                                    message: 'User connected'
+                                });
+                            }
+                            else {
+                                res.status(400).json({success: false, message: 'wrong password'})
+                            }
                         });
                     }
                     else {
-                        res.status(400).json({success: false, message: 'wrong password'})
+                        res.status(400).json({success: false, message: 'User not found'});
                     }
                 });
-            }
-            else {
-                res.status(400).json({success: false, message: 'User not found'});
-            }
-        });
+            });
+        }
     }
 })
 
@@ -180,10 +202,10 @@ router
 .use(function(req, res, next) {
 
     //check header or url params or post params for token
-    var token = req.body.token || req.query.token || req.headers['x-access-token'];
+    var token = req.token;
 
     //decode token
-    if(token) {
+    if(token != undefined) {
 
         //verifies secret and checks exp
         jwt.verify(token, secretKey, function(err, decoded) {
