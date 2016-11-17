@@ -8,16 +8,16 @@
 		   	</div>
 			<div class="row row-centered">
 				<div class="col-xs-12 col-sm-12 col-centered">
-					<form action="" method="POST" role="form" v-on:submit.prevent.stop="signUp()">
+					<div class="alert alert-success text-center" v-show="successMsg">
+						<strong>{{successMsg}}</strong><br>
+						<p class="text-center"><em><small>You will be redirected in 5 secs...<br> Click <a href="/home">here</a> to go to the login page.</small></em></p>
+					</div>
+					<form action="" method="POST" role="form" v-on:submit.prevent.stop="signUp()" v-show="!successMsg">
 						<legend>Sign Up</legend>
 						
 						<div class="alert alert-danger" v-show="errorMsg">
 							<strong>Error {{errorCode}}:</strong> {{errorMsg}}
 						</div>
-						<div class="alert alert-success" v-show="successMsg">
-							<strong>{{successMsg}}</strong>
-						</div>
-
 						<div class="form-group" :class="className">
 							<label for="name">Name</label>
 							<input type="text" class="form-control" id="inputName" required='required' aria-describedby="infoName" v-model="inputName">
@@ -93,6 +93,10 @@
 					    // get status
 					    if(response.status === 200) {
 					    	this.successMsg = response.data.message;
+					    	window.setTimeout(function(){
+							    // Move to login page
+							    window.location.href = "/sign-in";
+							    }, 5000); // 5 secs
 					    }
 					    else {
 					    	this.errorMsg = response.data.message;
