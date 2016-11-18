@@ -86,6 +86,9 @@
 						isEmailVisile: 	this.checkboxMail,
 						gRecaptchaResponse: gResponse
 						};
+
+						//self reference for the routing
+						var vue = this;
 					
 					  	// POST /someUrl
 					  	this.$http.post('http://localhost:8080/api/user/register', body).then((response) => {
@@ -95,7 +98,7 @@
 					    	this.successMsg = response.data.message;
 					    	window.setTimeout(function(){
 							    // Move to login page
-							    window.location.href = "/sign-in";
+							    vue.$router.push('/sign-in');
 							    }, 5000); // 5 secs
 					    }
 					    else {

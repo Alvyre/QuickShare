@@ -29,8 +29,6 @@
 					<br>
 	    		</div>
 			</div>
-		    	
-			<div class="clearfix"></div>
 				
 	    	<div class="row row-centered">
 	    		<div class="col-xs-12 col-sm-12 col-centered">

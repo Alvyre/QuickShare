@@ -16,7 +16,6 @@
 		name: 'footer-vue',
 		data () {
 			return {
-
 			}
 		}
 	}

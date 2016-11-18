@@ -1,8 +1,11 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import VueResource from 'vue-resource'
+import Vuex from 'vuex'
+
 Vue.use(VueRouter);
 Vue.use(VueResource);
+Vue.use(Vuex);
 
 const router = new VueRouter({
 	mode: 'history',
@@ -26,6 +29,16 @@ const router = new VueRouter({
 		name: 'signUp',
 		path: '/sign-up',
 		component: require('./view/sign-up.vue')
+	},
+	{
+		name: 'myProfile',
+		path: '/profile',
+		component: require('./view/profile.vue')
+	},
+	{
+		name: 'userProfile',
+		path: '/profile/:id',
+		component: require('./view/userProfile.vue')
 	}]
 })
 
@@ -33,4 +46,4 @@ new Vue({
   el: '#app',
   router: router,
   render: h => h(require('./App.vue'))
-})
+});

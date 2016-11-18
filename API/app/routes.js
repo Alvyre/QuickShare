@@ -655,7 +655,8 @@ router
                 user.mail = '';
             }
         }
-        res.status(200).json(user);
+        res.status(200).json(user);        
+        
         });    
     }
     else {
@@ -663,6 +664,25 @@ router
     }    
 })
 
+// Get My Profile
+//============================================
+
+.get('/user/myprofile', function(req, res, next) {
+    var userID = req.decoded.userID;
+
+    User.findOne({userID: userID}, '-password', function(err, user) {
+        if(err) {
+            console.log('error when trying to get the user profile');
+            res.status(500).send(err);
+        }
+        else if(user) {
+            res.status(200).json(user);
+        }
+        else {
+            res.status(404).send({message: 'ID error, sign-in again please'})
+        }
+    });
+})
 
 // POST update user
 //=============================================

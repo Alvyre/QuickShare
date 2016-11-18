@@ -10,7 +10,7 @@
 				<div class="col-xs-12 col-sm-12 col-centered">
 					<div class="alert alert-success text-center" v-show="successMsg">
 						<strong>{{successMsg}}</strong>
-						<p class="text-center"><em><small>You will be redirected in 5 secs...<br> Click <a href="/">here</a> to go to the home page.</small></em></p>
+						<p class="text-center"><em><small>You will be redirected in 5 secs...<br> Click <router-link to="/">here</router-link> to go to the home page.</small></em></p>
 					</div>
 					<form action="" method="POST" role="form" v-on:submit.prevent.stop="signIn()" v-show="!successMsg">
 						<legend>Sign-in</legend>
@@ -44,6 +44,7 @@
 </template>
 
 <script>
+	import Store from '../store';
 	export default {
 		name: 'signIn',
 		data () {
@@ -69,19 +70,24 @@
 						password: 		this.inputPas,
 						gRecaptchaResponse: gResponse
 						};
-					
+
+						// self reference for the routing
+						var vue = this;
+
 					  	// POST /someUrl
 					  	this.$http.post('http://localhost:8080/api/user/login', body).then((response) => {
 
 					    // get status
 					    if(response.status === 200) {
 					    	this.successMsg = response.data.message;
-					    	//Store token into local storage 
+					    	//Change the isConnected state
+					    	Store.commit('login');
+					    	console.log(Store.state.isConnected);
 
 					    	//Redirection to homepage
 					    	window.setTimeout(function(){
 							    // Move to login page
-							    window.location.href = "/";
+							    vue.$router.push('/');
 							    }, 5000); // 5 secs
 					    }
 					    else {

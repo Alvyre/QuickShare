@@ -1,4 +1,3 @@
-
 <template>
 	<div class="container">
 		<div id="nav">
@@ -32,18 +31,21 @@
 
 
 <script>
-
-
+	import Store from '../store';
 	export default {
 		name: 'nav',
 		props: {
-			isConnected: {type: Boolean, default: false},
-			isHomeActive: {type: Boolean, default: false},
-			isAboutActive: {type: Boolean, default: false},
-			isContactActive: {type: Boolean, default: false}
+			state: false
 		},
 		data () {
-			return {}
+			return {
+			}
+		},
+		method: {
+			isConnected () {
+				console.log('HELLO');
+				return this.state;
+			}
 		}
 	}
 </script>
