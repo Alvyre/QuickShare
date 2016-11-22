@@ -11,9 +11,9 @@
 
 **Installation:**
 
-To install the application follow these instructions :
+To install the application, you have to follow these instructions :
 
- Go in the API folder
+ Go to the API folder.
  Open a terminal and tape:
 
     npm start
