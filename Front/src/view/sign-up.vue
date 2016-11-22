@@ -2,11 +2,6 @@
 	<div id="signup">
 		<div class="container">
 			<div class="row row-centered">
-		    	<div class="col-xs-12 col-sm-12 col-centered">
-		    		<h3>Sign up:</h3>
-		   		</div> 		
-		   	</div>
-			<div class="row row-centered">
 				<div class="col-xs-12 col-sm-12 col-centered">
 					<div class="alert alert-success text-center" v-show="successMsg">
 						<strong>{{successMsg}}</strong><br>
@@ -91,7 +86,7 @@
 						var vue = this;
 					
 					  	// POST /someUrl
-					  	this.$http.post('http://localhost:8080/api/user/register', body).then((response) => {
+					  	this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/user/register', body).then((response) => {
 
 					    // get status
 					    if(response.status === 200) {

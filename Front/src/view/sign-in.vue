@@ -2,11 +2,6 @@
 	<div id="signIn">
 		<div class="container">
 			<div class="row row-centered">
-		    	<div class="col-xs-12 col-sm-12 col-centered">
-		    		<h3>Sign in:</h3>
-		   		</div> 		
-		   	</div>
-			<div class="row row-centered">
 				<div class="col-xs-12 col-sm-12 col-centered">
 					<div class="alert alert-success text-center" v-show="successMsg">
 						<strong>{{successMsg}}</strong>
@@ -45,6 +40,8 @@
 
 <script>
 	import Store from '../store';
+	import Cookie from '../cookie-handler';
+
 	export default {
 		name: 'signIn',
 		data () {
@@ -75,19 +72,20 @@
 						var vue = this;
 
 					  	// POST /someUrl
-					  	this.$http.post('http://localhost:8080/api/user/login', body).then((response) => {
+					  	this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/user/login', body).then((response) => {
 
 					    // get status
 					    if(response.status === 200) {
 					    	this.successMsg = response.data.message;
 					    	//Change the isConnected state
+					    	
+					    	Cookie.setCookie('token', response.data.JWT, 1);
+					    	Cookie.setCookie('Connected', 'true');
 					    	Store.commit('login');
-					    	console.log(Store.state.isConnected);
-
 					    	//Redirection to homepage
 					    	window.setTimeout(function(){
 							    // Move to login page
-							    vue.$router.push('/');
+							    vue.$router.go('/');
 							    }, 5000); // 5 secs
 					    }
 					    else {

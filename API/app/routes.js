@@ -1,18 +1,17 @@
 'use strict';
 
 // Requires
-var express     = require('express');
-var router      = express.Router();
-var secretKey   = require('../config/config').secret;
-var gRecapSecret= require('../config/config').googleSecret;
-var moment		= require('moment');
-var Promise		= require('bluebird');
-var Info 		= require('./models/Info');
-var User		= require('./models/User');
-var Controller  = require('./controller.js');
-var bcrypt      = require('bcrypt');
-var jwt         = require('jsonwebtoken'); // used to create, sign, and verify tokens
-var reCAPTCHA   = require('recaptcha2');
+var express         = require('express');
+var router          = express.Router();
+var config          = require('../config/config');
+var moment		    = require('moment');
+var Promise		    = require('bluebird');
+var Info 		    = require('./models/Info');
+var User		    = require('./models/User');
+var Controller      = require('./controller.js');
+var bcrypt          = require('bcrypt');
+var jwt             = require('jsonwebtoken'); // used to create, sign, and verify tokens
+var reCAPTCHA       = require('recaptcha2');
 
 
 //hash setup
@@ -22,7 +21,7 @@ const saltRounds = 10;
 
 var recaptcha=new reCAPTCHA({
     siteKey:'6LeKFAwUAAAAAL1miQAbHCzWG9eM1dS6JpjRovmN',
-    secretKey: gRecapSecret
+    secretKey: config.googleSecret
 });
 
 // Export the router
@@ -152,20 +151,22 @@ router
                                         mail: results.user.mail,
                                         isEmailVisible: results.user.isEmailVisible
                                     };
-                                    var token = jwt.sign(userData, secretKey, {
+                                    var token = jwt.sign(userData, config.secret, {
                                         expiresIn: '24h',
                                         issuer: 'API-auth',
                                         audience: 'web-frontend'
                                     });
                                     res.cookie('token', token, {
-                                            domain: 'localhost:8080',
-                                            secure: true,
-                                            httpOnly: true, 
-                                            expires: new Date(Date.now()+ 86400000)}); // 24h
+                                        path: '/',
+                                        domain: config.domain,
+                                        httpOnly: true, 
+                                        maxAge: 86400000 // 24h
+                                    }); 
                                 }
                                 res.status(200).json({
                                     success: true,
-                                    message: 'User connected'
+                                    message: 'User connected',
+                                    JWT: token
                                 });
                             }
                             else {
@@ -202,13 +203,12 @@ router
 .use(function(req, res, next) {
 
     //check header or url params or post params for token
-    var token = req.token;
-
+    var token = req.headers['x-access-token'];
     //decode token
     if(token != undefined) {
 
         //verifies secret and checks exp
-        jwt.verify(token, secretKey, function(err, decoded) {
+        jwt.verify(token, config.secret, function(err, decoded) {
             if(err) {
                 return res.status(500).json({ success: false, message: 'Failed to authenticate token'});
             }
@@ -670,7 +670,7 @@ router
 .get('/user/myprofile', function(req, res, next) {
     var userID = req.decoded.userID;
 
-    User.findOne({userID: userID}, '-password', function(err, user) {
+    User.findOne({_id: userID}, '-password', function(err, user) {
         if(err) {
             console.log('error when trying to get the user profile');
             res.status(500).send(err);

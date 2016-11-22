@@ -40,7 +40,7 @@ module.exports = {
     inline: true,
     historyApiFallback: true,
     noInfo: true,
-    port: 8081,
+    port: 80,
     watchOptions: {
       aggregateTimeout: 300,
       poll: 1000

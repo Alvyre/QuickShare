@@ -137,7 +137,7 @@
 		methods: {
 			fetchInfos () {
 
-		  		this.$http.get('http://localhost:8080/api/infos').then((response) => {
+		  		this.$http.get('http://www.sharinfo.api.romainfrancois.fr/api/infos').then((response) => {
 		    		this.infos = response.data;
 		  		}, (response) => {
 		    		console.log('Error:', response);
