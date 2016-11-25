@@ -16,9 +16,10 @@ To install the application, you have to follow these instructions :
  Go to the API folder.
  Open a terminal and tape:
 
-    npm start
+    npm install
 
-You have to create a config folder and a config file inside with the following code:
+If you have errors during installation, make sure that python and node are installed and that PATH environment values are set.
+Then, you have to create a config folder and a config file inside with the following code:
 
 **config/config.js:**
 
