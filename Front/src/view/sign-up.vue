@@ -62,13 +62,16 @@
 				inputName: '',
 				inputPas: '',
 				inputMail: '',
-				checkboxMail: false
+				checkboxMail: false,
+				grecaptcha: {}
 			}
+		},
+		mounted () {
+			this.grecaptcha = grecaptcha.render($('.g-recaptcha')[0], {sitekey: '6LeKFAwUAAAAAL1miQAbHCzWG9eM1dS6JpjRovmN', theme: 'dark'});
 		},
 		methods: {
 			signUp () {
-
-					var gResponse = grecaptcha.getResponse();
+					var gResponse = grecaptcha.getResponse(this.grecaptcha);
 					if(gResponse.length == 0) {
 						this.errorMsg = 'G-recaptcha is not verified !';
 					}
@@ -105,7 +108,7 @@
 					    this.errorCode = response.status;
 					    this.errorMsg = response.data.message;
 
-					   	grecaptcha.reset();
+					   	grecaptcha.reset(this.grecaptcha);
 				  		});
 				  	}
 			}

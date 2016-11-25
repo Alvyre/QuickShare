@@ -20,7 +20,10 @@ var cookieParser 	= require('cookie-parser');
 //======================================
 
 var corsOptions = {
-  origin: config.origin,
+  origin: function(origin, callback){
+    var originIsWhitelisted = config.whitelist.indexOf(origin) !== -1;
+    callback(originIsWhitelisted ? null : 'Bad Request', originIsWhitelisted);
+  },
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
   credentials: true
 };

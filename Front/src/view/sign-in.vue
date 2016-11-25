@@ -1,7 +1,6 @@
 <template>
 	<div id="signIn">
-		<div class="container">
-			<div class="row row-centered">
+			<div class="row row-centered" v-if="!loading">
 				<div class="col-xs-12 col-sm-12 col-centered">
 					<div class="alert alert-success text-center" v-show="successMsg">
 						<strong>{{successMsg}}</strong>
@@ -29,19 +28,16 @@
 							<div class="g-recaptcha" data-sitekey="6LeKFAwUAAAAAL1miQAbHCzWG9eM1dS6JpjRovmN"></div>
 						</div>
 						
-					
 						<button type="submit" class="btn btn-primary center-block">Sign-in</button><br>
 					</form>
 				</div>
 			</div>
-		</div>
 	</div>
 </template>
 
 <script>
 	import Store from '../store';
 	import Cookie from '../cookie-handler';
-
 	export default {
 		name: 'signIn',
 		data () {
@@ -51,12 +47,15 @@
 				successMsg: '',
 				inputName: '',
 				inputPas: '',
+				grecaptcha: {}
 			}
+		},
+		mounted () {
+			this.grecaptcha = grecaptcha.render($('.g-recaptcha')[0], {sitekey: '6LeKFAwUAAAAAL1miQAbHCzWG9eM1dS6JpjRovmN', theme: 'dark'});
 		},
 		methods: {
 			signIn () {
-
-					var gResponse = grecaptcha.getResponse();
+					var gResponse = grecaptcha.getResponse(this.grecaptcha);
 					if(gResponse.length == 0) {
 						this.errorMsg = 'G-recaptcha is not verified !';
 					}
@@ -85,7 +84,7 @@
 					    	//Redirection to homepage
 					    	window.setTimeout(function(){
 							    // Move to login page
-							    vue.$router.go('/');
+							    vue.$router.push('/');
 							    }, 5000); // 5 secs
 					    }
 					    else {
@@ -97,7 +96,7 @@
 					    this.errorCode = response.status;
 					    this.errorMsg = response.data.message;
 
-					   	grecaptcha.reset();
+					   	grecaptcha.reset(this.grecaptcha);
 				  		});
 				  	}
 			}

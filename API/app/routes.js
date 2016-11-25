@@ -691,15 +691,15 @@ router
     
     var checkPwd    = false;
     var checkEmail  = false;
-    if(Controller.checkBoolean(req.body.isNewPwd) && Controller.isUserPasswordValid(req.decoded.password)) {
+    if(Controller.checkBoolean(req.body.isNewPwd) && Controller.isUserPasswordValid(req.body.password)) {
         checkPwd = true;
     }
-    if( Controller.checkBoolean(req.body.isNewEmail) && Controller.isUserMailValid(req.decoded.mail)) {
+    if( Controller.checkBoolean(req.body.isNewEmail) && Controller.isUserMailValid(req.body.mail)) {
         checkEmail = true;
     }
     
     if(checkPwd === false && checkEmail === false) {
-        res.status(400).send({success: false, message: 'Bad request: nothing to change'});
+        res.status(400).send({success: false, message: 'Bad request, nothing to change'});
     }
     else {
         var username            = Controller.sanitizeString(req.decoded.username);
@@ -753,13 +753,13 @@ router
 // DELETE user
 //=============================================
 
-.delete('/user/delete/', function(req, res, next) {
+.delete('/user/delete', function(req, res, next) {
     if(! (Controller.isObjectIDValid(req.decoded.userID)) ) {
         res.status(400).send({success: false, message: 'Invalid ID'});
     }
     else {
 
-        var userID = req.decoded.userID;
+        var userID = req.decoded._id;
         User.findOneAndRemove({_id: userID}, function(err, user) {
             if(err) {
                 console.log('Error when deleting user');
@@ -779,6 +779,5 @@ router
 // ERRORS
 //=============================================   
 .use(function(req, res, next){
-    console.log(err);
     res.status(404).send('Error 404 : Request not found');
 });

@@ -1,6 +1,6 @@
 <template>
 	<div id="home">
-		<div class="container">
+		<div class="container" v-if="!loading">
 			<div class="row row-centered">
 		    	<div class="col-xs-12 col-sm-12 col-centered">
 		    		<h3>Current Informations:</h3>
@@ -118,6 +118,7 @@
 </template>
 
 <script>
+	import Store from '../store';
 
 	export default {
 		name: 'home',
@@ -131,6 +132,7 @@
 		},
 		mounted () {
 			this.fetchInfos();
+			Store.commit('loadingOn');
 		},
 		components: {
 		},
@@ -139,6 +141,7 @@
 
 		  		this.$http.get('http://www.sharinfo.api.romainfrancois.fr/api/infos').then((response) => {
 		    		this.infos = response.data;
+		    		Store.commit('loadingOff');
 		  		}, (response) => {
 		    		console.log('Error:', response);
 		  		});
@@ -176,6 +179,11 @@
 					this.helpActive = 'hide';
 				else (this.helpActive = 'active')
 				console.log(this.helpActive);
+			}
+		},
+		computed: {
+			loading () {
+				return Store.state.loading;
 			}
 		}
 	}	
