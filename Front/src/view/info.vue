@@ -1,18 +1,16 @@
 <template>
-	<div id="footer-vue">
-		<footer>
-			Footer ©2016-2017
-		</footer>
+	<div id="info">
+		
 	</div>
 </template>
 
-
 <script>
+	
 	export default {
-		name: 'footer-vue',
+		name: 'info',
 		data () {
 			return {
-
+				
 			}
 		}
 	}
