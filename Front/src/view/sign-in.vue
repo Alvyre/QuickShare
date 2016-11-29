@@ -78,8 +78,9 @@
 					    	this.successMsg = response.data.message;
 					    	//Change the isConnected state
 					    	
-					    	Cookie.setCookie('token', response.data.JWT, 1);
+					    	Cookie.setCookie('token', response.data.JWT);
 					    	Cookie.setCookie('Connected', 'true');
+					    	Cookie.setCookie('userID', response.data.idUser);
 					    	Store.commit('login');
 					    	//Redirection to homepage
 					    	window.setTimeout(function(){

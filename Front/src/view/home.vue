@@ -11,7 +11,7 @@
 	    			<h3 class="text-center"><span class="glyphicon glyphicon-filter"></span>Filters:</h3>
 		    		<div class="btn-group btn-group-justified" role="group" aria-label="...">
 					  <div class="btn-group" role="group">
-					    <button type="button" class="btn btn-primary" v-on:click="toggleInfo">
+					    <button type="button" class="btn btn-info" v-on:click="toggleInfo">
 					    	<span class="glyphicon glyphicon-info-sign"></span>
 					    </button>
 					  </div>
@@ -34,7 +34,7 @@
 	    		<div class="col-xs-12 col-sm-12 col-centered">
 	    				<div class="panel-info" v-for="info in infos">
 	    					<!-- INFO -->
-	    						<div class="panel panel-primary" :class="infoActive" v-if='info.category == "Info"'>
+	    						<div class="panel panel-info" :class="infoActive" v-if='info.category == "Info"'>
 									<div class="panel-heading">
 										<span>{{info.title}}</span>
 									</div>
@@ -43,6 +43,8 @@
 										<p>
 											<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{info.location}}, {{info.addInfo}}
 										</p>
+										<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
+										<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
 										<hr>
 										<footer>
 											<div class="right">
@@ -68,6 +70,8 @@
 										<p>
 											<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{info.location}}, {{info.addInfo}}
 										</p>
+										<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
+										<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
 										<hr>
 										<footer>
 											<div class="right">
@@ -96,6 +100,8 @@
 										<p>
 											<span class="glyphicon glyphicon-user" aria-hidden="true"></span> : {{info.userList.length}}/{{info.userLimit}}
 										</p>
+										<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
+										<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
 										<hr>
 										<footer>
 											<div class="right">
@@ -184,6 +190,51 @@
 		computed: {
 			loading () {
 				return Store.state.loading;
+			}
+		},
+		filters: {
+			localeDate (date) {
+				var localeDate = new Date(date);
+				var options = { 
+					weekday: 'short',
+					year: 'numeric',
+					month: 'short',
+					day: 'numeric',
+					timeZoneName: 'short',
+					hour12: 'false',
+					hour: '2-digit',
+					min: '2-digit',
+					sec: '2-digit'
+
+				};
+				return (localeDate.toLocaleString(options));
+			},
+			TimeRemainingWith (strDateB, strDateA) {
+				let dateB = new Date(strDateB).getTime();
+				let dateA = new Date(strDateA).getTime();
+
+				console.log(dateB);
+				console.log(dateA);
+
+				var timeleft =new Date(Math.abs(dateB - dateA));
+				
+				let x = x = Math.floor(timeleft/1000);
+				let seconds = x % 60;
+				console.log(seconds)
+				if(seconds<10) seconds = '0'+seconds;
+				x = Math.floor(x/60);
+				console.log(x);
+				let minutes = x % 60;
+				console.log(minutes)
+				if(minutes<10) minutes = '0'+minutes;
+				x = Math.floor(x/60);
+				let hours = x % 24;
+				if(hours<10) hours= '0'+hours;
+				x = Math.floor(x/24);
+				let days = x;
+				if(days <10) days = '0'+days;
+
+				return days +':' +hours +':' +minutes +':' +seconds;
 			}
 		}
 	}	

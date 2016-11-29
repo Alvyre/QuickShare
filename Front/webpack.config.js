@@ -41,6 +41,7 @@ module.exports = {
     historyApiFallback: true,
     noInfo: true,
     port: 80,
+    host: 'www.sharinfo.io',
     watchOptions: {
       aggregateTimeout: 300,
       poll: 1000

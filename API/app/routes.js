@@ -152,22 +152,27 @@ router
                                         isEmailVisible: results.user.isEmailVisible
                                     };
                                     var token = jwt.sign(userData, config.secret, {
-                                        expiresIn: '24h',
-                                        issuer: 'API-auth',
-                                        audience: 'web-frontend'
+                                        expiresIn: '3h'
                                     });
                                     res.cookie('token', token, {
                                         path: '/',
                                         domain: config.domain,
                                         httpOnly: true, 
-                                        maxAge: 86400000 // 24h
+                                        maxAge: 10800000 // 3H
+                                    }).status(200).json({
+                                        success: true,
+                                        message: 'User connected',
+                                        idUser: userData.userID,
+                                        JWT: token
                                     }); 
                                 }
-                                res.status(200).json({
+                                else{
+                                    res.status(200).json({
                                     success: true,
                                     message: 'User connected',
-                                    JWT: token
-                                });
+                                    idUser: userData.userID
+                                    });    
+                                }
                             }
                             else {
                                 res.status(400).json({success: false, message: 'wrong password'})
@@ -287,6 +292,10 @@ router
     }
 })
 
+
+// GET info by userID
+//===============================================
+
 .get('/infos/user/:id', function(req, res, next) {
 
     // Checking userID
@@ -301,6 +310,29 @@ router
                 }
                 else {
                     res.status(200).json(infos);
+                }
+            });
+    }
+})
+
+
+// GET info by id
+//==============================================
+
+.get('/infos/id/:id', function(req, res, next) {
+
+    //Checking info ID 
+    if( !(Controller.isObjectIDValid(req.params.id)) ) {
+        res.status(400).send({success: false, message: 'Invalid infoID'});
+    }
+    else {
+            Info.findOne({_id: req.params.id}, function(err, info) {
+                if(err) {
+                    console.log('Error when trying to get the info id: '+req.params.id);
+                    res.status(500).send(err);
+                }
+                else {
+                    res.status(200).json(info);
                 }
             });
     }

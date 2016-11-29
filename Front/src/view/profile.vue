@@ -150,15 +150,15 @@
 
 			    	// get status
 				    if(response.status === 200) {
-				    	this.successMsg = response.data.message;
+				    	this.successMsg = response.message;
 				    }
 				    else {
-				    	this.errorMsgForm = response.data.message;
+				    	this.errorMsgForm = response.message;
 				    }
 			  	}, (response) => {
 				    // error callback
 				    this.errorCodeForm = response.status;
-				    this.errorMsgForm = response.data.message;
+				    this.errorMsgForm = response.message;
 		  		});
 			},
 			getRoute(infoID) {
@@ -195,7 +195,7 @@
 					this.$http.delete('http://www.sharinfo.api.romainfrancois.fr/api/user/delete', options).then(( response) => {
 						if(response.status != 200) {
 		    				this.errorMsg = response.data.message;
-		    				this.errorCode = response.data.status;
+		    				this.errorCode = response.status;
 		    			}
 		    			else {
 		    				this.successMsg = response.data.message;
@@ -210,7 +210,7 @@
 		    			}
 					}, (response) => {
 						this.errorMsg = response.data.message;
-						this.errorCode = response.data.status;
+						this.errorCode = response.status;
 					});
 				}
 			}
