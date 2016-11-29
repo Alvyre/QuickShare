@@ -213,19 +213,13 @@
 				let dateB = new Date(strDateB).getTime();
 				let dateA = new Date(strDateA).getTime();
 
-				console.log(dateB);
-				console.log(dateA);
-
 				var timeleft =new Date(Math.abs(dateB - dateA));
 				
 				let x = x = Math.floor(timeleft/1000);
 				let seconds = x % 60;
-				console.log(seconds)
 				if(seconds<10) seconds = '0'+seconds;
 				x = Math.floor(x/60);
-				console.log(x);
 				let minutes = x % 60;
-				console.log(minutes)
 				if(minutes<10) minutes = '0'+minutes;
 				x = Math.floor(x/60);
 				let hours = x % 24;

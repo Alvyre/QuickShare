@@ -18,7 +18,7 @@
 						<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{infoData.birthdate | localeDate }}</p>
 						<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{infoData.expirydate | TimeRemainingWith(infoData.birthdate) }}</p>
 						<button type="button" class="btn btn-large btn-block btn-success" v-if="infoData.category == 'Event' && isEventJoined == -1" :class="isEventFull" v-on:click.prevent.stop="joinEvent(infoData, $event)">Join Event</button>
-						<button type="button" class="btn btn-large btn-block btn-danger" v-if="infoData.category == 'Event' && isEventJoined == 1" v-on:click.prevent.stop="leaveEvent(infoData, $event)">Leave Event</button>
+						<button type="button" class="btn btn-large btn-block btn-danger" v-if="infoData.category == 'Event' && isEventJoined == 1" v-on:click.prevent.stop="leaveEvent(infoData, $event)" :class="isMyArticle" id="leaveBtn">Leave Event</button>
 						<hr>
 						<footer>
 							<div class="right">
@@ -35,166 +35,234 @@
 				</div>
 			</div>
 		</div>
+		<div class="row" v-if="infoData.length != 0 && isMyArticle">
+			<div class="col-xs-4 col-xs-offset-4">
+				<button type="button" class="btn btn-large btn-block btn-primary" v-on:click.prevent.stop="toggleEdit()" >Edit <span class="glyphicon glyphicon-menu-down" aria-hidden="true" v-show='!isArticleEditing'></span><span class="glyphicon glyphicon-menu-up" aria-hidden="true" v-show='isArticleEditing'></span></button>
+			</div>
+			<div class="col-xs-12 col-sm-12">
+				<form action="" method="POST" role="form" v-show="isArticleEditing">
+					<legend>Edit my info:</legend>
+
+					<div class="form-group">
+						<label for="title">Title</label>
+						<input type="text" class="form-control" id="title" v-bind:placeholder="infoData.title">
+					</div>
+					<div class="form-group">
+						<label for="description">Description</label>
+						<textarea type="text" class="form-control" id="description" v-bind:placeholder="infoData.description"></textarea>
+					</div>
+					<div class="form-group">
+						<label for="location">Location</label>
+						<input type="text" class="form-control" id="location" v-bind:placeholder="infoData.location">
+						<input type="text" class="form-control" name="addInfo" v-bind:placeholder="infoData.addInfo">
+					</div>
+					<div class="form-group" v-if="infoData.category == 'Event'">
+						<div class="checkbox checkbox-inline">
+							<label>
+								<input type="checkbox" v-bind:value="infoData.acceptOverload" v-model="editedArticle.acceptOverload">
+								Accept Overload?
+							</label>
+						</div>
+					</div>
+					<div class="form-group" v-show="!editedArticle.acceptOverload">
+						<label for="userLimit">User limit</label>
+						<input type="text" class="form-control" id="userLimit" v-bind:placeholder="editedArticle.acceptOverload">
+					</div>
+					<div class="form-group">
+						<label for="expirydate">Expiry</label>
+					</div>
+					
+					
+
+					<button type="button" class="btn btn-large btn-block btn-primary" v-on:click.prevent.stop="">Submit</button>
+				</form>
+			</div>
+		</div>
 	</div>
 </template>
 
 <script>
-	import Store from '../store';
-	import Cookie from '../cookie-handler';
 
-	export default {
-		name: 'info',
-		data () {
-			return {
-				infoData: [],
-				errorMsg: '',
-				errorCode: '',
-				successMsg: ''
-			}
-		},
-		mounted () {
+//IMPORTS
+//==========================
 
-			Store.commit('loadingOn');
-			this.fetchInfoData();	
-		},
-		methods : {
-			fetchInfoData () {
-				var options = {
-					headers: {
-						'x-access-token': Cookie.getCookie('token')
-					},
-					credentials: true
-				};
-				let idInfo = (document.URL.split('/'))[4];
-				this.$http.get('http://www.sharinfo.api.romainfrancois.fr/api/infos/id/'+idInfo, options).then((response) => {
+import Store from '../store';
+import Cookie from '../cookie-handler';
 
-					Store.commit('loadingOff');
-					if(response.status != 200) {
-						this.errorMsg = response.data.message;
-						this.errorCode = response.status;
-					}
-					else {
-						this.infoData = response.data;
-					}
+// Vue 
+//==========================
 
-				}, (response) => {
-					console.log('Error:', response);
-					this.errorMsg = response.data.message;
-					Store.commit('loadingOff');
-					if(response.status == 403)
-						this.errorMsg = 'Unknown token, please try to login again';
-					this.errorCode = response.status;
-				});
-			},
-			setClass (info) {
-				switch(info.category) {
-					case 'Info':
-						return 'panel-info';
-					break;
-					case 'Event':
-						return 'panel-success';
-					break;
-					case 'Help':
-						return 'panel-warning';
-					break;
-					default:
-					return '';
-					break;
-				}
-			},
-			joinEvent (event, click) {
-				console.log(click);
-				if(!click) return;
-				if(event.category != 'Event') return;
-				var options = {
-					headers: {
-						'x-access-token': Cookie.getCookie('token')
-					},
-					credentials: true
-				};
-				
-				let idInfo = (document.URL.split('/'))[4];
-				
-				this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/'+idInfo+'/join',{}, options).then((response) => {
-					if(response.status == 200)
-						this.successMsg = response.data.message;
-					else {
-						this.errorMsg = response.data.message;
-						this.errorCode = response.status;
-					}
-					this.fetchInfoData();
-				}, (response) => {
-					this.errorMsg = response.data.message;
-					this.errorCode = response.status;
-					console.log('Error: ' +response);
-				});
-			},
-			leaveEvent (event, click) {
-				console.log(click);
-				if(!click) return;
-				if(event.category != 'Event') return;
-				var options = {
-					headers: {
-						'x-access-token': Cookie.getCookie('token')
-					},
-					credentials: true
-				};
-				
-				let idInfo = (document.URL.split('/'))[4];
-				
-				this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/'+idInfo+'/leave',{}, options).then((response) => {
-					if(response.status == 200)
-						this.successMsg = response.data.message;
-					else {
-						this.errorMsg = response.data.message;
-						this.errorCode = response.status;
-					}
-					this.fetchInfoData();
-				}, (response) => {
-					this.errorMsg = response.data.message;
-					this.errorCode = response.status;
-					console.log('Error: ' +response);
-				});
-			}
-		},
-		computed: {
-			isEventJoined () {
-				console.log(Cookie.getCookie('userID'));
-				console.log(this.infoData.userList.indexOf(Cookie.getCookie('userID')));
-				return this.infoData.userList.indexOf(Cookie.getCookie('userID'));
-			},
-			isEventFull () {
-				return this.infoData.userList.length >= this.infoData.userLimit && this.infoData.acceptOverload;
-			}
-		},
-		filters: {
-			localeDate (date) {
-				var localeDate = new Date(date);
-				return (localeDate.toLocaleString());
-			},
-			TimeRemainingWith (strDateB, strDateA) {
-				let dateB = new Date(strDateB).getTime();
-				let dateA = new Date(strDateA).getTime();
-				var timeleft =new Date(Math.abs(dateB - dateA));
-				
-				let x = x = Math.floor(timeleft/1000);
-				let seconds = x % 60;
-				if(seconds<10) seconds = '0'+seconds;
-				x = Math.floor(x/60);
-				let minutes = x % 60;
-				if(minutes<10) minutes = '0'+minutes;
-				x = Math.floor(x/60);
-				let hours = x % 24;
-				if(hours<10) hours= '0'+hours;
-				x = Math.floor(x/24);
-				let days = x;
-				if(days <10) days = '0'+days;
-
-				return days +':' +hours +':' +minutes +':' +seconds;
+export default {
+	name: 'info',
+	data () {
+		return {
+			infoData: [],
+			errorMsg: '',
+			errorCode: '',
+			successMsg: '',
+			isArticleEditing: false,
+			editedArticle: {
+				acceptOverload: false
 			}
 		}
+	},
+	mounted () {
 
+		Store.commit('loadingOn');
+		this.fetchInfoData();	
+	},
+	methods : {
+		fetchInfoData () {
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+			let idInfo = (document.URL.split('/'))[4];
+			this.$http.get('http://www.sharinfo.api.romainfrancois.fr/api/infos/id/'+idInfo, options).then((response) => {
+
+				Store.commit('loadingOff');
+				if(response.status != 200) {
+					this.errorMsg = response.data.message;
+					this.errorCode = response.status;
+				}
+				else {
+					this.infoData = response.data;
+				}
+
+			}, (response) => {
+				console.log('Error:', response);
+				this.errorMsg = response.data.message;
+				Store.commit('loadingOff');
+				if(response.status == 403)
+					this.errorMsg = 'Unknown token, please try to login again';
+				this.errorCode = response.status;
+			});
+		},
+		setClass (info) {
+			switch(info.category) {
+				case 'Info':
+				return 'panel-info';
+				break;
+				case 'Event':
+				return 'panel-success';
+				break;
+				case 'Help':
+				return 'panel-warning';
+				break;
+				default:
+				return '';
+				break;
+			}
+		},
+		joinEvent (event, click) {
+			console.log(click);
+			if(!click) return;
+			if(event.category != 'Event') return;
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+
+			let idInfo = (document.URL.split('/'))[4];
+
+			this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/'+idInfo+'/join',{}, options).then((response) => {
+				if(response.status == 200)
+					this.successMsg = response.data.message;
+				else {
+					this.errorMsg = response.data.message;
+					this.errorCode = response.status;
+				}
+				this.fetchInfoData();
+			}, (response) => {
+				this.errorMsg = response.data.message;
+				this.errorCode = response.status;
+				console.log('Error: ' +response);
+			});
+		},
+		leaveEvent (event, click) {
+			if(!click || event.category != 'Event') return;
+			if(this.isMyArticle) {
+				$('#leaveBtn').text('You can\'t leave your own event !');
+				return;
+			}
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+
+			let idInfo = (document.URL.split('/'))[4];
+
+			this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/'+idInfo+'/leave',{}, options).then((response) => {
+				if(response.status == 200)
+					this.successMsg = response.data.message;
+				else {
+					this.errorMsg = response.data.message;
+					this.errorCode = response.status;
+				}
+				this.fetchInfoData();
+			}, (response) => {
+				this.errorMsg = response.data.message;
+				this.errorCode = response.status;
+				console.log('Error: ' +response);
+			});
+		},
+		toggleEdit () {
+			this.isArticleEditing = !this.isArticleEditing;
+		}
+	},
+	computed: {
+
+
+		isEventJoined () {
+			return this.infoData.userList.indexOf(Cookie.getCookie('userID'));
+		},
+
+		isEventFull () {
+			return {
+				'disabled': (this.infoData.userList.length >= this.infoData.userLimit && !this.infoData.acceptOverload)
+			}
+		},
+
+		isMyArticle () {
+			return {
+				'disabled': this.infoData.userID == Cookie.getCookie('userID')
+			}
+		}
+	},
+	filters: {
+		localeDate (date) {
+			var localeDate = new Date(date);
+			return (localeDate.toLocaleString('en-US', {'hour12':false}));
+		},
+		TimeRemainingWith (strDateB, strDateA) {
+			let dateB = new Date(strDateB).getTime();
+			let dateA = new Date(strDateA).getTime();
+			var timeleft =new Date(Math.abs(dateB - dateA));
+
+			let x = x = Math.floor(timeleft/1000);
+			let seconds = x % 60;
+			if(seconds<10) seconds = '0'+seconds;
+			x = Math.floor(x/60);
+			let minutes = x % 60;
+			if(minutes<10) minutes = '0'+minutes;
+			x = Math.floor(x/60);
+			let hours = x % 24;
+			if(hours<10) hours= '0'+hours;
+			x = Math.floor(x/24);
+			let days = x;
+			if(days <10) days = '0'+days;
+
+			return days +':' +hours +':' +minutes +':' +seconds;
+		}
 	}
+}
+
 </script>
 
 <style>
