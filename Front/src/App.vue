@@ -77,6 +77,7 @@
           Cookie.deleteCookie('token');
           Cookie.deleteCookie('Connected');
           this.$router.push('/');
+          Store.commit('logout');
         }
       }
     },
