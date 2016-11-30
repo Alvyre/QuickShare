@@ -152,7 +152,9 @@ router
                                         isEmailVisible: results.user.isEmailVisible
                                     };
                                     var token = jwt.sign(userData, config.secret, {
-                                        expiresIn: '3h'
+                                        expiresIn: '3h',
+                                        issuer: 'API-auth',
+                                        audience: 'web-frontend'
                                     });
                                     res.cookie('token', token, {
                                         path: '/',
