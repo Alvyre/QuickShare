@@ -3,7 +3,7 @@ const Cookie = {
     	var d = new Date();
     	d.setTime(d.getTime() + (exdays*24*60*60*1000));
     	var expires = "expires="+d.toUTCString();
-    	document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    	document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/; domain=.sharinfo.io ";
 	},
 
 	getCookie (cname) {
@@ -21,7 +21,7 @@ const Cookie = {
     	return "";
 	},
 	deleteCookie (name) {
-  		document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  		document.cookie = name + '=null; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/; domain=.sharinfo.io';
 	}
 };
 

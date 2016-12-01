@@ -18,7 +18,7 @@
 						<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{infoData.birthdate | localeDate }}</p>
 						<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{infoData.expirydate | TimeRemainingWith(infoData.birthdate) }}</p>
 						<button type="button" class="btn btn-large btn-block btn-success" v-if="infoData.category == 'Event' && isEventJoined == -1" :class="isEventFull" v-on:click.prevent.stop="joinEvent(infoData, $event)">Join Event</button>
-						<button type="button" class="btn btn-large btn-block btn-danger" v-if="infoData.category == 'Event' && isEventJoined == 1" v-on:click.prevent.stop="leaveEvent(infoData, $event)" :class="isMyArticle" id="leaveBtn">Leave Event</button>
+						<button type="button" class="btn btn-large btn-block btn-danger" v-if="infoData.category == 'Event' && isEventJoined != -1" v-on:click.prevent.stop="leaveEvent(infoData, $event)" :class="disableJoinl" id="leaveBtn">Leave Event</button>
 						<hr>
 						<footer>
 							<div class="right">
@@ -36,8 +36,12 @@
 			</div>
 		</div>
 		<div class="row" v-if="infoData.length != 0 && isMyArticle">
-			<div class="col-xs-4 col-xs-offset-4">
+		<!-- EDIT ARTICLE -->
+			<div class="col-xs-3 col-xs-offset-2 col-sm-3 col-sm-offset-2">
 				<button type="button" class="btn btn-large btn-block btn-primary" v-on:click.prevent.stop="toggleEdit()" >Edit <span class="glyphicon glyphicon-menu-down" aria-hidden="true" v-show='!isArticleEditing'></span><span class="glyphicon glyphicon-menu-up" aria-hidden="true" v-show='isArticleEditing'></span></button>
+			</div>
+			<div class="col-xs-3 col-xs-offset-2 col-sm-3 col-sm-offset-2">
+				<button type="button" class="btn btn-large btn-block btn-danger"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
 			</div>
 			<div class="col-xs-12 col-sm-12">
 				<form action="" method="POST" role="form" v-show="isArticleEditing">
@@ -68,11 +72,12 @@
 						<label for="userLimit">User limit</label>
 						<input type="text" class="form-control" id="userLimit" v-bind:placeholder="editedArticle.acceptOverload">
 					</div>
+
 					<div class="form-group">
 						<label for="expirydate">Expiry</label>
+						<em>(maximum date: {{options.maxDate | localeDate}})</em>
+						<Flatpickr :options='options' :class="form-control" :message="infoData.expirydate"/>
 					</div>
-					
-					
 
 					<button type="button" class="btn btn-large btn-block btn-primary" v-on:click.prevent.stop="">Submit</button>
 				</form>
@@ -88,9 +93,13 @@
 
 import Store from '../store';
 import Cookie from '../cookie-handler';
+var moment = require('moment');
+moment().format();
 
 // Vue 
-//==========================
+//=========================
+
+import Flatpickr from 'vue-flatpickr/vue-flatpickr-material_blue.vue'
 
 export default {
 	name: 'info',
@@ -103,11 +112,20 @@ export default {
 			isArticleEditing: false,
 			editedArticle: {
 				acceptOverload: false
+			},
+			options: {
+				enableTime: true,
+				time_24hr: true,
+				defaultDate: null,
+				minDate: null,
+				maxDate: null
 			}
 		}
 	},
+	components: {
+		Flatpickr
+	},
 	mounted () {
-
 		Store.commit('loadingOn');
 		this.fetchInfoData();	
 	},
@@ -129,6 +147,10 @@ export default {
 				}
 				else {
 					this.infoData = response.data;
+					// bind dates to the options var (flatpickr)
+					this.options.minDate = moment(this.infoData.birthdate).format();
+					this.options.defaultDate = moment(this.infoData.expirydate).format();
+					this.options.maxDate = moment(this.infoData.birthdate).add(1, 'd').format();
 				}
 
 			}, (response) => {
@@ -220,6 +242,7 @@ export default {
 
 
 		isEventJoined () {
+			console.log(this.infoData.userList.indexOf(Cookie.getCookie('userID')))
 			return this.infoData.userList.indexOf(Cookie.getCookie('userID'));
 		},
 
@@ -230,6 +253,9 @@ export default {
 		},
 
 		isMyArticle () {
+			return this.infoData.userID == Cookie.getCookie('userID');
+		},
+		disableJoin() {
 			return {
 				'disabled': this.infoData.userID == Cookie.getCookie('userID')
 			}

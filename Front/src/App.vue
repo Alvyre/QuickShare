@@ -29,7 +29,15 @@
     <transition name="component-fade" mode="out-in">
      <router-view></router-view>
    </transition>
-   <footerVue></footerVue>
+   <div id="footer-vue">
+    <footer v-if="!loading">
+      <div class="row row-centered">
+        <div class="col-xs-12 col-sm-12">
+          Sharinfo ©2016-2017
+        </div>
+      </div>    
+    </footer>
+  </div>
    <br>
  </div>
 </template>
@@ -38,6 +46,7 @@
 
   // Close the Collapsed menu of Bootsrap
   //==========================================================
+  
   $(document).on('click','.navbar-collapse.in', function(e) {
     if( $(e.target).is('a') || $(e.target).is('span') ) {
       $(this).collapse('hide');
@@ -47,9 +56,8 @@
   $(document).on('click','body', function(e) {
     $('.navbar-collapse.in').collapse('hide');
   });
-  //==========================================================
 
-  import footerVue from './components/footer.vue'
+  //==========================================================
   import Store from './store'
   import Cookie from './cookie-handler';
 
@@ -60,7 +68,6 @@
       }
     },
     components: {
-      footerVue
     },
     computed: {
       isConnected () {
@@ -76,8 +83,9 @@
         if(event){
           Cookie.deleteCookie('token');
           Cookie.deleteCookie('Connected');
-          this.$router.push('/');
+          Cookie.deleteCookie('userID');
           Store.commit('logout');
+          this.$router.push('/');
         }
       }
     },
@@ -96,6 +104,10 @@
   body { 
     padding-top: 70px;
   }
+  ::-webkit-scrollbar { 
+    display: none; 
+  }
+
   /* centered columns styles */
   .row-centered {
     text-align:center;
@@ -126,5 +138,8 @@
     position: absolute;
     top: 50%;
     left: 50%;
+  }
+  #footer-vue{
+  margin-top: 20px;
   }
 </style>

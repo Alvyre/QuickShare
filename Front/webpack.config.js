@@ -8,27 +8,19 @@ module.exports = {
     publicPath: '/dist/',
     filename: 'build.js'
   },
+  plugins:[
+    new webpack.ProvidePlugin({   
+        jQuery: 'jquery',
+        $: 'jquery',
+        jquery: 'jquery'
+    })
+  ],
   module: {
     rules: [
-      {
-        test: /\.vue$/,
-        loader: 'vue-loader',
-        options: {
-          // vue-loader options go here
-        }
-      },
-      {
-        test: /\.js$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/
-      },
-      {
-        test: /\.(png|jpg|gif|svg)$/,
-        loader: 'file',
-        options: {
-          name: '[name].[ext]?[hash]'
-        }
-      }
+      { test: /\.css$/, loader: "style-loader!css-loader" },
+      { test: /\.vue$/, loader: 'vue-loader', options: {} },
+      { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ },
+      { test: /\.(png|jpg|gif|svg)$/, loader: 'file', options: {name: '[name].[ext]?[hash]'} }
     ]
   },
   resolve: {
