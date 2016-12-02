@@ -8,6 +8,7 @@ var mongoose 	= require('mongoose');
 var Promise		= require('bluebird');
 var moment 		= require('moment');
 var Vote 		= require('./Vote');
+var Controller  = require('../controller');
 
 moment().format();
 

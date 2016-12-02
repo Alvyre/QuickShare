@@ -356,8 +356,8 @@ router
 
     // DATE Checking
 
-        var tempBirthDate = moment(req.body.birthdate);
-        var tempExpiryDate = moment(req.body.expirydate);
+        var tempBirthDate = moment(req.body.birthdate, moment.ISO_8601);
+        var tempExpiryDate = moment(req.body.expirydate, moment.ISO_8601);
         var timeFromNow = tempBirthDate.diff(moment());
         var timeFromBirth = tempExpiryDate.diff(tempBirthDate);
         if( timeFromNow < 0 || timeFromNow > 86400000) {                    // 24h in ms
@@ -407,7 +407,7 @@ router
 })
 
 
-// DELETE informations // todo Security
+// DELETE informations
 //==============================================
 
 .delete('/infos/delete/:id', function(req, res, next) {

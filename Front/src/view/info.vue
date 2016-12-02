@@ -36,29 +36,30 @@
 			</div>
 		</div>
 		<div class="row" v-if="infoData.length != 0 && isMyArticle">
-		<!-- EDIT ARTICLE -->
+			<!-- EDIT ARTICLE -->
 			<div class="col-xs-3 col-xs-offset-2 col-sm-3 col-sm-offset-2">
 				<button type="button" class="btn btn-large btn-block btn-primary" v-on:click.prevent.stop="toggleEdit()" >Edit <span class="glyphicon glyphicon-menu-down" aria-hidden="true" v-show='!isArticleEditing'></span><span class="glyphicon glyphicon-menu-up" aria-hidden="true" v-show='isArticleEditing'></span></button>
 			</div>
 			<div class="col-xs-3 col-xs-offset-2 col-sm-3 col-sm-offset-2">
-				<button type="button" class="btn btn-large btn-block btn-danger"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
+				<button type="button" class="btn btn-large btn-block btn-danger" v-on:click="deleteArticle()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
 			</div>
+			<div class="clearfix"><br><br></div>			
 			<div class="col-xs-12 col-sm-12">
-				<form action="" method="POST" role="form" v-show="isArticleEditing">
+				<form action="" method="POST" role="form" v-show="isArticleEditing" v-on:submit.prevent.stop="updateArticle()">
 					<legend>Edit my info:</legend>
 
 					<div class="form-group">
 						<label for="title">Title</label>
-						<input type="text" class="form-control" id="title" v-bind:placeholder="infoData.title">
+						<input type="text" class="form-control" id="title" v-bind:placeholder="infoData.title" v-model="editedArticle.title">
 					</div>
 					<div class="form-group">
 						<label for="description">Description</label>
-						<textarea type="text" class="form-control" id="description" v-bind:placeholder="infoData.description"></textarea>
+						<textarea type="text" class="form-control" id="description" v-bind:placeholder="infoData.description" v-model="editedArticle.description"></textarea>
 					</div>
 					<div class="form-group">
 						<label for="location">Location</label>
-						<input type="text" class="form-control" id="location" v-bind:placeholder="infoData.location">
-						<input type="text" class="form-control" name="addInfo" v-bind:placeholder="infoData.addInfo">
+						<input type="text" class="form-control" id="location" v-bind:placeholder="infoData.location" v-model="editedArticle.location">
+						<input type="text" class="form-control" name="addInfo" v-bind:placeholder="infoData.addInfo" v-model="editedArticle.addInfo">
 					</div>
 					<div class="form-group" v-if="infoData.category == 'Event'">
 						<div class="checkbox checkbox-inline">
@@ -70,16 +71,21 @@
 					</div>
 					<div class="form-group" v-show="!editedArticle.acceptOverload">
 						<label for="userLimit">User limit</label>
-						<input type="text" class="form-control" id="userLimit" v-bind:placeholder="editedArticle.acceptOverload">
+						<input type="text" class="form-control" id="userLimit" v-bind:placeholder="infoData.userLimit" v-model="editedArticle.userLimit">
 					</div>
 
 					<div class="form-group">
 						<label for="expirydate">Expiry</label>
 						<em>(maximum date: {{options.maxDate | localeDate}})</em>
-						<Flatpickr :options='options' :class="form-control" :message="infoData.expirydate"/>
+						<Flatpickr :options='options' :class="form-control" :message="infoData.expirydate" @update="updateExpiryDate"/>
 					</div>
-
-					<button type="button" class="btn btn-large btn-block btn-primary" v-on:click.prevent.stop="">Submit</button>
+					<div class="alert alert-success text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-show="successMsg">
+							<strong>{{successMsg}}</strong>
+					</div>
+					<div class="alert alert-danger text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-if="errorCode">
+						<strong>Error {{errorCode}}:</strong> {{errorMsg}}
+					</div>
+					<button type="submit" class="btn btn-large btn-block btn-primary">Submit</button>
 				</form>
 			</div>
 		</div>
@@ -111,7 +117,13 @@ export default {
 			successMsg: '',
 			isArticleEditing: false,
 			editedArticle: {
-				acceptOverload: false
+				title: '',
+				description: '',
+				location: '',
+				addInfo: '',
+				acceptOverload: false,
+				userLimit: '',
+				expirydate: null
 			},
 			options: {
 				enableTime: true,
@@ -179,7 +191,6 @@ export default {
 			}
 		},
 		joinEvent (event, click) {
-			console.log(click);
 			if(!click) return;
 			if(event.category != 'Event') return;
 			var options = {
@@ -191,7 +202,7 @@ export default {
 
 			let idInfo = (document.URL.split('/'))[4];
 
-			this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/'+idInfo+'/join',{}, options).then((response) => {
+			this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/'+this.infoData._id+'/join',{}, options).then((response) => {
 				if(response.status == 200)
 					this.successMsg = response.data.message;
 				else {
@@ -236,13 +247,80 @@ export default {
 		},
 		toggleEdit () {
 			this.isArticleEditing = !this.isArticleEditing;
+		},
+		deleteArticle () {
+			var choice = confirm('/!\\ WARNING: this action is definitive, Are you sure? /!\\ ');
+			if(choice) {
+				var options = {
+					headers: {
+						'x-access-token': Cookie.getCookie('token')
+					},
+					credentials: true
+				};
+				var vue = this;
+
+				this.$http.delete('http://www.sharinfo.api.romainfrancois.fr/api/infos/delete/'+this.infoData._id, options).then(( response) => {
+					if(response.status != 200) {
+						this.errorMsg = response.data.message;
+						this.errorCode = response.status;
+					}
+					else {
+						this.successMsg = response.data.message;
+						window.setTimeout(function(){
+							    // Move to login page
+							    vue.$router.push('/');
+							    }, 3000); // 3 secs
+					}
+				}, (response) => {
+					this.errorMsg = response.data.message;
+					this.errorCode = response.status;
+				});
+			}
+		},
+		updateExpiryDate (val) {
+			this.editedArticle.expirydate = moment(val).format();
+		},
+		updateArticle () {
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+			var payload = {
+				title:  		(this.editedArticle.title 			|| this.infoData.title),
+				description: 	(this.editedArticle.description 	|| this.infoData.description),
+				location: 		(this.editedArticle.location 		|| this.infoData.location),
+				addInfo: 		(this.editedArticle.addInfo			|| this.infoData.addInfo),
+				acceptOverload: (this.editedArticle.acceptOverload 	|| this.infoData.acceptOverload),
+				userLimit: 		(this.editedArticle.userLimit 		|| this.infoData.userLimit),
+				birthdate: 		this.infoData.birthdate,
+				expirydate: 	(this.editedArticle.expirydate 		|| this.infoData.expirydate)
+			};
+			payload.acceptOverload ? payload.userLimit = '' : '';
+			this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/update/'+this.infoData._id, payload, options).then((response) => {
+	
+				if(response.status != 200) {
+					this.errorMsg = response.data.message;
+					this.errorCode = response.status;
+				}
+				else {
+					this.successMsg = response.data.message;
+				}
+			}, (response) => {
+				console.log('Error:', response);
+				this.errorMsg = response.data.message;
+				if(response.status == 403)
+					this.errorMsg = 'Unknown token, please try to login again';
+				this.errorCode = response.status;
+			});
 		}
+
 	},
 	computed: {
 
 
 		isEventJoined () {
-			console.log(this.infoData.userList.indexOf(Cookie.getCookie('userID')))
 			return this.infoData.userList.indexOf(Cookie.getCookie('userID'));
 		},
 
