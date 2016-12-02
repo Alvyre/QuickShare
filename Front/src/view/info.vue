@@ -37,10 +37,10 @@
 		</div>
 		<div class="row" v-if="infoData.length != 0 && isMyArticle">
 			<!-- EDIT ARTICLE -->
-			<div class="col-xs-3 col-xs-offset-2 col-sm-3 col-sm-offset-2">
+			<div class="col-xs-4 col-xs-offset-1 col-sm-4 col-sm-offset-1">
 				<button type="button" class="btn btn-large btn-block btn-primary" v-on:click.prevent.stop="toggleEdit()" >Edit <span class="glyphicon glyphicon-menu-down" aria-hidden="true" v-show='!isArticleEditing'></span><span class="glyphicon glyphicon-menu-up" aria-hidden="true" v-show='isArticleEditing'></span></button>
 			</div>
-			<div class="col-xs-3 col-xs-offset-2 col-sm-3 col-sm-offset-2">
+			<div class="col-xs-4 col-xs-offset-2 col-sm-4 col-sm-offset-2">
 				<button type="button" class="btn btn-large btn-block btn-danger" v-on:click="deleteArticle()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
 			</div>
 			<div class="clearfix"><br><br></div>			
@@ -143,6 +143,10 @@ export default {
 	},
 	methods : {
 		fetchInfoData () {
+			if(Cookie.getCookie('Connected') != 'true') {
+				this.$router.push('/');
+				return;
+			}
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -316,6 +320,7 @@ export default {
 			});
 		},
 		voteUp () {
+			if(Cookie.getCookie('Connected') != true) return;
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -353,6 +358,7 @@ export default {
 			}
 		},
 		voteDown () {
+			if(Cookie.getCookie('Connected') != true) return;
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
