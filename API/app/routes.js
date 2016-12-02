@@ -590,7 +590,7 @@ router
                     vote = info.votes[i];
                     if(vote.userID === userID) {
                         isVoteExist = true;
-                        vote.value = votetype;
+                        vote.value == votetype ? vote.value = 0 : vote.value = votetype;
                         info.updateVoteCount();
                         Info.update({_id: infoID}, info, function(err) {
                             if(err) {

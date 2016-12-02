@@ -22,11 +22,11 @@
 						<hr>
 						<footer>
 							<div class="right">
-								<button type="button" class="btn btn-xs btn-success">
+								<button type="button" class="btn btn-xs btn-success" v-on:click.prevent.stop="voteUp()">
 									<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" style="color: white;"></span>
 								</button>
-								<span>{{infoData.voteCount}}</span>
-								<button type="button" class="btn btn-xs btn-danger">
+								<span>{{updateVoteCount}}</span>
+								<button type="button" class="btn btn-xs btn-danger" v-on:click.prevent.stop="voteDown()">
 									<span class="glyphicon glyphicon-thumbs-down" aria-hidden="true" style="color: white;"></span>
 								</button>
 							</div>
@@ -314,12 +314,88 @@ export default {
 					this.errorMsg = 'Unknown token, please try to login again';
 				this.errorCode = response.status;
 			});
+		},
+		voteUp () {
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+			this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/'+this.infoData._id+'/upvote', {}, options).then((response) => {
+			}, (response) => {
+				console.log('Error:', response);
+			});
+			var info = this.infoData;
+			var hadVoted = false;
+			this.infoData.votes.every(function(element, index, array) {
+				if(element.userID == Cookie.getCookie('userID')) {
+					hadVoted = true;
+					if(element.value == 1) {
+						info.voteCount--;
+						element.value = 0;	
+					} 
+					else if(element.value == -1) {
+						info.voteCount +=2;
+						element.value = 1;	
+					}
+					else {
+						info.voteCount++;
+						element.value = 1;
+					}
+					return false;
+				}
+				return true;
+			});
+			if(!hadVoted) {
+				this.infoData.voteCount ++;
+				this.infoData.votes.push({userID: Cookie.getCookie('userID'), value: 1});	
+			}
+		},
+		voteDown () {
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+			this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/'+this.infoData._id+'/downvote', {}, options).then((response) => {
+			}, (response) => {
+				console.log('Error:', response);
+			});
+			var info = this.infoData;
+			var hadVoted = false;
+			this.infoData.votes.every(function(element, index, array) {
+				if(element.userID == Cookie.getCookie('userID')) {
+					hadVoted = true;
+					if(element.value == 1) {
+						info.voteCount-=2;
+						element.value = -1;	
+					} 
+					else if(element.value == -1) {
+						info.voteCount ++;
+						element.value = 0;	
+					}
+					else {
+						info.voteCount--;
+						element.value = -1
+					}
+					return false;
+				}
+				return true;
+			});
+			if(!hadVoted) {
+				this.infoData.voteCount --;
+				this.infoData.votes.push({userID: Cookie.getCookie('userID'), value: -1});
+			}
 		}
 
 	},
 	computed: {
 
-
+		updateVoteCount () {
+			return this.infoData.voteCount;
+		},
 		isEventJoined () {
 			return this.infoData.userList.indexOf(Cookie.getCookie('userID'));
 		},
