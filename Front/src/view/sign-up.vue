@@ -16,7 +16,7 @@
 						<div class="form-group" :class="className">
 							<label for="name">Name</label>
 							<input type="text" class="form-control" id="inputName" required='required' aria-describedby="infoName" v-model="inputName">
-							<div id="infoName" class="help-block" v-show="checkName">Please type a name in a range from 3 to 6 characters.</div>
+							<div id="infoName" class="help-block" v-show="checkName">Please type a name in a range from 3 to 20 characters.</div>
 						</div>
 						<div class="form-group" :class="classPwd">
 							<label for="password">Password</label>
@@ -117,7 +117,7 @@
 			checkName () {
 				return ( this.inputName.length > 0 &&
 					 	 this.inputName.length < 3 ||
-					 	 this.inputName.length > 6);
+					 	 this.inputName.length > 20);
 			},
 			checkPwd () {
 				return ( this.inputPas.length > 0 &&
@@ -134,7 +134,7 @@
 			},
 			className () {
 				return {
-					'has-success': 	this.inputName.length >= 3 && this.inputName.length <= 6,
+					'has-success': 	this.inputName.length >= 3 && this.inputName.length <= 20,
 					'has-error': 	this.checkName
 				};
 			},

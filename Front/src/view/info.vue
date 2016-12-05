@@ -2,7 +2,7 @@
 	<div id="info">
 		<div class="row" v-if="infoData.length != 0">
 			<div class="col-xs-12 col-sm-12">
-				<div class="panel panel-success" :class="setClass(infoData)">
+				<div class="panel panel-success" :class="setInfoClass()">
 					<div class="panel-heading">
 						<span>{{infoData.title}}</span>
 					</div>
@@ -22,11 +22,11 @@
 						<hr>
 						<footer>
 							<div class="right">
-								<button type="button" class="btn btn-xs btn-success" v-on:click.prevent.stop="voteUp()">
+								<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen()" v-on:click.prevent.stop="voteUp()">
 									<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" style="color: white;"></span>
 								</button>
 								<span>{{updateVoteCount}}</span>
-								<button type="button" class="btn btn-xs btn-danger" v-on:click.prevent.stop="voteDown()">
+								<button type="button" class="btn btn-xs btn-danger" :class="setVoteClassBtnRed()" v-on:click.prevent.stop="voteDown()">
 									<span class="glyphicon glyphicon-thumbs-down" aria-hidden="true" style="color: white;"></span>
 								</button>
 							</div>
@@ -143,7 +143,7 @@ export default {
 	},
 	methods : {
 		fetchInfoData () {
-			if(Cookie.getCookie('Connected') != 'true') {
+			if(!this.isConnected) {
 				this.$router.push('/');
 				return;
 			}
@@ -178,8 +178,8 @@ export default {
 				this.errorCode = response.status;
 			});
 		},
-		setClass (info) {
-			switch(info.category) {
+		setInfoClass () {
+			switch(this.infoData.category) {
 				case 'Info':
 				return 'panel-info';
 				break;
@@ -320,7 +320,7 @@ export default {
 			});
 		},
 		voteUp () {
-			if(Cookie.getCookie('Connected') != true) return;
+			if(!this.isConnected) return;
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -358,7 +358,7 @@ export default {
 			}
 		},
 		voteDown () {
-			if(Cookie.getCookie('Connected') != true) return;
+			if(!this.isConnected) return;
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -394,11 +394,38 @@ export default {
 				this.infoData.voteCount --;
 				this.infoData.votes.push({userID: Cookie.getCookie('userID'), value: -1});
 			}
+		},
+		setVoteClassBtnGreen () {
+				console.log(this.getVoteStatus());
+				return {
+					'disabled': !this.isConnected,
+					'green': this.getVoteStatus() == 1
+				};
+		},
+		setVoteClassBtnRed () {
+			return {
+				'disabled': !this.isConnected,
+				'red': this.getVoteStatus() == -1
+			};
+		},
+		getVoteStatus() {
+			var status;
+			this.infoData.votes.every(function(element, index, array) {
+				if(element.userID == Cookie.getCookie('userID')) {
+					if(element.value == 1) status = 1;
+					else if(element.value == 0) status = 0;
+					else status = -1;
+					return false; 
+				}
+				return true;
+			});
+			return status;
 		}
-
 	},
 	computed: {
-
+		isConnected () {
+			return Cookie.getCookie('Connected') == 'true';
+		},
 		updateVoteCount () {
 			return this.infoData.voteCount;
 		},

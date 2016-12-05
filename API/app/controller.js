@@ -7,7 +7,7 @@ var Controller = {
 	isUsernameValid: function(username) {
 		username += ''; // Be sure to have a string input;
 
-		if( !validator.isEmpty(username) && validator.isLength(username, {min: 3, max: 15}) ) {
+		if( !validator.isEmpty(username) && validator.isLength(username, {min: 3, max: 20}) ) {
 			return true;
 		}
 		return false;

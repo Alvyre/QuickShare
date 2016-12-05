@@ -50,11 +50,11 @@
 								</router-link>
 								<footer>
 									<div class="right">
-										<button type="button" class="btn btn-xs btn-success" v-on:click.stop.prevent="voteUp(info)">
+										<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen(info)" v-on:click.stop.prevent="voteUp(info)">
 											<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" style="color: white;"></span>
 										</button>
 										<span>{{info.voteCount}}</span>
-										<button type="button" class="btn btn-xs btn-danger" v-on:click.stop.prevent="voteDown(info)">
+										<button type="button" class="btn btn-xs btn-danger" :class="setVoteClassBtnRed(info)" v-on:click.stop.prevent="voteDown(info)">
 											<span class="glyphicon glyphicon-thumbs-down" aria-hidden="true" style="color: white;"></span>
 										</button>
 									</div>
@@ -79,11 +79,11 @@
 								</router-link>
 								<footer>
 									<div class="right">
-										<button type="button" class="btn btn-xs btn-success" v-on:click.stop.prevent="voteUp(info)">
+										<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen(info)" v-on:click.stop.prevent="voteUp(info)">
 											<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" style="color: white;"></span>
 										</button>
 										<span>{{info.voteCount}}</span>
-										<button type="button" class="btn btn-xs btn-danger" v-on:click.stop.prevent="voteDown(info)">
+										<button type="button" class="btn btn-xs btn-danger" :class="setVoteClassBtnRed(info)" v-on:click.stop.prevent="voteDown(info)">
 											<span class="glyphicon glyphicon-thumbs-down" aria-hidden="true" style="color: white;"></span>
 										</button>
 									</div>
@@ -111,11 +111,11 @@
 								</router-link>
 								<footer>
 									<div class="right">
-										<button type="button" class="btn btn-xs btn-success" :class="disabledVote" v-on:click.stop.prevent="voteUp(info)">
+										<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen(info)" v-on:click.stop.prevent="voteUp(info)">
 											<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" style="color: white;"></span>
 										</button>
 										<span>{{info.voteCount}}</span>
-										<button type="button" class="btn btn-xs btn-danger" :class="disabledVote" v-on:click.stop.prevent="voteDown(info)">
+										<button type="button" class="btn btn-xs btn-danger" :class="setVoteClassBtnRed(info)" v-on:click.stop.prevent="voteDown(info)">
 											<span class="glyphicon glyphicon-thumbs-down" aria-hidden="true" style="color: white;"></span>
 										</button>
 									</div>
@@ -159,22 +159,6 @@
 				}, (response) => {
 					console.log('Error:', response);
 				});
-			},
-			setClass (info) {
-				switch(info.category) {
-					case 'Info':
-					return 'panel-info';
-					break;
-					case 'Event':
-					return 'panel-success';
-					break;
-					case 'Help':
-					return 'panel-warning';
-					break;
-					default:
-					return '';
-					break;
-				}
 			},
 			toggleInfo () {
 				if(this.infoActive === 'active')
@@ -273,12 +257,32 @@
 					info.votes.push({userID: Cookie.getCookie('userID'), value: 1});	
 				}
 			},
-			disabledVote () {
+			setVoteClassBtnGreen (info) {
 				return {
-					'disabled': !this.isConnected
+					'disabled': !this.isConnected,
+					'green': this.getVoteStatus(info) == 1
 				};
+			},
+			setVoteClassBtnRed (info) {
+				console.log(this.getVoteStatus(info));
+				return {
+					'disabled': !this.isConnected,
+					'red': this.getVoteStatus(info) == -1
+				};
+			},
+			getVoteStatus(info) {
+				var status;
+				info.votes.every(function(element, index, array) {
+					if(element.userID == Cookie.getCookie('userID')) {
+						if(element.value == 1) status = 1;
+						else if(element.value == 0) status = 0;
+						else status = -1;
+						return false; 
+					}
+					return true;
+				});
+				return status;
 			}
-
 		},
 		computed: {
 			loading () {
@@ -331,5 +335,10 @@
 </script>
 
 <style>
-
+.green>span {
+	color: green!important;
+}
+.red>span {
+	color: red!important;
+}
 </style>

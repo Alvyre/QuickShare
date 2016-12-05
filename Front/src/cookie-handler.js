@@ -1,9 +1,11 @@
+import Config from './config'
+
 const Cookie = {
 	setCookie (cname, cvalue, exdays) {
     	var d = new Date();
     	d.setTime(d.getTime() + (exdays*24*60*60*1000));
     	var expires = "expires="+d.toUTCString();
-    	document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/; domain=.sharinfo.io ";
+    	document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/; domain="+Config.domain;
 	},
 
 	getCookie (cname) {
@@ -21,7 +23,7 @@ const Cookie = {
     	return "";
 	},
 	deleteCookie (name) {
-  		document.cookie = name + '=null; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/; domain=.sharinfo.io';
+  		document.cookie = name + '=null; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/; domain='+Config.domain;
 	}
 };
 
