@@ -294,25 +294,12 @@
 		},
 		filters: {
 			localeDate (date) {
-				var localeDate = new Date(date);
-				var options = { 
-					weekday: 'short',
-					year: 'numeric',
-					month: 'short',
-					day: 'numeric',
-					timeZoneName: 'short',
-					hour12: 'false',
-					hour: '2-digit',
-					min: '2-digit',
-					sec: '2-digit'
-
-				};
-				return (localeDate.toLocaleString(options));
+			var localeDate = new Date(date);
+			return (localeDate.toLocaleString('en-US', {'hour12':false}));
 			},
 			TimeRemainingWith (strDateB, strDateA) {
 				let dateB = new Date(strDateB).getTime();
 				let dateA = new Date(strDateA).getTime();
-
 				var timeleft =new Date(Math.abs(dateB - dateA));
 
 				let x = x = Math.floor(timeleft/1000);

@@ -75,7 +75,7 @@
 					</div>
 
 					<div class="form-group">
-						<label for="expirydate">Expiry</label>
+						<label for="expirydate">End Date</label>
 						<em>(maximum date: {{options.maxDate | localeDate}})</em>
 						<Flatpickr :options='options' :class="form-control" :message="infoData.expirydate" @update="updateExpiryDate"/>
 					</div>
@@ -99,13 +99,12 @@
 
 import Store from '../store';
 import Cookie from '../cookie-handler';
+import Flatpickr from 'vue-flatpickr/vue-flatpickr-material_blue.vue'
 var moment = require('moment');
 moment().format();
 
 // Vue 
 //=========================
-
-import Flatpickr from 'vue-flatpickr/vue-flatpickr-material_blue.vue'
 
 export default {
 	name: 'info',
@@ -417,9 +416,9 @@ export default {
 					else status = -1;
 					return false; 
 				}
-				return true;
+				return true;			return status;
+
 			});
-			return status;
 		}
 	},
 	computed: {
@@ -481,6 +480,11 @@ export default {
 <style>
 	.info {
 		background.color: #31B0D5;
-
+	}
+	.green>span {
+	color: green!important;
+	}
+	.red>span {
+	color: red!important;
 	}
 </style>

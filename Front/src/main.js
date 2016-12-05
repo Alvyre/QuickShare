@@ -23,6 +23,11 @@ const router = new VueRouter({
 			component: require('./view/info.vue')
 		},
 		{
+			name:'addInfo',
+			path: '/newinfo',
+			component: require('./view/addInfo.vue')
+		},
+		{
 			name: 'signIn',
 			path: '/sign-in',
 			component: require('./view/sign-in.vue')

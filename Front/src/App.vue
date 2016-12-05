@@ -115,8 +115,6 @@
   .col-centered {
     display:inline-block;
     float:none;
-    /* reset the text-align */
-    text-align:left;
     /* inline-block space fix */
     margin-right:-4px;
   }
