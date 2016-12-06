@@ -281,7 +281,7 @@ export default {
 			}
 		},
 		updateExpiryDate (val) {
-			this.editedArticle.expirydate = moment(val).format();
+			this.editedArticle.expirydate = moment(val).utc().format();
 		},
 		updateArticle () {
 			var options = {
@@ -309,6 +309,7 @@ export default {
 				}
 				else {
 					this.successMsg = response.data.message;
+					this.fetchInfoData();
 				}
 			}, (response) => {
 				console.log('Error:', response);
@@ -416,9 +417,9 @@ export default {
 					else status = -1;
 					return false; 
 				}
-				return true;			return status;
-
+				return true;
 			});
+			return status;
 		}
 	},
 	computed: {

@@ -23,11 +23,11 @@
 					</div>
 					<div class="form-group">
 						<label for='startdate'>Start Date</label> <em>(Maximum 24h from now)</em><br>
-						<Flatpickr :options='options' :class="form-control" @update="updateStartDate()"/>
+						<Flatpickr :options='options' :class="form-control" @update="updateStartDate"/>
 					</div>
 					<div class="form-group">
 						<label for='enddate'>End Date</label> <em>(Maximum 24h from the start date)</em><br>
-						<Flatpickr :options='options' :class="form-control" @update="updateEndDate()"/>
+						<Flatpickr :options='options' :class="form-control" @update="updateEndDate"/>
 					</div>
 					<div class="form-group">
 						<label for="category">Category</label>
@@ -127,11 +127,14 @@ export default {
 		Flatpickr
 	},
 	methods: {
-		updateStartDate (value) {
-			this.newInfo.birthdate = moment(value).format();
+		updateStartDate (val) {
+			console.log(val)
+			this.newInfo.birthdate = moment(val).utc().format();
+			console.log(this.newInfo.birthdate);
 		},
-		updateEndDate (value) {
-			this.newInfo.expirydate = moment(value).format();
+		updateEndDate (val) {
+
+			this.newInfo.expirydate = moment(val).utc().format();
 		},
 		submitInfo () {
 			var options = {
@@ -144,6 +147,11 @@ export default {
 			this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/', this.newInfo, options).then((response) => {
 				if(response.status == 200) {
 					this.successMsg = response.data.message;
+					//Redirection to homepage
+					window.setTimeout(function(){
+						// Move to login page
+						vue.$router.push('/');
+					}, 5000); // 5 secs
 				}
 				else {
 					this.errorCode = response.status;
@@ -152,6 +160,7 @@ export default {
 			}, (response) => {
 				console.log('Error:', response);
 				this.errorCode = response.status;
+				this.errorMsg = response.data.message;
 			});
 		}
 	},

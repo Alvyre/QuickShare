@@ -29,7 +29,15 @@
 					<br>
 				</div>
 			</div>
-
+			<div class="clearfix"></div>
+			<div class="row row-centered" v-if="isConnected">
+				<div class="col-xs-4 col-xs-offset-4 col-sm-4 col-sm-offset-4">
+					<router-link to="/newInfo">
+						<button type="button" class="btn btn-large btn-block btn-primary"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Info</button>
+					</router-link>
+					<br>
+				</div>
+			</div>
 			<div class="row row-centered">
 				<div class="col-xs-12 col-sm-12 col-centered">
 					<div class="panel-info" v-for="info in infos">
