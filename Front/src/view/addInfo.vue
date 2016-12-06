@@ -23,11 +23,11 @@
 					</div>
 					<div class="form-group">
 						<label for='startdate'>Start Date</label> <em>(Maximum 24h from now)</em><br>
-						<Flatpickr :options='options' :class="form-control" @update="updateStartDate"/>
+						<Flatpickr :options='optionsBegin' :class="form-control" @update="updateStartDate"/>
 					</div>
 					<div class="form-group">
 						<label for='enddate'>End Date</label> <em>(Maximum 24h from the start date)</em><br>
-						<Flatpickr :options='options' :class="form-control" @update="updateEndDate"/>
+						<Flatpickr :options='optionsEnd' :class="form-control" @update="updateEndDate"/>
 					</div>
 					<div class="form-group">
 						<label for="category">Category</label>
@@ -109,11 +109,18 @@ export default {
 				userLimit: '',
 				acceptOverload: false
 			},
-			options: {
+			optionsBegin: {
 				enableTime: true,
 				time_24hr: true,
-				defaultDate: null,
-				minDate: null,
+				defaultDate: moment().format(),
+				minDate: moment().format(),
+				maxDate: moment().add(1, 'd').format()
+			},
+			optionsEnd: {
+				enableTime: true,
+				time_24hr: true,
+				defaultDate: moment().format(),
+				minDate: moment().format(),
 				maxDate: null
 			}
 		}
@@ -128,13 +135,18 @@ export default {
 	},
 	methods: {
 		updateStartDate (val) {
-			console.log(val)
 			this.newInfo.birthdate = moment(val).utc().format();
-			console.log(this.newInfo.birthdate);
 		},
 		updateEndDate (val) {
+			var maxDate = moment(this.options.minDate).add(1, 'd');
+			var userMaxDate = moment(val);
+			if(userMaxDate.diff(maxDate) > 0) {
+				this.newInfo.expirydate = maxDate.utc().format();
 
-			this.newInfo.expirydate = moment(val).utc().format();
+			}
+			else {
+				this.newInfo.expirydate = userMaxDate.utc().format();	
+			}
 		},
 		submitInfo () {
 			var options = {
@@ -143,7 +155,7 @@ export default {
 				},
 				credentials: true
 			};
-
+			var vue = this;
 			this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/', this.newInfo, options).then((response) => {
 				if(response.status == 200) {
 					this.successMsg = response.data.message;
