@@ -31,7 +31,7 @@
 			</div>
 			<div class="clearfix"></div>
 			<div class="row row-centered" v-if="isConnected">
-				<div class="col-xs-4 col-xs-offset-4 col-sm-4 col-sm-offset-4">
+				<div class="col-xs-6 col-xs-offset-3 col-sm-4 col-sm-offset-4">
 					<router-link to="/newInfo">
 						<button type="button" class="btn btn-large btn-block btn-primary"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Info</button>
 					</router-link>
@@ -172,19 +172,16 @@
 				if(this.infoActive === 'active')
 					this.infoActive = 'hide';
 				else (this.infoActive = 'active')
-					console.log(this.eventActive);
 			},
 			toggleEvent () {
 				if(this.eventActive === 'active')
 					this.eventActive = 'hide';
 				else (this.eventActive = 'active')
-					console.log(this.eventActive);
 			},
 			toggleHelp () {
 				if(this.helpActive === 'active')
 					this.helpActive = 'hide';
 				else (this.helpActive = 'active')
-					console.log(this.helpActive);
 			},
 			getRoute(infoID) {
 				return '/info/'+infoID;
