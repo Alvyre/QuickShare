@@ -5,7 +5,7 @@
 var express 		= require('express');
 var app     		= express();						// create the app with express
 var mongoose		= require('mongoose');				// mongoose for mongodb
-var config 	 		= require('./config/config'); 	// Database information
+var config 	 		= require('./config/config'); 		// Database information
 var morgan			= require('morgan');				// log requests to the console (express4)
 var bodyParser		= require('body-parser');			// pull information from HTML POST (express4)
 var router  		= require('./app/routes');			// Routes of the app
@@ -15,6 +15,9 @@ var fs 				= require('fs');
 var io 				= require('socket.io')(http);
 var cors			= require('cors');
 var cookieParser 	= require('cookie-parser');
+var cron 			= require('node-cron');
+var Cleaner			= require('./app/cleaner');
+
 
 // Configuration
 //======================================
@@ -70,6 +73,13 @@ io.on('connection', function(socket) {
 	console.log('a user connected');
 });
 
+// CRON DELETE OLD INFOS Every 30 min
+// ==============================================
+
+cron.schedule('30 * * * *', function(){
+	console.log('//////// Start Cleaning.. ////////');
+	Cleaner.deleteOldInfo();
+});
 
 // START THE SERVER
 // ==============================================
