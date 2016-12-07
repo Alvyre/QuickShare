@@ -793,7 +793,7 @@ router
     }
     else {
 
-        var userID = req.decoded._id;
+        var userID = req.decoded.userID;
         User.findOneAndRemove({_id: userID}, function(err, user) {
             if(err) {
                 console.log('Error when deleting user');
