@@ -26,6 +26,39 @@
 							</button>
 						</div>
 					</div>
+				</div>
+				<div class="clearfix"><hr></div>
+				<div class="col-xs-12 col-sm-12">
+					<h4 class="text-left">Sort by:</h4>
+					<div class="btn-group btn-group-justified" role="group" aria-label="...">
+						<div class="btn-group" role="group">
+							<button type="button" class="btn btn-default" v-on:click="sortByVotes(infos)">
+								Votes 
+								<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true" v-show="setStateSortVote == -1"></span>
+								<span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true" v-show="setStateSortVote == 1"></span>
+								<span class="glyphicon glyphicon-remove" aria-hidden="true" v-show="setStateSortVote == 0"></span>
+							</button>
+						</div>
+						<div class="btn-group" role="group">
+							<button type="button" class="btn btn-default" v-on:click="sortByExpiryDate(infos)">
+								End date 
+								<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true" v-show="setStateSortExpiryDate == -1"></span>
+								<span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true" v-show="setStateSortExpiryDate == 1"></span>
+								<span class="glyphicon glyphicon-remove" aria-hidden="true" v-show="setStateSortExpiryDate == 0"></span>
+							</button>
+						</div>
+						<div class="btn-group" role="group">
+							<button type="button" class="btn btn-default" v-on:click="sortByBirthDate(infos)">
+								Start date 
+								<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true" v-show="setStateSortBirthDate == -1"></span>
+								<span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true" v-show="setStateSortBirthDate == 1"></span>
+								<span class="glyphicon glyphicon-remove" aria-hidden="true" v-show="setStateSortBirthDate == 0"></span>
+							</button>
+						</div>
+					</div>
+
+					
+
 					<br>
 				</div>
 			</div>
@@ -111,7 +144,7 @@
 										<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{info.location}}, {{info.addInfo}}
 									</p>
 									<p>
-										<span class="glyphicon glyphicon-user" aria-hidden="true"></span> : {{info.userList.length}}/{{info.userLimit}}
+										<span class="glyphicon glyphicon-user" aria-hidden="true"></span> : {{info.userList.length}}<span v-if="info.userLimit">/{{info.userLimit}}</span>
 									</p>
 									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
@@ -150,7 +183,19 @@
 				infoActive: 'active',
 				eventActive: 'active',
 				helpActive: 'active',
-				infos: []
+				infos: [],
+				isSortedByVotes: {
+					state: true,
+					order: -1
+				},
+				isSortedByEnd: {
+					state: false,
+					order: 1
+				},
+				isSortedByStart: {
+					state: false,
+					order: 1
+				}
 			}	
 		},
 		mounted () {
@@ -270,7 +315,6 @@
 				};
 			},
 			setVoteClassBtnRed (info) {
-				console.log(this.getVoteStatus(info));
 				return {
 					'disabled': !this.isConnected,
 					'red': this.getVoteStatus(info) == -1
@@ -288,6 +332,63 @@
 					return true;
 				});
 				return status;
+			},
+			sortByBirthDate (array) {
+				if(this.isSortedByStart.order === -1) {
+					this.isSortedByStart.order = 1;
+					array.sort(function(a,b) { 
+    					return new Date(a.birthdate).getTime() - new Date(b.birthdate).getTime() 
+					});	
+				}
+				else {
+					this.isSortedByStart.order = -1;
+					array.sort(function(a,b) { 
+    					return new Date(b.birthdate).getTime() - new Date(a.birthdate).getTime() 
+					});
+				}
+				this.isSortedByStart.state 	= true;
+				this.isSortedByEnd.state   	= false;
+				this.isSortedByEnd.order 	= -1;		// we reinit to have ascend order by default
+				this.isSortedByVotes.state	= false;
+				this.isSortedByVotes.order  = -1;
+			},
+			sortByExpiryDate (array) {
+				if(this.isSortedByEnd.order === -1) {
+					this.isSortedByEnd.order = 1;
+					array.sort(function(a,b) { 
+    					return new Date(a.expirydate).getTime() - new Date(b.expirydate).getTime() 
+					});	
+				}
+				else {
+					this.isSortedByEnd.order = -1;
+					array.sort(function(a,b) { 
+    					return new Date(b.expirydate).getTime() - new Date(a.expirydate).getTime() 
+					});
+				}
+				this.isSortedByEnd.state 	= true;
+				this.isSortedByStart.state 	= false;
+				this.isSortedByStart.order  = -1;
+				this.isSortedByVotes.state 	= false;
+				this.isSortedByVotes.order  = -1;
+			},
+			sortByVotes (array) {
+				if(this.isSortedByVotes.order === -1) {
+					this.isSortedByVotes.order = 1;
+					array.sort(function(a,b) { 
+    					return a.voteCount - b.voteCount 
+					});	
+				}
+				else {
+					this.isSortedByVotes.order = -1;
+					array.sort(function(a,b) { 
+    					return b.voteCount - a.voteCount 
+					});
+				}
+				this.isSortedByEnd.state 	= false;
+				this.isSortedByEnd.order 	= -1;
+				this.isSortedByStart.state 	= false;
+				this.isSortedByStart.order 	= -1;
+				this.isSortedByVotes.state 	= true;
 			}
 		},
 		computed: {
@@ -296,12 +397,32 @@
 			},
 			isConnected() {
 				return Cookie.getCookie('Connected') == 'true';
+			},
+			setStateSortVote () {
+				if(this.isSortedByVotes.state && this.isSortedByVotes.order == 1) return 1;
+				if(this.isSortedByVotes.state && this.isSortedByVotes.order == -1) return -1;
+
+				return 0;
+			},
+			setStateSortBirthDate () {
+				if(this.isSortedByStart.state && this.isSortedByStart.order == 1) return 1;
+				if(this.isSortedByStart.state && this.isSortedByStart.order == -1) return -1;
+
+				return 0;
+			},
+			setStateSortExpiryDate () {
+				if(this.isSortedByEnd.state && this.isSortedByEnd.order == 1) return 1;
+				if(this.isSortedByEnd.state && this.isSortedByEnd.order == -1) return -1;
+
+				return 0;
 			}
+
+
 		},
 		filters: {
 			localeDate (date) {
-			var localeDate = new Date(date);
-			return (localeDate.toLocaleString('en-US', {'hour12':false}));
+				var localeDate = new Date(date);
+				return (localeDate.toLocaleString('en-US', {'hour12':false}));
 			},
 			TimeRemainingWith (strDateB, strDateA) {
 				let dateB = new Date(strDateB).getTime();

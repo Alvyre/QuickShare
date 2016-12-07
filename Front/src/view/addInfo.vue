@@ -140,15 +140,7 @@ export default {
 			this.newInfo.birthdate = moment(val).utc().format();
 		},
 		updateEndDate (val) {
-			var maxDate = moment(this.options.minDate).add(1, 'd');
-			var userMaxDate = moment(val);
-			if(userMaxDate.diff(maxDate) > 0) {
-				this.newInfo.expirydate = maxDate.utc().format();
-
-			}
-			else {
-				this.newInfo.expirydate = userMaxDate.utc().format();	
-			}
+			this.newInfo.expirydate = moment(val).utc().format();	
 		},
 		submitInfo () {
 			var options = {
