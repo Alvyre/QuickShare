@@ -3,6 +3,9 @@
 // Requires
 var express         = require('express');
 var router          = express.Router();
+var app             = express();                                // create the app with express
+var http            = require('http').Server(app);
+var io              = require('socket.io')(http);
 var config          = require('../config/config');
 var moment		    = require('moment');
 var Promise		    = require('bluebird');
@@ -10,7 +13,7 @@ var Info 		    = require('./models/Info');
 var User		    = require('./models/User');
 var Controller      = require('./controller.js');
 var bcrypt          = require('bcrypt');
-var jwt             = require('jsonwebtoken'); // used to create, sign, and verify tokens
+var jwt             = require('jsonwebtoken');                  // used to create, sign, and verify tokens
 var reCAPTCHA       = require('recaptcha2');
 
 
@@ -358,17 +361,13 @@ router
 
         var tempBirthDate = moment(req.body.birthdate, moment.ISO_8601);
         var tempExpiryDate = moment(req.body.expirydate, moment.ISO_8601);
-        var timeFromNow = tempBirthDate.diff(moment());
         var timeFromBirth = tempExpiryDate.diff(tempBirthDate);
-        if( timeFromNow < 0 || timeFromNow > 86400000) {                    // 24h in ms
-            res.status(400).send({success: false, message: 'Invalid birthdate'});
-        }
-        else if( timeFromBirth < 0 || timeFromBirth > 86400000) {           // 24h in ms
+        if( timeFromBirth < 0 || timeFromBirth > 86400000) {           // 24h in ms
             res.status(400).send({success: false, message: 'Invalid expirydate'});
             console.log(timeFromBirth);
         }
 
-    // POST Handling
+    // INFO Handling
 
         else {
             if( !(Controller.isObjectIDValid(req.params.id)) ) {
@@ -389,6 +388,7 @@ router
                                 console.log('Error when updating info: '+err);
                                 res.status(500).send({success: false, message: 'Error when updating info'});
                             }
+                            //io.emit('updateInfo', JSON.stringify(info));
                             res.status(200).send({success: true, message: 'Info updated'});
                         }); 
                         }

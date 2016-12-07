@@ -181,6 +181,18 @@
 
 	export default {
 		name: 'home',
+		sockets:{
+    		connect: function(){
+      			console.log('socket connected')
+    		},
+    		updateInfo (info) {
+    			$.each(this.infos, function(index, value) {
+				    if(value._id == info._id ) {
+				    	value = info;
+				    }
+				}); 
+    		}
+    	},
 		data () {
 			return {
 				infoActive: 'active',
