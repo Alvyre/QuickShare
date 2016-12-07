@@ -119,8 +119,13 @@
 		    			console.log('Error:', response);
 		    			this.errorMsg = response.message;
 		    			Store.commit('loadingOff');
-		    			if(response.status == 403)
-		    				this.errorMsg = 'Unknown token, please try to login again';
+		    			if(response.status == 403) {
+		    				this.errorMsg = 'Unknown/Expired token, please try to login again';
+							Cookie.deleteCookie('token');
+          					Cookie.deleteCookie('Connected');
+          					Cookie.deleteCookie('userID');
+          					Store.commit('logout');
+		    			}
 		    			this.errorCode = response.status;
 		    		});
 

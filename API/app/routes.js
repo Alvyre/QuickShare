@@ -214,10 +214,10 @@ router
     //decode token
     if(token != undefined) {
 
-        //verifies secret and checks exp
+        //verifies secret and checks expiry
         jwt.verify(token, config.secret, function(err, decoded) {
             if(err) {
-                return res.status(500).json({ success: false, message: 'Failed to authenticate token'});
+                return res.status(403).json({ success: false, message: 'Failed to authenticate token'});
             }
             else {
                 //if everything good save to request for use in other Routes

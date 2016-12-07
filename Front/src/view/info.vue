@@ -15,7 +15,8 @@
 						<p>
 							<span class="glyphicon glyphicon-user" aria-hidden="true"></span> : {{infoData.userList.length}}/{{infoData.userLimit}}
 						</p> 
-						<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{infoData.birthdate | localeDate }}</p>
+						<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{infoData.birthdate | localeDate }}</p>
+						<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{infoData.expirydate | localeDate }}</p>
 						<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{infoData.expirydate | TimeRemainingWith(infoData.birthdate) }}</p>
 						<button type="button" class="btn btn-large btn-block btn-success" v-if="infoData.category == 'Event' && isEventJoined == -1" :class="isEventFull" v-on:click.prevent.stop="joinEvent(infoData, $event)">Join Event</button>
 						<button type="button" class="btn btn-large btn-block btn-danger" v-if="infoData.category == 'Event' && isEventJoined != -1" v-on:click.prevent.stop="leaveEvent(infoData, $event)" :class="disableJoinl" id="leaveBtn">Leave Event</button>
@@ -173,8 +174,13 @@ export default {
 				console.log('Error:', response);
 				this.errorMsg = response.data.message;
 				Store.commit('loadingOff');
-				if(response.status == 403)
-					this.errorMsg = 'Unknown token, please try to login again';
+				if(response.status == 403) {
+					this.errorMsg = 'Unknown/Expired token, please try to login again';
+					Cookie.deleteCookie('token');
+          			Cookie.deleteCookie('Connected');
+          			Cookie.deleteCookie('userID');
+          			Store.commit('logout');
+				}
 				this.errorCode = response.status;
 			});
 		},

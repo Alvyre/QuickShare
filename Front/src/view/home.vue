@@ -85,7 +85,8 @@
 									<p>
 										<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{info.location}}, {{info.addInfo}}
 									</p>
-									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
+									<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
+									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.expirydate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
 									<hr>
 								</router-link>
@@ -114,7 +115,8 @@
 									<p>
 										<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{info.location}}, {{info.addInfo}}
 									</p>
-									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
+									<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
+									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.expirydate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
 									<hr>
 								</router-link>
@@ -146,7 +148,8 @@
 									<p>
 										<span class="glyphicon glyphicon-user" aria-hidden="true"></span> : {{info.userList.length}}<span v-if="info.userLimit">/{{info.userLimit}}</span>
 									</p>
-									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
+									<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
+									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.expirydate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
 									<hr>
 								</router-link>
