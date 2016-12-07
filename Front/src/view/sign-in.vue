@@ -38,6 +38,8 @@
 <script>
 	import Store from '../store';
 	import Cookie from '../cookie-handler';
+	import Config from '../config';
+
 	export default {
 		name: 'signIn',
 		data () {
@@ -71,7 +73,7 @@
 						var vue = this;
 
 					  	// POST /someUrl
-					  	this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/user/login', body).then((response) => {
+					  	this.$http.post(Config.urlAPI +'/api/user/login', body).then((response) => {
 
 					    // get status
 					    if(response.status === 200) {

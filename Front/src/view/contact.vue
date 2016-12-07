@@ -11,7 +11,7 @@
 		<div class="clearfix"></div>
 		<div class="row row-centered">
 			<div class="col-xs-6 col-xs-offset-3 col-sm-4 col-sm-offset-4">
-				<a class="btn btn-primary" href="mailto:Sharinfo@romainfrancois.fr?subject=SharInfo contact" role="">Send e-mail</a>
+				<a class="btn btn-primary" v-bind:href="mailto" role="">Send e-mail</a>
 			</div>
 		</div>
 	</div>
@@ -20,7 +20,7 @@
 <script>
 	//Import
 	//==================================
-
+	import Config from '../config'
 
 	//Vue
 	//==================================
@@ -33,7 +33,8 @@
 					name: '',
 					email: '',
 					message: ''
-				}
+				},
+				mailto: 'mailto:'+ contactConfig.contactEmail + '?subject=SharInfo' 
 			}
 		},
 		methods: {

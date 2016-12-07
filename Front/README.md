@@ -28,7 +28,9 @@ Then, you have to create a config.js file into the /src folder:
     
     export default {
 
-	domain: '.<your_domain>'
+	domain: '.<your_domain>',
+	urlAPI: '<your_API_URL>', 	// without the /api/...
+	contactEmail: <your_@Mail>
 	};
 
 **Serve & Build:**

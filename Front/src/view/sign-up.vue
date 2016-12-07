@@ -52,6 +52,10 @@
 </template>
 
 <script>
+
+import Config from '../config';
+
+
 	export default {
 		name: 'signup',
 		data () {
@@ -89,7 +93,7 @@
 						var vue = this;
 					
 					  	// POST /someUrl
-					  	this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/user/register', body).then((response) => {
+					  	this.$http.post(Config.urlAPI +'/api/user/register', body).then((response) => {
 
 					    // get status
 					    if(response.status === 200) {

@@ -99,6 +99,7 @@
 
 import Store from '../store';
 import Cookie from '../cookie-handler';
+import Config from '../config';
 import Flatpickr from 'vue-flatpickr/vue-flatpickr-material_blue.vue'
 var moment = require('moment');
 moment().format();
@@ -153,7 +154,7 @@ export default {
 				credentials: true
 			};
 			let idInfo = (document.URL.split('/'))[4];
-			this.$http.get('http://www.sharinfo.api.romainfrancois.fr/api/infos/id/'+idInfo, options).then((response) => {
+			this.$http.get(Config.urlAPI +'/api/infos/id/'+idInfo, options).then((response) => {
 
 				Store.commit('loadingOff');
 				if(response.status != 200) {
@@ -205,7 +206,7 @@ export default {
 
 			let idInfo = (document.URL.split('/'))[4];
 
-			this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/'+this.infoData._id+'/join',{}, options).then((response) => {
+			this.$http.post(Config.urlAPI +'/api/infos/'+this.infoData._id+'/join',{}, options).then((response) => {
 				if(response.status == 200)
 					this.successMsg = response.data.message;
 				else {
@@ -234,7 +235,7 @@ export default {
 
 			let idInfo = (document.URL.split('/'))[4];
 
-			this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/'+idInfo+'/leave',{}, options).then((response) => {
+			this.$http.post(Config.urlAPI +'/api/infos/'+idInfo+'/leave',{}, options).then((response) => {
 				if(response.status == 200)
 					this.successMsg = response.data.message;
 				else {
@@ -262,7 +263,7 @@ export default {
 				};
 				var vue = this;
 
-				this.$http.delete('http://www.sharinfo.api.romainfrancois.fr/api/infos/delete/'+this.infoData._id, options).then(( response) => {
+				this.$http.delete(Config.urlAPI +'/api/infos/delete/'+this.infoData._id, options).then(( response) => {
 					if(response.status != 200) {
 						this.errorMsg = response.data.message;
 						this.errorCode = response.status;
@@ -301,7 +302,7 @@ export default {
 				expirydate: 	(this.editedArticle.expirydate 		|| this.infoData.expirydate)
 			};
 			payload.acceptOverload ? payload.userLimit = '' : '';
-			this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/update/'+this.infoData._id, payload, options).then((response) => {
+			this.$http.post(Config.urlAPI +'/api/infos/update/'+this.infoData._id, payload, options).then((response) => {
 	
 				if(response.status != 200) {
 					this.errorMsg = response.data.message;
@@ -327,7 +328,7 @@ export default {
 				},
 				credentials: true
 			};
-			this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/'+this.infoData._id+'/upvote', {}, options).then((response) => {
+			this.$http.post(Config.urlAPI +'/api/infos/'+this.infoData._id+'/upvote', {}, options).then((response) => {
 			}, (response) => {
 				console.log('Error:', response);
 			});
@@ -365,7 +366,7 @@ export default {
 				},
 				credentials: true
 			};
-			this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/'+this.infoData._id+'/downvote', {}, options).then((response) => {
+			this.$http.post(Config.urlAPI +'/api/infos/'+this.infoData._id+'/downvote', {}, options).then((response) => {
 			}, (response) => {
 				console.log('Error:', response);
 			});

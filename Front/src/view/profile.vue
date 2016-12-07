@@ -69,6 +69,8 @@
 <script>
 	import Cookie from '../cookie-handler';
 	import Store  from '../store';
+	import Config from '../config';
+
 	export default {
 		name: 'profile',
 		data () {
@@ -98,7 +100,7 @@
 					credentials: true
 				};
 					// get user infos
-				this.$http.get('http://www.sharinfo.api.romainfrancois.fr/api/user/myprofile', options).then((response) => {
+				this.$http.get(Config.urlAPI +'/api/user/myprofile', options).then((response) => {
 		    		this.userData = response.data;
 		    		
 		    		if(response.status != 200) {
@@ -106,7 +108,7 @@
 		    			this.errorCode = response.status;
 		    		}
 		    		// get the posts
-		    		this.$http.get('http://www.sharinfo.api.romainfrancois.fr/api/infos/user/'+this.userData._id, options).then((response) => {
+		    		this.$http.get(Config.urlAPI +'/api/infos/user/'+this.userData._id, options).then((response) => {
 		    			this.userInfos = response.data;
 		    			Store.commit('loadingOff');
 		    			if(response.status != 200) {
@@ -146,7 +148,7 @@
 					credentials: true
 				};
 				// POST /someUrl
-			  	this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/user/update', body, options).then((response) => {
+			  	this.$http.post(Config.urlAPI +'/api/user/update', body, options).then((response) => {
 
 			    	// get status
 				    if(response.status === 200) {
@@ -192,7 +194,7 @@
 					};
 					var vue = this;
 
-					this.$http.delete('http://www.sharinfo.api.romainfrancois.fr/api/user/delete', options).then(( response) => {
+					this.$http.delete(Config.urlAPI +'/api/user/delete', options).then(( response) => {
 						if(response.status != 200) {
 		    				this.errorMsg = response.data.message;
 		    				this.errorCode = response.status;

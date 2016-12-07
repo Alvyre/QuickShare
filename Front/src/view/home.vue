@@ -141,6 +141,7 @@
 
 	import Store from '../store';
 	import Cookie from '../cookie-handler';
+	import Config from '../config';
 
 	export default {
 		name: 'home',
@@ -161,7 +162,7 @@
 		methods: {
 			fetchInfos () {
 
-				this.$http.get('http://www.sharinfo.api.romainfrancois.fr/api/infos').then((response) => {
+				this.$http.get(Config.urlAPI +'/api/infos').then((response) => {
 					this.infos = response.data;
 					Store.commit('loadingOff');
 				}, (response) => {
@@ -195,7 +196,7 @@
 					credentials: true
 				};
 
-				this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/'+info._id+'/upvote', {}, options).then((response) => {
+				this.$http.post(Config.urlAPI +'/api/infos/'+info._id+'/upvote', {}, options).then((response) => {
 				}, (response) => {
 					console.log('Error:', response);
 				});
@@ -233,7 +234,7 @@
 					credentials: true
 				};
 
-				this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/'+info._id+'/downvote', {}, options).then((response) => {
+				this.$http.post(Config.urlAPI +'/api/infos/'+info._id+'/downvote', {}, options).then((response) => {
 				}, (response) => {
 					console.log('Error:', response);
 				});

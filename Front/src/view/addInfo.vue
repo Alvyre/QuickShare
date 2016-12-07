@@ -83,7 +83,9 @@
 
 import Store from '../store';
 import Cookie from '../cookie-handler';
-import Flatpickr from 'vue-flatpickr/vue-flatpickr-material_blue.vue'
+import Flatpickr from 'vue-flatpickr/vue-flatpickr-material_blue.vue';
+import Config from '../config';
+
 var moment = require('moment');
 moment().format();
 
@@ -156,7 +158,7 @@ export default {
 				credentials: true
 			};
 			var vue = this;
-			this.$http.post('http://www.sharinfo.api.romainfrancois.fr/api/infos/', this.newInfo, options).then((response) => {
+			this.$http.post(Config.urlAPI +'/api/infos/', this.newInfo, options).then((response) => {
 				if(response.status == 200) {
 					this.successMsg = response.data.message;
 					//Redirection to homepage
