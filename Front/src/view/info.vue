@@ -13,7 +13,7 @@
 							<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{infoData.location}}<span v-if='infoData.addInfo'>,</span> {{infoData.addInfo}}
 						</p>
 						<p>
-							<span class="glyphicon glyphicon-user" aria-hidden="true"></span> : {{infoData.userList.length}}<span v-if="infoData.userLimit">/{{infoData.userLimit}}</span>
+							<span v-if="infoData.category == 'Event'"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> : {{infoData.userList.length}}<span v-if="infoData.userLimit">/{{infoData.userLimit}}</span></span>
 						</p> 
 						<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{infoData.birthdate | localeDate }}</p>
 						<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{infoData.expirydate | localeDate }}</p>
