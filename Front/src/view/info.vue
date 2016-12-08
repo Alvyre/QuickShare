@@ -81,7 +81,7 @@
 						<Flatpickr :options='options' :class="form-control" :message="infoData.expirydate" @update="updateExpiryDate"/>
 					</div>
 					<div class="alert alert-success text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-show="successMsg">
-							<strong>{{successMsg}}</strong>
+						<strong>{{successMsg}}</strong>
 					</div>
 					<div class="alert alert-danger text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-if="errorCode">
 						<strong>Error {{errorCode}}:</strong> {{errorMsg}}
@@ -110,6 +110,50 @@ moment().format();
 
 export default {
 	name: 'info',
+	sockets: {
+		connect: function(){
+			console.log('socket connected');
+		},
+		updateInfo (info) {
+			console.log('socket:updateinfo');
+			if(this.infoData._id == info._id) {
+				this.infoData.title 		= info.title;
+				this.infoData.description 	= info.description;
+				this.infoData.birthdate 	= info.birthdate;
+				this.infoData.expirydate    = info.expirydate;
+				this.infoData.category		= info.category;
+				this.infoData.location		= info.location;
+				this.infoData.addInfo 		= info.addInfo;
+				this.infoData.userLimit 	= info.userLimit;
+				this.infoData.acceptOverload= info.acceptOverload;
+			}
+		},
+		deleteInfo (info) {
+			console.log('socket:deleteinfo');
+			if(this.infoData._id == info._id && this.infoData.userID != Cookie.getCookie('userID')) {
+				alert('Sorry, this info just has beed deleted, you will be redirected');
+				this.$router.push('/');
+			}
+		},
+		joinEvent (info) {
+			console.log('socket:joinEvent');
+			if(this.infoData._id == info.ID && this.infoData.category == 'Event') {
+				this.infoData.userList.push(info.userID);
+			}
+		},
+		leaveEvent (info) {
+			console.log('socket:leaveEvent');
+			if(this.infoData._id == info.ID && this.infoData.category == 'Event') {
+				this.infoData.userList.splice(this.infoData.userList.indexOf(info.userID), 1);
+			}
+		},
+		voteUpdated (info) {
+			console.log('socket:voteUpdated');
+			if(this.infoData._id == info.ID) {
+				this.infoData.voteCount = info.voteCount;
+			}
+		}
+	},
 	data () {
 		return {
 			infoData: [],
@@ -177,9 +221,9 @@ export default {
 				if(response.status == 403) {
 					this.errorMsg = 'Unknown/Expired token, please try to login again';
 					Cookie.deleteCookie('token');
-          			Cookie.deleteCookie('Connected');
-          			Cookie.deleteCookie('userID');
-          			Store.commit('logout');
+					Cookie.deleteCookie('Connected');
+					Cookie.deleteCookie('userID');
+					Store.commit('logout');
 				}
 				this.errorCode = response.status;
 			});
@@ -309,7 +353,7 @@ export default {
 			};
 			payload.acceptOverload ? payload.userLimit = '' : '';
 			this.$http.post(Config.urlAPI +'/api/infos/update/'+this.infoData._id, payload, options).then((response) => {
-	
+
 				if(response.status != 200) {
 					this.errorMsg = response.data.message;
 					this.errorCode = response.status;
@@ -403,11 +447,11 @@ export default {
 			}
 		},
 		setVoteClassBtnGreen () {
-				console.log(this.getVoteStatus());
-				return {
-					'disabled': !this.isConnected,
-					'green': this.getVoteStatus() == 1
-				};
+			console.log(this.getVoteStatus());
+			return {
+				'disabled': !this.isConnected,
+				'green': this.getVoteStatus() == 1
+			};
 		},
 		setVoteClassBtnRed () {
 			return {
@@ -490,9 +534,9 @@ export default {
 		background.color: #31B0D5;
 	}
 	.green>span {
-	color: green!important;
+		color: green!important;
 	}
 	.red>span {
-	color: red!important;
+		color: red!important;
 	}
 </style>

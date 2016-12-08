@@ -186,11 +186,61 @@
       			console.log('socket connected')
     		},
     		updateInfo (info) {
-    			$.each(this.infos, function(index, value) {
-				    if(value._id == info._id ) {
-				    	value = info;
-				    }
-				}); 
+    			console.log('socket:updateinfo');
+
+    			for (var i = this.infos.length - 1; i >= 0; i--) {
+
+    				if(this.infos[i]._id == info._id) {
+    					this.infos[i].title 		= info.title;
+    					this.infos[i].description 	= info.description;
+    					this.infos[i].birthdate 	= info.birthdate;
+    					this.infos[i].expirydate    = info.expirydate;
+    					this.infos[i].category		= info.category;
+    					this.infos[i].location		= info.location;
+    					this.infos[i].addInfo 		= info.addInfo;
+    					this.infos[i].userLimit 	= info.userLimit;
+    					this.infos[i].acceptOverload= info.acceptOverload;
+    					return;
+    				}
+    			}
+    		},
+    		newInfo (info) {
+    			console.log('socket:newinfo');
+    			this.infos.push(info);
+    		},
+    		deleteInfo (info) {
+    			console.log('socket:deleteinfo');
+    			for (var i = this.infos.length - 1; i >= 0; i--) {
+    				if(this.infos[i]._id == info._id) {
+    					this.infos.splice(i,1);
+    				}
+    			}
+    		},
+    		joinEvent (info) {
+    			console.log('socket:joinEvent');
+    			for (var i = this.infos.length - 1; i >= 0; i--) {
+    				if(this.infos[i]._id == info.ID) {
+
+    					this.infos[i].userList.push(info.userID);
+    				}
+    			}
+    		},
+    		leaveEvent (info) {
+    			console.log('socket:leaveEvent');
+    			for (var i = this.infos.length - 1; i >= 0; i--) {
+    				if(this.infos[i]._id == info.ID) {
+    					this.infos[i].userList.splice(this.infos[i].userList.indexOf(info.userID), 1);
+    					console.log('leave');
+    				}
+    			}
+    		},
+    		voteUpdated (info) {
+    			console.log('socket:voteUpdated');
+    			for (var i = this.infos.length - 1; i >= 0; i--) {
+    				if(this.infos[i]._id == info.ID) {
+    					this.infos[i].voteCount = info.voteCount;
+    				}
+    			}
     		}
     	},
 		data () {

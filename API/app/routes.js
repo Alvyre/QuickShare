@@ -3,9 +3,6 @@
 // Requires
 var express         = require('express');
 var router          = express.Router();
-var app             = express();                                // create the app with express
-var http            = require('http').Server(app);
-var io              = require('socket.io')(http);
 var config          = require('../config/config');
 var moment		    = require('moment');
 var Promise		    = require('bluebird');
@@ -16,13 +13,12 @@ var bcrypt          = require('bcrypt');
 var jwt             = require('jsonwebtoken');                  // used to create, sign, and verify tokens
 var reCAPTCHA       = require('recaptcha2');
 
-
 //hash setup
 const saltRounds = 10;
 
 //reCAPTCHA setup
 
-var recaptcha=new reCAPTCHA({
+var recaptcha = new reCAPTCHA({
     siteKey:'6LeKFAwUAAAAAL1miQAbHCzWG9eM1dS6JpjRovmN',
     secretKey: config.googleSecret
 });
@@ -290,6 +286,8 @@ router
                     res.status(500).send(err);
         	    }
                 else {
+                    var io = req.app.get('socketio');
+                    io.emit('newInfo', info);
                     res.status(200).json({success: true, message: 'Successfully added'});
                 }
         	});
@@ -388,7 +386,8 @@ router
                                 console.log('Error when updating info: '+err);
                                 res.status(500).send({success: false, message: 'Error when updating info'});
                             }
-                            //io.emit('updateInfo', JSON.stringify(info));
+                             var io = req.app.get('socketio');
+                            io.emit('updateInfo', info);
                             res.status(200).send({success: true, message: 'Info updated'});
                         }); 
                         }
@@ -428,6 +427,8 @@ router
                     if(info) {
                         console.log('Info removed');
                         res.status(200).json({success: true, message: 'Info removed'});
+                        var io = req.app.get('socketio');
+                            io.emit('deleteInfo', info);
                     }
                     else {
                         res.status(404).send({success: false, message: 'There is no info with this ID or you are to authorized to delete it'});
@@ -489,6 +490,8 @@ router
                                             res.status(500).send({success: false, message: 'Error when updating the event'});
                                         }
                                         res.status(200).send({success: true, message: 'Event joined'});
+                                        var io = req.app.get('socketio');
+                                        io.emit('joinEvent', {'ID': event._id, 'userID': userID});
                                     });
                                 }
                             }  
@@ -541,6 +544,8 @@ router
                                     res.status(500).send(err);
                                 }
                                 res.status(200).send({success: true, message: 'user removed from event'});
+                                var io = req.app.get('socketio');
+                                io.emit('leaveEvent', {'ID': event._id, 'userID': userID});
                             });
                         }
                     }
@@ -598,6 +603,8 @@ router
                                 res.status(500).send({success: false, message: 'Error when updating the info'});
                             }
                             res.status(200).send({success: true, message: 'Vote updated !'});
+                            var io = req.app.get('socketio');
+                            io.emit('voteUpdated', {'ID': infoID, 'voteCount': info.voteCount});
                         }); 
                     }
                     if(isVoteExist) break;
@@ -612,6 +619,8 @@ router
                         res.status(500).send({success: true, message: 'Error when updating the info'});
                     }
                     res.status(200).send({success: true, message: 'Vote sent !'});
+                    var io = req.app.get('socketio');
+                    io.emit('voteUpdated', {'ID': infoID, 'voteCount': info.voteCount});
                     });
                 } 
             }
@@ -792,7 +801,6 @@ router
         res.status(400).send({success: false, message: 'Invalid ID'});
     }
     else {
-
         var userID = req.decoded.userID;
         User.findOneAndRemove({_id: userID}, function(err, user) {
             if(err) {
