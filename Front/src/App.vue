@@ -175,4 +175,13 @@
   #footer-vue{
   margin-top: 20px;
   }
+
+  /* fix nav bug */
+
+  @media (min-width: 768px){
+    .navbar-right {
+      margin-right: 0!important;
+    }  
+  }
+  
 </style>
