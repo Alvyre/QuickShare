@@ -98,6 +98,41 @@
 </script>
 
 <style>
+
+  /* JAPANESE STYLE */
+
+  .alert, .badge, .breadcrumb, .btn, .form-control, .input-gruop, .label, .lead, .list-group, .nav-pills, .nav-tabs, .navbar, .no-thank-yu, .pager, .pagination, .panel-heading, .panel-title, .popover, .tooltip {
+      font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,sans-serif;
+  }
+
+
+  body {
+      font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,"游ゴシック",YuGothic,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,sans-serif;
+      font-size: 16px;
+      line-height: 1.42857;
+  }
+
+
+  p {
+      margin: 0 0 11px;
+  }
+
+  .h2, h2 {
+      font-size: 28px;
+  }
+  .h1, .h2, .h3, h1, h2, h3 {
+      margin-top: 22px;
+      margin-bottom: 11px;
+  }
+  .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+      font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,sans-serif;
+      font-weight: 300;
+      line-height: 1.2;
+      color: inherit;
+  }
+
+  /* END JAPANESE STYLE */
+
   html, body, #app {
     height: 100%;
   }
