@@ -88,7 +88,7 @@
 									<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.expirydate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
-									<router-link v-bind:to="getRoute(info._id)" tag="a"><p>Read more..</p></router-link>
+									<router-link v-bind:to="getRoute(info._id)" tag="a" v-if="isConnected"><p>Read more..</p></router-link>
 									<hr>
 								<footer>
 									<div class="right">
@@ -117,7 +117,7 @@
 									<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.expirydate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
-									<router-link v-bind:to="getRoute(info._id)" tag="a"><p>Read more..</p></router-link>
+									<router-link v-bind:to="getRoute(info._id)" tag="a" v-if="isConnected"><p>Read more..</p></router-link>
 									<hr>
 							
 								<footer>
@@ -150,7 +150,7 @@
 									<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.expirydate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
-									<router-link v-bind:to="getRoute(info._id)" tag="a"><p>Read more..</p></router-link>
+									<router-link v-bind:to="getRoute(info._id)" tag="a" v-if="isConnected"><p>Read more..</p></router-link>
 									<hr>
 								
 								<footer>
