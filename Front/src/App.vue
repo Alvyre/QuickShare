@@ -9,7 +9,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <router-link to="/" class="navbar-brand">Shar'Info.io</router-link>
+        <router-link to="/" class="navbar-brand">QuickShare.info</router-link>
       </div>
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav navbar-right">
@@ -33,7 +33,7 @@
     <footer v-if="!loading">
       <div class="row row-centered">
         <div class="col-xs-12 col-sm-12">
-          Sharinfo ©2016-2017
+          QuickShare ©2016-2017
         </div>
       </div>    
     </footer>

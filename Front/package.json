@@ -19,6 +19,7 @@
     "moment": "^2.17.0",
     "style-loader": "^0.13.1",
     "vue": "^2.0.5",
+    "vue-flatpickr": "https://github.com/Arctic76/vue-flatpickr/tarball/2.0",
     "vue-hot-reload-api": "^2.0.6",
     "vue-html-loader": "^1.2.3",
     "vue-loader": "^9.9.1",

@@ -19,7 +19,7 @@
 						<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{infoData.expirydate | localeDate }}</p>
 						<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{infoData.expirydate | TimeRemainingWith(infoData.birthdate) }}</p>
 						<button type="button" class="btn btn-large btn-block btn-success" v-if="infoData.category == 'Event' && isEventJoined == -1" :class="isEventFull" v-on:click.prevent.stop="joinEvent(infoData, $event)">Join Event</button>
-						<button type="button" class="btn btn-large btn-block btn-danger" v-if="infoData.category == 'Event' && isEventJoined != -1" v-on:click.prevent.stop="leaveEvent(infoData, $event)" :class="disableJoinl" id="leaveBtn">Leave Event</button>
+						<button type="button" class="btn btn-large btn-block btn-danger" v-if="infoData.category == 'Event' && isEventJoined != -1" v-on:click.prevent.stop="leaveEvent(infoData, $event)" :class="disableLeave" id="leaveBtn">Leave Event</button>
 						<hr>
 						<footer>
 							<div class="right">
@@ -493,7 +493,7 @@ export default {
 		isMyArticle () {
 			return this.infoData.userID == Cookie.getCookie('userID');
 		},
-		disableJoin() {
+		disableLeave() {
 			return {
 				'disabled': this.infoData.userID == Cookie.getCookie('userID')
 			}

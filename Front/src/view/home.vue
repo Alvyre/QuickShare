@@ -3,56 +3,57 @@
 		<div class="container" v-if="!loading">
 			<div class="row row-centered">
 				<div class="col-xs-12 col-sm-12 col-centered">
-					<h3>Current Informations:</h3>
+					<h3>Active Information:</h3>
 				</div> 		
 			</div>
 			<div class="row row-centered" id="filter">
 				<div class="col-xs-12 col-sm-12 col-centered">
-					<h3 class="text-center"><span class="glyphicon glyphicon-filter"></span>Filters:</h3>
+					<h3><span class="glyphicon glyphicon-filter"></span>Info Filters:</h3>
+					<div class="clearfix"></div>
+					<h4 style="text-align:left!important;">Show only:</h4>
 					<div class="btn-group btn-group-justified" role="group" aria-label="...">
 						<div class="btn-group" role="group">
-							<button type="button" class="btn btn-info" v-on:click="toggleInfo">
-								<span class="glyphicon glyphicon-info-sign"></span>
+							<button type="button" id="btnInfo" class="btn btn-info" v-on:click="toggleInfo">
+								<span class="glyphicon glyphicon-info-sign"></span> General
 							</button>
 						</div>
 						<div class="btn-group" role="group">
-							<button type="button" class="btn btn-success" v-on:click="toggleEvent">
-								<span class="glyphicon glyphicon-calendar"></span>
+							<button type="button" id="btnEvent" class="btn btn-success" v-on:click="toggleEvent">
+								<span class="glyphicon glyphicon-calendar"></span> Events
 							</button>
 						</div>
 						<div class="btn-group" role="group">
-							<button type="button" class="btn btn-warning" v-on:click="toggleHelp">
-								<span class="glyphicon glyphicon-question-sign"></span>
+							<button type="button" id="btnHelp" class="btn btn-warning" v-on:click="toggleHelp">
+								<span class="glyphicon glyphicon-question-sign"></span> Help
 							</button>
 						</div>
 					</div>
 				</div>
-				<div class="clearfix"><hr></div>
 				<div class="col-xs-12 col-sm-12">
 					<h4 class="text-left">Sort by:</h4>
 					<div class="btn-group btn-group-justified" role="group" aria-label="...">
 						<div class="btn-group" role="group">
-							<button type="button" class="btn btn-default" v-on:click="sortByVotes(infos)">
+							<button type="button" id="btnVote" class="btn btn-default active" v-on:click="sortByVotes(infos)">
 								Votes 
 								<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true" v-show="setStateSortVote == -1"></span>
 								<span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true" v-show="setStateSortVote == 1"></span>
-								<span class="glyphicon glyphicon-remove" aria-hidden="true" v-show="setStateSortVote == 0"></span>
+								<span class="glyphicon glyphicon-unchecked" aria-hidden="true" v-show="setStateSortVote == 0"></span>
 							</button>
 						</div>
 						<div class="btn-group" role="group">
-							<button type="button" class="btn btn-default" v-on:click="sortByExpiryDate(infos)">
+							<button type="button" id="btnEndDate" class="btn btn-default" v-on:click="sortByExpiryDate(infos)">
 								End date 
 								<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true" v-show="setStateSortExpiryDate == -1"></span>
 								<span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true" v-show="setStateSortExpiryDate == 1"></span>
-								<span class="glyphicon glyphicon-remove" aria-hidden="true" v-show="setStateSortExpiryDate == 0"></span>
+								<span class="glyphicon glyphicon-unchecked" aria-hidden="true" v-show="setStateSortExpiryDate == 0"></span>
 							</button>
 						</div>
 						<div class="btn-group" role="group">
-							<button type="button" class="btn btn-default" v-on:click="sortByBirthDate(infos)">
+							<button type="button" id="btnStartDate" class="btn btn-default" v-on:click="sortByBirthDate(infos)">
 								Start date 
 								<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true" v-show="setStateSortBirthDate == -1"></span>
 								<span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true" v-show="setStateSortBirthDate == 1"></span>
-								<span class="glyphicon glyphicon-remove" aria-hidden="true" v-show="setStateSortBirthDate == 0"></span>
+								<span class="glyphicon glyphicon-unchecked" aria-hidden="true" v-show="setStateSortBirthDate == 0"></span>
 							</button>
 						</div>
 					</div>
@@ -77,10 +78,9 @@
 						<!-- INFO -->
 						<div class="panel panel-info" :class="infoActive" v-if='info.category == "Info"'>
 							<div class="panel-heading">
-								<router-link v-bind:to="getRoute(info._id)" tag="div"><span>{{info.title}}</span></router-link>
+								<span>{{info.title}}</span>
 							</div>
 							<div class="panel-body">
-								<router-link v-bind:to="getRoute(info._id)" tag="div">
 									<p v-if="info.description"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> : {{info.description}}</p>
 									<p>
 										<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{info.location}}, {{info.addInfo}}
@@ -88,8 +88,8 @@
 									<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.expirydate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
+									<router-link v-bind:to="getRoute(info._id)" tag="a"><p>Read more..</p></router-link>
 									<hr>
-								</router-link>
 								<footer>
 									<div class="right">
 										<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen(info)" v-on:click.stop.prevent="voteUp(info)">
@@ -107,10 +107,9 @@
 						<div class="panel panel-warning" :class="helpActive" v-if='info.category == "Help"'>
 
 							<div class="panel-heading">
-								<router-link v-bind:to="getRoute(info._id)" tag="div"><span>{{info.title}}</span></router-link>
+								<span>{{info.title}}</span>
 							</div>
 							<div class="panel-body">
-								<router-link v-bind:to="getRoute(info._id)" tag="div">
 									<p v-if="info.description"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> : {{info.description}}</p>
 									<p>
 										<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{info.location}}, {{info.addInfo}}
@@ -118,8 +117,9 @@
 									<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.expirydate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
+									<router-link v-bind:to="getRoute(info._id)" tag="a"><p>Read more..</p></router-link>
 									<hr>
-								</router-link>
+							
 								<footer>
 									<div class="right">
 										<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen(info)" v-on:click.stop.prevent="voteUp(info)">
@@ -137,10 +137,9 @@
 						<div class="panel panel-success" :class="eventActive" v-if='info.category == "Event"'>
 
 							<div class="panel-heading">
-								<router-link v-bind:to="getRoute(info._id)" tag="div"><span>{{info.title}}</span></router-link>
+								<span>{{info.title}}</span>
 							</div>
 							<div class="panel-body">
-								<router-link v-bind:to="getRoute(info._id)" tag="div">
 									<p><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> : {{info.description}}</p>
 									<p>
 										<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{info.location}}, {{info.addInfo}}
@@ -151,8 +150,9 @@
 									<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.expirydate | localeDate }}</p>
 									<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
+									<router-link v-bind:to="getRoute(info._id)" tag="a"><p>Read more..</p></router-link>
 									<hr>
-								</router-link>
+								
 								<footer>
 									<div class="right">
 										<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen(info)" v-on:click.stop.prevent="voteUp(info)">
@@ -280,19 +280,40 @@
 				});
 			},
 			toggleInfo () {
-				if(this.infoActive === 'active')
+				if(this.infoActive === 'active') {
 					this.infoActive = 'hide';
-				else (this.infoActive = 'active')
+					$('#btnInfo').removeClass('btn-info');
+					$('#btnInfo').addClass('btn-grey');
+				}
+				else {
+					(this.infoActive = 'active')
+					$('#btnInfo').removeClass('btn-grey');
+					$('#btnInfo').addClass('btn-info');	
+				} 
 			},
 			toggleEvent () {
-				if(this.eventActive === 'active')
+				if(this.eventActive === 'active') {
 					this.eventActive = 'hide';
-				else (this.eventActive = 'active')
+					$('#btnEvent').removeClass('btn-success');
+					$('#btnEvent').addClass('btn-grey');
+				}
+				else {
+					(this.eventActive = 'active');
+					$('#btnEvent').removeClass('btn-grey');
+					$('#btnEvent').addClass('btn-success');
+				}
 			},
 			toggleHelp () {
-				if(this.helpActive === 'active')
+				if(this.helpActive === 'active') {
 					this.helpActive = 'hide';
-				else (this.helpActive = 'active')
+					$('#btnHelp').removeClass('btn-warning');
+					$('#btnHelp').addClass('btn-grey');
+				}
+				else {
+					(this.helpActive = 'active');
+					$('#btnHelp').removeClass('btn-grey');
+					$('#btnHelp').addClass('btn-warning');
+				}
 			},
 			getRoute(infoID) {
 				return '/info/'+infoID;
@@ -411,6 +432,9 @@
     					return new Date(b.birthdate).getTime() - new Date(a.birthdate).getTime() 
 					});
 				}
+				$('#btnVote').removeClass('active');
+				$('#btnEndDate').removeClass('active');
+				$('#btnStartDate').addClass('active');
 				this.isSortedByStart.state 	= true;
 				this.isSortedByEnd.state   	= false;
 				this.isSortedByEnd.order 	= -1;		// we reinit to have ascend order by default
@@ -430,6 +454,9 @@
     					return new Date(b.expirydate).getTime() - new Date(a.expirydate).getTime() 
 					});
 				}
+				$('#btnVote').removeClass('active');
+				$('#btnStartDate').removeClass('active');
+				$('#btnEndDate').addClass('active');
 				this.isSortedByEnd.state 	= true;
 				this.isSortedByStart.state 	= false;
 				this.isSortedByStart.order  = -1;
@@ -449,6 +476,9 @@
     					return b.voteCount - a.voteCount 
 					});
 				}
+				$('#btnStartDate').removeClass('active');
+				$('#btnEndDate').removeClass('active');
+				$('#btnVote').addClass('active');
 				this.isSortedByEnd.state 	= false;
 				this.isSortedByEnd.order 	= -1;
 				this.isSortedByStart.state 	= false;
