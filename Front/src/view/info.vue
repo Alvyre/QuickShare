@@ -13,13 +13,18 @@
 							<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{infoData.location}}<span v-if='infoData.addInfo'>,</span> {{infoData.addInfo}}
 						</p>
 						<p>
-							<span v-if="infoData.category == 'Event'"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> : {{infoData.userList.length}}<span v-if="infoData.userLimit">/{{infoData.userLimit}}</span></span>
-						</p> 
+							<span v-if="infoData.category == 'Event'"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> : {{infoData.userList.length}}<span v-if="infoData.userLimit">/{{infoData.userLimit}}</span></span> <button type="button" class="btn btn-xs btn-default" v-show="!showMembers" v-on:click="toggleShowMembers()">Show members</button><button type="button" class="btn btn-xs btn-default" v-show="showMembers" v-on:click="toggleShowMembers()">Hide members</button>
+						</p>
+							<div class="col-centered col-xs-6 col-xs-offset-3" v-show="showMembers">
+							  
+							  <router-link v-for="user in infoData.userList" v-bind:to="setUserRoute(user.ID)"><button type="button" class="text-center list-group-item" style="text-align: center!important;">{{ user.username }}</button></router-link>
+							</div>
+							<div class="clearfix" v-if="showMembers"><br></div>
 						<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{infoData.birthdate | localeDate }}</p>
 						<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{infoData.expirydate | localeDate }}</p>
 						<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{infoData.expirydate | TimeRemainingWith(infoData.birthdate) }}</p>
-						<button type="button" class="btn btn-large btn-block btn-success" v-if="infoData.category == 'Event' && isEventJoined == -1" :class="isEventFull" v-on:click.prevent.stop="joinEvent(infoData, $event)">Join Event</button>
-						<button type="button" class="btn btn-large btn-block btn-danger" v-if="infoData.category == 'Event' && isEventJoined != -1" v-on:click.prevent.stop="leaveEvent(infoData, $event)" :class="disableLeave" id="leaveBtn">Leave Event</button>
+						<button type="button" class="btn btn-large btn-block btn-success" v-if="infoData.category == 'Event' && !isEventJoined" :class="isEventFull" v-on:click.prevent.stop="joinEvent(infoData, $event)">Join Event</button>
+						<button type="button" class="btn btn-large btn-block btn-danger" v-if="infoData.category == 'Event' && isEventJoined" v-on:click.prevent.stop="leaveEvent(infoData, $event)" :class="disableLeave" id="leaveBtn">Leave Event</button>
 						<hr>
 						<footer>
 							<div class="right">
@@ -32,6 +37,10 @@
 								</button>
 							</div>
 						</footer>
+					</div>
+					<div class="clearfix"><br></div>
+					<div class="alert alert-danger text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-if="errorCode">
+						<strong>Error {{errorCode}}:</strong> {{errorMsg}}
 					</div>
 				</div>
 			</div>
@@ -138,7 +147,7 @@ export default {
 		joinEvent (info) {
 			console.log('socket:joinEvent');
 			if(this.infoData._id == info.ID && this.infoData.category == 'Event') {
-				this.infoData.userList.push(info.userID);
+				this.infoData.userList.push({ID: info.userID, username: info.username });
 			}
 		},
 		leaveEvent (info) {
@@ -161,6 +170,7 @@ export default {
 			errorCode: '',
 			successMsg: '',
 			isArticleEditing: false,
+			showMembers: false,
 			editedArticle: {
 				title: '',
 				description: '',
@@ -301,6 +311,9 @@ export default {
 		},
 		toggleEdit () {
 			this.isArticleEditing = !this.isArticleEditing;
+		},
+		toggleShowMembers () {
+			this.showMembers = !this.showMembers;
 		},
 		deleteArticle () {
 			var choice = confirm('/!\\ WARNING: this action is definitive, Are you sure? /!\\ ');
@@ -471,6 +484,9 @@ export default {
 				return true;
 			});
 			return status;
+		},
+		setUserRoute (userID) {
+			return '/user/' + userID;
 		}
 	},
 	computed: {
@@ -481,7 +497,12 @@ export default {
 			return this.infoData.voteCount;
 		},
 		isEventJoined () {
-			return this.infoData.userList.indexOf(Cookie.getCookie('userID'));
+			var userID = Cookie.getCookie('userID');
+			for (var i = this.infoData.userList.length - 1; i >= 0; i--) {
+				if(this.infoData.userList[i].ID == userID)
+					return true;
+			}
+			return false;
 		},
 
 		isEventFull () {

@@ -278,7 +278,7 @@ router
             if(info.category === 'Event') {
                 info.userLimit = req.body.userLimit;
                 info.acceptOverload = req.body.acceptOverload;
-                info.userList.push(req.decoded.userID);
+                info.userList.push({ ID: req.decoded.userID, username: req.decoded.username});
             }
         	info.save(function(err, resp) {
                 if(err) {
@@ -454,6 +454,7 @@ router
     }
     else {
         var userID  = req.decoded.userID;
+        var username= req.decoded.username;
         var eventID = req.params.id;
         User.findOne({_id: userID}, function(err, user) {
             if(err) {
@@ -477,13 +478,13 @@ router
                             else {
                                 var isUserAlreadyIn = false;
                                 for (var i = event.userList.length - 1; i >= 0; i--) {
-                                    if(event.userList[i] === userID) {
+                                    if(event.userList[i].ID === userID) {
                                         isUserAlreadyIn = true;
                                         res.status(409).send({success: false, message: 'User already in the event'});
                                     }
                                 }
                                 if(!isUserAlreadyIn) {
-                                    event.userList.push(userID);
+                                    event.userList.push({ID: userID, username: username});
                                     Info.update({_id: eventID}, event, function(err) {
                                         if(err) {
                                             console.log('Error when updating the event after user joined: '+err);
@@ -491,7 +492,7 @@ router
                                         }
                                         res.status(200).send({success: true, message: 'Event joined'});
                                         var io = req.app.get('socketio');
-                                        io.emit('joinEvent', {'ID': event._id, 'userID': userID});
+                                        io.emit('joinEvent', {'ID': event._id, 'userID': userID, 'username': username});
                                     });
                                 }
                             }  
@@ -525,6 +526,7 @@ router
     }
     else {
         var eventID = req.params.id;
+        var username= req.decoded.username;
         var userID  = req.decoded.userID;
         Info.findOne({_id: eventID}, function(err, event) {
             if(err) {
@@ -535,10 +537,10 @@ router
                 if(event.category === 'Event') {
                     var isUserIn = false;
                     for (var i = event.userList.length - 1; i >= 0; i--) {
-                        if(event.userList[i] === userID) {
+                        if(event.userList[i].ID === userID) {
                             isUserIn = true;
-                            event.userList.pull(userID);
-                            Info.update({_id: eventID}, event, function(err) {
+                            event.userList.pull();
+                            Info.update({_id: eventID}, {$pull: { userList: {ID: userID} } }, function(err) {
                                 if(err) {
                                     console.log('Error when updating event after user leaving: '+err);
                                     res.status(500).send(err);

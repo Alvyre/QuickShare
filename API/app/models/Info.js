@@ -29,7 +29,7 @@ var InfoSchema = new Schema({
 	location		: { type: String, required: true, default: '' },
 	addInfo			: { type: String, default: ''},
 	userID			: { type: String, required: true },
-	userList		: { type: [String], default: []},
+	userList		: { type: [{ID: String, username: String}], default: []},
 	userLimit		: { type: Number, min: 0, default: 0}, 
 	acceptOverload  : { type: Boolean, default: false },
 	votes			: { type: [Vote.schema], default: [] },
