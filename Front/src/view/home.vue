@@ -19,7 +19,7 @@
 						</div>
 						<div class="btn-group" role="group">
 							<button type="button" id="btnEvent" class="btn btn-success" v-on:click="toggleEvent">
-								<span class="glyphicon glyphicon-calendar"></span> Events
+								<span class="glyphicon glyphicon-calendar"></span> Event
 							</button>
 						</div>
 						<div class="btn-group" role="group">

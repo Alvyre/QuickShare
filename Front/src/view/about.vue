@@ -9,8 +9,8 @@
 		<div class="row row-centered">
 			<div class="col-xs-12 col-sm-12">
 				<div class="well FAQ">
-					<h4><u>What is Shar'info?</u></h4>
-					<p>Shar'info is the result of a research project made by Romain François in the laboratory of the Pr. Sumi Yasuyuki.</p><br>
+					<h4><u>What is QuickShare?</u></h4>
+					<p>QuickShare is the result of a research project made by Romain François in the laboratory of the Pr. Sumi Yasuyuki.</p><br>
 					<h4><u>What is the objective?</u></h4>
 					<p>The objective is to offer a new system to share simply and instantly information between students in FUN. Moreover, this system tries to bring students closer in the university: you will probably meet student you don't know by using this application.</p><br>
 					<h4><u>How to use this system?</u></h4>

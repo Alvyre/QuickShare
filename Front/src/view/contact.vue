@@ -34,7 +34,7 @@
 					email: '',
 					message: ''
 				},
-				mailto: 'mailto:'+ Config.contactEmail + '?subject=SharInfo' 
+				mailto: 'mailto:'+ Config.contactEmail + '?subject=[Contact QuickShare]' 
 			}
 		},
 		methods: {
