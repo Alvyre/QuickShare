@@ -1,5 +1,5 @@
 {
-  "name": "quickshare front-end",
+  "name": "quickshare",
   "description": "The Front-end of the QuickShare system, using Vue.js",
   "author": "Alvyre",
   "private": true,
