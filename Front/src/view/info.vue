@@ -221,7 +221,7 @@ export default {
 					// bind dates to the options var (flatpickr)
 					this.options.minDate = moment(this.infoData.birthdate).format();
 					this.options.defaultDate = moment(this.infoData.expirydate).format();
-					this.options.maxDate = moment(this.infoData.birthdate).add(1, 'd').format();
+					this.options.maxDate = moment(this.infoData.birthdate).add(Config.infoTTL, 'd').format();
 				}
 
 			}, (response) => {

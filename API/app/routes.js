@@ -256,7 +256,7 @@ else{
         }
         var timeFromNow = tempBirthDate.diff(moment());
         var timeFromBirth = tempExpiryDate.diff(tempBirthDate);
-        if( timeFromNow < 0 || timeFromNow > 86400000) {                    // 24h in ms
+        if( timeFromNow < 0 || timeFromNow > config.infoTTL * 86400000) {                    // 86400000 = 24h
             res.status(400).send({success: false, message: 'Invalid birthdate'});
         }
         else if( timeFromBirth < 0 || timeFromBirth > 86400000) {           // 24 in ms

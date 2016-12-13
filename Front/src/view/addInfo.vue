@@ -23,11 +23,11 @@
 						<div id="infoDescription" class="help-block" v-show="!displayHelpDescription">Please type a description with at least 3 characters.</div>
 					</div>
 					<div class="form-group">
-						<label for='startdate'>Start Date*</label> <em>(Maximum 24h from now)</em><br>
+						<label for='startdate'>Start Date*</label> <em>(Maximum 7 days from now)</em><br>
 						<Flatpickr :options='optionsBegin' :class="form-control" @update="updateStartDate"/>
 					</div>
 					<div class="form-group">
-						<label for='enddate'>End Date*</label> <em>(Maximum 24h from the start date)</em><br>
+						<label for='enddate'>End Date*</label> <em>(Maximum 24h hours from the start date)</em><br>
 						<Flatpickr :options='optionsEnd' :message="defaultEndDate" :class="form-control" @update="updateEndDate" @FlatpickrRef="setEndFlatpickrRef"/>
 					</div>
 					<div class="form-group">
@@ -119,7 +119,7 @@ export default {
 				time_24hr: true,
 				defaultDate: moment().format("MM/DD/YYYY HH:mm"),
 				minDate: moment().format("MM/DD/YYYY HH:mm"),
-				maxDate: moment().add(1, 'd').format("MM/DD/YYYY HH:mm")
+				maxDate: moment().add(Config.infoTTL, 'd').format("MM/DD/YYYY HH:mm")
 			},
 			optionsEnd: {
 				alInputClass: 'form-control',
@@ -199,9 +199,7 @@ export default {
 				this.errorMsg = 'Description is incorrect.';
 				return -1;
 			}
-			else if(this.newInfo.birthdate == null || this.newInfo.birthdate == undefined || this.newInfo.birthdate == '' || moment(this.newInfo.birthdate).isBefore(moment()) || moment(this.newInfo.birthdate).isAfter(moment().add(1,'d') ) ) {
-				console.log(moment(this.newInfo.birthdate).isAfter(moment().add(1,'d') ));
-				console.log(moment(this.newInfo.birthdate).format() + ' vs '+ moment().add(1,'d').format())
+			else if(this.newInfo.birthdate == null || this.newInfo.birthdate == undefined || this.newInfo.birthdate == '' || moment(this.newInfo.birthdate).isBefore(moment()) || moment(this.newInfo.birthdate).isAfter(moment().add(7,'d') ) ) {
 				this.errorMsg = 'Start date is incorrect.';
 				return -1
 			}
