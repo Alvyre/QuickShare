@@ -18,12 +18,14 @@
 </template>
 
 <script>
-	//Import
-	//==================================
+
+//Import
+//==================================
+
 	import Config from '../config'
 
-	//Vue
-	//==================================
+//Vue
+//==================================
 
 	export default {
 		name: 'contact',
@@ -36,9 +38,6 @@
 				},
 				mailto: 'mailto:'+ Config.contactEmail + '?subject=[Contact QuickShare]' 
 			}
-		},
-		methods: {
-
 		}
 	}
 </script>

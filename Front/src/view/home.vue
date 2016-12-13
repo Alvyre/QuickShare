@@ -6,6 +6,8 @@
 					<h3>Active Information:</h3>
 				</div> 		
 			</div>
+
+			<!-- Filter System -->
 			<div class="row row-centered" id="filter">
 				<div class="col-xs-12 col-sm-12 col-centered">
 					<h3><span class="glyphicon glyphicon-filter"></span>Info Filters:</h3>
@@ -29,6 +31,8 @@
 						</div>
 					</div>
 				</div>
+
+				<!-- Sort system -->
 				<div class="col-xs-12 col-sm-12">
 					<h4 class="text-left">Sort by:</h4>
 					<div class="btn-group btn-group-justified" role="group" aria-label="...">
@@ -57,13 +61,11 @@
 							</button>
 						</div>
 					</div>
-
-					
-
 					<br>
 				</div>
 			</div>
 			<div class="clearfix"></div>
+			<!-- Add Info Button -->
 			<div class="row row-centered" v-if="isConnected">
 				<div class="col-xs-6 col-xs-offset-3 col-sm-4 col-sm-offset-4">
 					<router-link to="/newInfo">
@@ -72,9 +74,12 @@
 					<br>
 				</div>
 			</div>
+
+			<!-- Current info -->
 			<div class="row row-centered">
 				<div class="col-xs-12 col-sm-12 col-centered">
 					<div class="panel-info" v-for="info in infos">
+						
 						<!-- INFO -->
 						<div class="panel panel-info" :class="infoActive" v-if='info.category == "Info"'>
 							<div class="panel-heading">
@@ -103,7 +108,8 @@
 								</footer>
 							</div>
 						</div>
-						<!-- Help -->
+
+						<!-- HELP -->
 						<div class="panel panel-warning" :class="helpActive" v-if='info.category == "Help"'>
 
 							<div class="panel-heading">
@@ -132,8 +138,9 @@
 									</div>
 								</footer>
 							</div>
-						</div>		    				
-						<!-- Event -->
+						</div>
+
+						<!-- EVENT -->
 						<div class="panel panel-success" :class="eventActive" v-if='info.category == "Event"'>
 
 							<div class="panel-heading">
@@ -175,16 +182,26 @@
 
 <script>
 
+// IMPORT
+//=======================================
+
 	import Store from '../store';
 	import Cookie from '../cookie-handler';
 	import Config from '../config';
 
+// VUE
+//=======================================
+
 	export default {
 		name: 'home',
 		sockets:{
+
+			//Triggered when the socket connect to the server
     		connect: function(){
       			console.log('socket connected')
     		},
+
+    		//Triggered when a user update an info
     		updateInfo (info) {
     			console.log('socket:updateinfo');
 
@@ -204,10 +221,14 @@
     				}
     			}
     		},
+
+    		//Triggered when a new info is added on the server
     		newInfo (info) {
     			console.log('socket:newinfo');
     			this.infos.push(info);
     		},
+
+    		//Triggered when a user delete an info
     		deleteInfo (info) {
     			console.log('socket:deleteinfo');
     			for (var i = this.infos.length - 1; i >= 0; i--) {
@@ -216,6 +237,8 @@
     				}
     			}
     		},
+
+    		//Triggered when a user join an event
     		joinEvent (info) {
     			console.log('socket:joinEvent');
     			for (var i = this.infos.length - 1; i >= 0; i--) {
@@ -225,6 +248,8 @@
     				}
     			}
     		},
+
+    		//Triggered when a user leave an event
     		leaveEvent (info) {
     			console.log('socket:leaveEvent');
     			for (var i = this.infos.length - 1; i >= 0; i--) {
@@ -234,6 +259,8 @@
     				}
     			}
     		},
+
+    		//Triggered when a user vote
     		voteUpdated (info) {
     			console.log('socket:voteUpdated');
     			for (var i = this.infos.length - 1; i >= 0; i--) {
@@ -264,6 +291,7 @@
 			}	
 		},
 		mounted () {
+			// Get info and set loading display
 			this.fetchInfos();
 			Store.commit('loadingOn');
 		},
@@ -272,13 +300,19 @@
 		methods: {
 			fetchInfos () {
 
+				// GET All info Request
 				this.$http.get(Config.urlAPI +'/api/infos').then((response) => {
+
+					//If Success
 					this.infos = response.data;
 					Store.commit('loadingOff');
+
 				}, (response) => {
+					//If Error
 					console.log('Error:', response);
 				});
 			},
+			//Filtering info (Show Only)
 			toggleInfo () {
 				if(this.infoActive === 'active') {
 					this.infoActive = 'hide';
@@ -315,11 +349,16 @@
 					$('#btnHelp').addClass('btn-warning');
 				}
 			},
+			//Set the route link for an info
 			getRoute(infoID) {
 				return '/info/'+infoID;
 			},
 			voteUp (info) {
+
+				//If user disconnected stop the function
 				if(!this.isConnected) return;
+				
+				//Request options (COORS, Token)
 				var options = {
 					headers: {
 						'x-access-token': Cookie.getCookie('token')
@@ -327,22 +366,31 @@
 					credentials: true
 				};
 
+				// API Request Up Vote
 				this.$http.post(Config.urlAPI +'/api/infos/'+info._id+'/upvote', {}, options).then((response) => {
 				}, (response) => {
+
+					//If Error
 					console.log('Error:', response);
 				});
+
+				// We perform a locale update of the vote (changed or confirmed by the socket function)
+				// In order to show quick response to the user
 				var hadVoted = false;
 				info.votes.every(function(element, index, array) {
 					if(element.userID == Cookie.getCookie('userID')) {
 						hadVoted = true;
+						//The user already vote +1 so we negate his previous vote
 						if(element.value == 1) {
 							info.voteCount--;
 							element.value = 0;	
-						} 
+						}
+						//The user already vote -1 so we negate his previous vote and add the new one
 						else if(element.value == -1) {
 							info.voteCount +=2;
 							element.value = 1;	
 						}
+						//The user already vote but also negated his vote (actual value 0) so +1
 						else {
 							info.voteCount++;
 							element.value = 1;
@@ -351,13 +399,17 @@
 					}
 					return true;
 				});
+				//The user never voted, so +1
 				if(!hadVoted) {
 					info.voteCount ++;
 					info.votes.push({userID: Cookie.getCookie('userID'), value: 1});	
 				}
 			},
 			voteDown (info) {
+				//If user disconnected stop the function
 				if(!this.isConnected) return;
+
+				//Request options (COORS, Token)
 				var options = {
 					headers: {
 						'x-access-token': Cookie.getCookie('token')
@@ -365,22 +417,32 @@
 					credentials: true
 				};
 
+				// API Request Up Vote
 				this.$http.post(Config.urlAPI +'/api/infos/'+info._id+'/downvote', {}, options).then((response) => {
 				}, (response) => {
+					
+					//If error
 					console.log('Error:', response);
 				});
+
+				// We perform a locale update of the vote (changed or confirmed by the socket function)
+				// In order to show quick response to the user
 				var hadVoted = false;
 				info.votes.every(function(element, index, array) {
 					if(element.userID == Cookie.getCookie('userID')) {
 						hadVoted = true;
+
+						//The user already vote +1 so we negate the vote, then add -1
 						if(element.value == 1) {
 							info.voteCount-=2;
 							element.value = -1;	
-						} 
+						}
+						//The user already vote -1 so we negate the vote
 						else if(element.value == -1) {
 							info.voteCount ++;
 							element.value = 0;	
 						}
+						//The user already vote but negated and now value is 0, so -1
 						else {
 							info.voteCount--;
 							element.value = -1;
@@ -389,11 +451,14 @@
 					}
 					return true;
 				});
+				//The user never voted, so -1
 				if(!hadVoted) {
 					info.voteCount ++;
 					info.votes.push({userID: Cookie.getCookie('userID'), value: 1});	
 				}
 			},
+
+			//Set CSS class for vote buttons
 			setVoteClassBtnGreen (info) {
 				return {
 					'disabled': !this.isConnected,
@@ -406,6 +471,8 @@
 					'red': this.getVoteStatus(info) == -1
 				};
 			},
+
+			//Get the current value for the user vote 
 			getVoteStatus(info) {
 				var status;
 				info.votes.every(function(element, index, array) {
@@ -413,12 +480,14 @@
 						if(element.value == 1) status = 1;
 						else if(element.value == 0) status = 0;
 						else status = -1;
-						return false; 
+						return false;
 					}
 					return true;
 				});
 				return status;
 			},
+
+			//Sort Functions
 			sortByBirthDate (array) {
 				if(this.isSortedByStart.order === -1) {
 					this.isSortedByStart.order = 1;
@@ -432,6 +501,8 @@
     					return new Date(b.birthdate).getTime() - new Date(a.birthdate).getTime() 
 					});
 				}
+
+				//Reset CSS Classes 'active' and order
 				$('#btnVote').removeClass('active');
 				$('#btnEndDate').removeClass('active');
 				$('#btnStartDate').addClass('active');
@@ -454,6 +525,8 @@
     					return new Date(b.expirydate).getTime() - new Date(a.expirydate).getTime() 
 					});
 				}
+
+				//Reset CSS Classes 'active' and order
 				$('#btnVote').removeClass('active');
 				$('#btnStartDate').removeClass('active');
 				$('#btnEndDate').addClass('active');
@@ -476,6 +549,8 @@
     					return b.voteCount - a.voteCount 
 					});
 				}
+
+				//Reset CSS Classes 'active' and order
 				$('#btnStartDate').removeClass('active');
 				$('#btnEndDate').removeClass('active');
 				$('#btnVote').addClass('active');
@@ -493,6 +568,8 @@
 			isConnected() {
 				return Cookie.getCookie('Connected') == 'true';
 			},
+
+			//Toggle sort states
 			setStateSortVote () {
 				if(this.isSortedByVotes.state && this.isSortedByVotes.order == 1) return 1;
 				if(this.isSortedByVotes.state && this.isSortedByVotes.order == -1) return -1;
@@ -511,8 +588,6 @@
 
 				return 0;
 			}
-
-
 		},
 		filters: {
 			localeDate (date) {
