@@ -5,7 +5,7 @@
 				<div class="col-xs-12 col-sm-12 col-centered">
 					<div class="alert alert-success text-center" v-show="successMsg">
 						<strong>{{successMsg}}</strong><br>
-						<p class="text-center"><em><small>You will be redirected in 5 secs...<br> Click <router-link to="/sign-in">here</router-link> to go to the login page.</small></em></p>
+						<p class="text-center"><em><small>You will be redirected in 3 secs...<br> Click <router-link to="/sign-in">here</router-link> to go to the login page.</small></em></p>
 					</div>
 					<form action="" method="POST" role="form" v-on:submit.prevent.stop="signUp()" v-show="!successMsg">
 						<legend>Sign Up</legend>
@@ -101,7 +101,7 @@ import Config from '../config';
 					    	window.setTimeout(function(){
 							    // Move to login page
 							    vue.$router.push('/sign-in');
-							    }, 5000); // 5 secs
+							    }, 3000); // 3 secs
 					    }
 					    else {
 					    	this.errorMsg = response.data.message;

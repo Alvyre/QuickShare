@@ -4,7 +4,7 @@
 				<div class="col-xs-12 col-sm-12 col-centered">
 					<div class="alert alert-success text-center" v-show="successMsg">
 						<strong>{{successMsg}}</strong>
-						<p class="text-center"><em><small>You will be redirected in 5 secs...<br> Click <router-link to="/">here</router-link> to go to the home page.</small></em></p>
+						<p class="text-center"><em><small>You will be redirected in 3 secs...<br> Click <router-link to="/">here</router-link> to go to the home page.</small></em></p>
 					</div>
 					<form action="" method="POST" role="form" v-on:submit.prevent.stop="signIn()" v-show="!successMsg">
 						<legend>Sign-in</legend>
@@ -49,7 +49,8 @@
 				successMsg: '',
 				inputName: '',
 				inputPas: '',
-				grecaptcha: {}
+				grecaptcha: {},
+				timer : ''
 			}
 		},
 		mounted () {
@@ -57,23 +58,23 @@
 		},
 		methods: {
 			signIn () {
-					var gResponse = grecaptcha.getResponse(this.grecaptcha);
-					if(gResponse.length == 0) {
-						this.errorMsg = 'G-recaptcha is not verified !';
-					}
-					else {
-						
-						var body = {
-						username: 		this.inputName,
-						password: 		this.inputPas,
-						gRecaptchaResponse: gResponse
-						};
+				var gResponse = grecaptcha.getResponse(this.grecaptcha);
+				if(gResponse.length == 0) {
+					this.errorMsg = 'G-recaptcha is not verified !';
+				}
+				else {
+					
+					var body = {
+					username: 		this.inputName,
+					password: 		this.inputPas,
+					gRecaptchaResponse: gResponse
+					};
 
-						// self reference for the routing
-						var vue = this;
+					// self reference for the routing
+					var vue = this;
 
-					  	// POST /someUrl
-					  	this.$http.post(Config.urlAPI +'/api/user/login', body).then((response) => {
+				  	// POST /someUrl
+				  	this.$http.post(Config.urlAPI +'/api/user/login', body).then((response) => {
 
 					    // get status
 					    if(response.status === 200) {
@@ -85,23 +86,22 @@
 					    	Cookie.setCookie('userID', response.data.idUser);
 					    	Store.commit('login');
 					    	//Redirection to homepage
-					    	window.setTimeout(function(){
+					    	this.timer = window.setTimeout(function(){
 							    // Move to login page
 							    vue.$router.push('/');
-							    }, 5000); // 5 secs
+							    }, 3000); // 3 secs
 					    }
 					    else {
 					    	this.errorMsg = response.data.message;
 					    }
+				  	}, (response) => {
+				    // error callback
+				    this.errorCode = response.status;
+				    this.errorMsg = response.data.message;
 
-					  	}, (response) => {
-					    // error callback
-					    this.errorCode = response.status;
-					    this.errorMsg = response.data.message;
-
-					   	grecaptcha.reset(this.grecaptcha);
-				  		});
-				  	}
+				   	grecaptcha.reset(this.grecaptcha);
+			  		});
+				}
 			}
 		},
 		computed: {

@@ -63,7 +63,7 @@
 					<!-- Response -->
 					<div class="alert alert-success text-center" v-show="successMsg">
 						<strong>{{successMsg}}</strong>
-						<p class="text-center"><em><small>You will be redirected in 5 secs...<br> Click <router-link to="/">here</router-link> to go to the home page.</small></em></p>
+						<p class="text-center"><em><small>You will be redirected in 3 secs...<br> Click <router-link to="/">here</router-link> to go to the home page.</small></em></p>
 					</div>
 					<div class="alert alert-danger" v-show="errorMsg">
 							<strong>Error {{errorCode}}:</strong> {{errorMsg}}
@@ -178,7 +178,7 @@ export default {
 					window.setTimeout(function(){
 						// Move to login page
 						vue.$router.push('/');
-					}, 5000); // 5 secs
+					}, 3000); // 3 secs
 				}
 				else {
 					this.errorCode = response.status;
