@@ -58,9 +58,9 @@ router
                 // Checking database for email or username
                 
                 Promise.props({
-                 username: User.findOne({username: tempUsername}, 'username').execAsync(),
-                 mail: User.findOne({mail: tempUserMail}, 'mail').execAsync()
-             })
+                   username: User.findOne({username: tempUsername}, 'username').execAsync(),
+                   mail: User.findOne({mail: tempUserMail}, 'mail').execAsync()
+               })
                 .then(function(results) {
                     if(results.username != null)
                         res.status(400).json({success: false, message: 'Username already exists'});
@@ -118,21 +118,21 @@ router
     if( Controller.isUsernameValid(req.body.username) && 
         Controller.isUserPasswordValid(req.body.password)) {
 
-    // Checking Google Recaptcha
+        // Checking Google Recaptcha
 
-if(req.body.gRecaptchaResponse === undefined || req.body.gRecaptchaResponse === '' || req.body.gRecaptchaResponse === null) {
-    res.status(400).json({message: 'No Captcha found.'});
-}
-else{
-    var key = req.body.gRecaptchaResponse;
-    recaptcha.validate(key)
-    .then(function(){
+        if(req.body.gRecaptchaResponse === undefined || req.body.gRecaptchaResponse === '' || req.body.gRecaptchaResponse === null) {
+            res.status(400).json({message: 'No Captcha found.'});
+        }
+        else{
+            var key = req.body.gRecaptchaResponse;
+            recaptcha.validate(key)
+            .then(function(){
 
-        Promise.props({
-            user: User.findOne({username: req.body.username}).execAsync()
-        })
-        .then(function(results) {
-            if(results.user != null) {
+                Promise.props({
+                    user: User.findOne({username: req.body.username}).execAsync()
+                })
+                .then(function(results) {
+                    if(results.user != null) {
                         // Load hash from your password DB.
                         bcrypt.compare(req.body.password, results.user.password, function(err, resp) {
                             if(err) {
@@ -184,9 +184,9 @@ else{
                         res.status(400).json({success: false, message: 'User not found'});
                     }
                 });
-    });
-}
-}
+            });
+        }
+    }
 })
 
 
@@ -380,8 +380,8 @@ else{
                 }
                 if(info) {
                     if(info.userID === userID) {
-                     info.updateInfos(req.body);
-                     Info.update({_id: info._id}, info, function(err) {
+                       info.updateInfos(req.body);
+                       Info.update({_id: info._id}, info, function(err) {
                         if(err) {
                             console.log('Error when updating info: '+err);
                             res.status(500).send({success: false, message: 'Error when updating info'});
@@ -389,17 +389,16 @@ else{
                         var io = req.app.get('socketio');
                         io.emit('updateInfo', info);
                         res.status(200).send({success: true, message: 'Info updated'});
-                    }); 
-                 }
-                 else {
+                        }); 
+                    }
+                   else {
                     res.status(403).send({success: false, message: 'You are not authorized to update this info'});
+                    }
                 }
-
-            }
-            else {
-                res.status(404).send({success: false, message: 'No info found'});
-            }
-        });
+                else {
+                    res.status(404).send({success: false, message: 'No info found'});
+                }
+            });
         }
     }
 }
@@ -809,6 +808,13 @@ else {
                 res.status(500).send(err);
             }
             if(user){
+                //Delete all the info of the user
+                Info.remove({userID: userID }, function(err) {
+                    if(err) {
+                        console.log('Error when trying to delete infos of the deleted user');
+                    }
+                });
+
                 res.status(200).send({success: true, message: 'User Deleted'});
             }
             else {

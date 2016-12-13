@@ -101,6 +101,15 @@ InfoSchema.methods.updateInfos = function(data) {
     if(data.addInfo) {
     	this.addInfo = Controller.sanitizeString(data.addInfo);
     }
+    if(data.acceptOverload != this.acceptOverload) {
+    	this.acceptOverload = data.acceptOverload;
+    }
+    if(data.userLimit) {
+    	this.userLimit = data.userLimit;
+    }
+    if(this.acceptOverload == true) {
+    	this.userLimit = '';	
+    } 
 }
 
 // Model

@@ -80,7 +80,7 @@
 						</div>
 					</div>
 					<div class="form-group" v-show="!editedArticle.acceptOverload">
-						<label for="userLimit">User limit</label>
+						<label for="userLimit">User limit</label> <em>(minimum: {{setMinUserLimit}})</em>
 						<input type="text" class="form-control" id="userLimit" v-bind:placeholder="infoData.userLimit" v-model="editedArticle.userLimit">
 					</div>
 
@@ -92,7 +92,7 @@
 					<div class="alert alert-success text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-show="successMsg">
 						<strong>{{successMsg}}</strong>
 					</div>
-					<div class="alert alert-danger text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-if="errorCode">
+					<div class="alert alert-danger text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-if="errorMsg">
 						<strong>Error {{errorCode}}:</strong> {{errorMsg}}
 					</div>
 					<button type="submit" class="btn btn-large btn-block btn-primary">Submit</button>
@@ -218,9 +218,11 @@ export default {
 				}
 				else {
 					this.infoData = response.data;
+					this.editedArticle.acceptOverload = this.infoData.acceptOverload;
 					// bind dates to the options var (flatpickr)
 					this.options.minDate = moment(this.infoData.birthdate).format();
 					this.options.defaultDate = moment(this.infoData.expirydate).format();
+					this.editedArticle.expirydate = moment(this.infoData.expirydate).format();
 					this.options.maxDate = moment(this.infoData.birthdate).add(1, 'd').format();
 				}
 
@@ -348,6 +350,8 @@ export default {
 			this.editedArticle.expirydate = moment(val).utc().format();
 		},
 		updateArticle () {
+			if(!this.checkEditedInfo() ) return;
+
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -359,7 +363,7 @@ export default {
 				description: 	(this.editedArticle.description 	|| this.infoData.description),
 				location: 		(this.editedArticle.location 		|| this.infoData.location),
 				addInfo: 		(this.editedArticle.addInfo			|| this.infoData.addInfo),
-				acceptOverload: (this.editedArticle.acceptOverload 	|| this.infoData.acceptOverload),
+				acceptOverload:  this.editedArticle.acceptOverload,
 				userLimit: 		(this.editedArticle.userLimit 		|| this.infoData.userLimit),
 				birthdate: 		this.infoData.birthdate,
 				expirydate: 	(this.editedArticle.expirydate 		|| this.infoData.expirydate)
@@ -370,13 +374,15 @@ export default {
 				if(response.status != 200) {
 					this.errorMsg = response.data.message;
 					this.errorCode = response.status;
+					this.successMsg = '';
 				}
 				else {
 					this.successMsg = response.data.message;
-					this.fetchInfoData();
+					this.errorMsg = '';
 				}
 			}, (response) => {
 				console.log('Error:', response);
+				this.successMsg = '';
 				this.errorMsg = response.data.message;
 				if(response.status == 403)
 					this.errorMsg = 'Unknown token, please try to login again';
@@ -460,7 +466,6 @@ export default {
 			}
 		},
 		setVoteClassBtnGreen () {
-			console.log(this.getVoteStatus());
 			return {
 				'disabled': !this.isConnected,
 				'green': this.getVoteStatus() == 1
@@ -487,6 +492,22 @@ export default {
 		},
 		setUserRoute (userID) {
 			return '/user/' + userID;
+		},
+		checkEditedInfo () {
+			if(this.editedArticle.acceptOverload == false) {
+				if(this.editedArticle.userLimit < this.setMinUserLimit) {
+					this.errorMsg = 'You can\'t set this limit.'
+					return false;
+				}
+			}
+			else {
+				this.editedArticle.userLimit = 0;
+			}
+			if(this.editedArticle.expirydate == null || this.editedArticle.expirydate == undefined || this.editedArticle.expirydate == '' || moment(this.editedArticle.expirydate).isBefore(moment(this.infoData.birthdate)) || moment(this.editedArticle.expirydate, "MM/DD/YYYY HH:mm").isAfter(moment(this.infoData.birthdate).add(1,'d') ) ) {
+				this.errorMsg = 'Expiry date is incorrect.';
+				return false;
+			}
+			return true;
 		}
 	},
 	computed: {
@@ -518,6 +539,12 @@ export default {
 			return {
 				'disabled': this.infoData.userID == Cookie.getCookie('userID')
 			}
+		},
+		setMinUserLimit() {
+			if(this.infoData.userList.length > this.infoData.userLimit)
+				return this.infoData.userList.length > 2 ? this.infoData.userList.length : 2;
+			return 2;
+
 		}
 	},
 	filters: {
