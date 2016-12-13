@@ -10,7 +10,7 @@
 							<div class="jumbotron">
 								<div class="container">
 									<h1>Hello {{userData.username}},</h1>
-									<p>Welcome on you profile page.</p>
+									<p>Welcome on your profile page.</p>
 								</div>
 							</div>
 								<div id="update-info">
@@ -32,6 +32,14 @@
 											<label for="pwd" class="">Password:</label>
 											<input type="password" name="pwd" class="form-control" id="pwd" v-model="inputPas">
 											<div id="infoPas" class="help-block" v-show="checkPwd">Please type a password with at least 6 characters.</div>
+										</div>
+										<div class="form-group">
+											<div class="checkbox checkbox-inline">
+												<label>
+													<input type="checkbox" value="false" v-model="checkboxMail">
+													My email is visible to other members
+												</label>
+											</div>
 										</div>
 									
 										<button type="submit" class="btn btn-primary">Update</button>
@@ -83,7 +91,8 @@
 				errorCodeForm: '',
 				successMsg: '',
 				inputPas: '',
-				inputMail: ''
+				inputMail: '',
+				checkboxMail: ''
 			}
 		},
 		mounted () {
@@ -102,7 +111,8 @@
 					// get user infos
 				this.$http.get(Config.urlAPI +'/api/user/myprofile', options).then((response) => {
 		    		this.userData = response.data;
-		    		
+		    		this.checkboxMail = this.userData.isEmailVisible;
+
 		    		if(response.status != 200) {
 		    			this.errorMsg = response.message;
 		    			this.errorCode = response.status;
@@ -143,8 +153,10 @@
 				var body = {
 						password: 		this.inputPas,
 						mail: 	  		this.inputMail,
+						isEmailVisible: this.checkboxMail,
 						isNewPwd:       this.inputPas.length != 0,
-						isNewEmail:		this.inputMail.length != 0
+						isNewEmail:		this.inputMail.length != 0,
+						isNewVisible:   this.checkboxMail != this.userData.isEmailVisible
 				};
 				var options = {
 					headers: {
@@ -157,15 +169,19 @@
 
 			    	// get status
 				    if(response.status === 200) {
-				    	this.successMsg = response.message;
+				    	this.successMsg = response.data.message;
+				    	this.errorMsgForm = '';
+				    	this.errorCodeForm = '';
 				    }
 				    else {
-				    	this.errorMsgForm = response.message;
+				    	this.errorMsgForm = response.data.message;
+				    	this.successMsg = '';
 				    }
 			  	}, (response) => {
 				    // error callback
+				    this.successMsg = '';
 				    this.errorCodeForm = response.status;
-				    this.errorMsgForm = response.message;
+				    this.errorMsgForm = response.data.message;
 		  		});
 			},
 			getRoute(infoID) {

@@ -40,6 +40,7 @@ var Controller = {
 	},
 
 	checkBoolean: function(stringBool) {
+		stringBool+= '';
 		if(stringBool === 'true')
 			return true;
 		if(stringBool === 'false')

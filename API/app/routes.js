@@ -34,7 +34,7 @@ router
 //==============================================
 
 .post('/user/register', function(req, res, next) {
-    
+
     //Checking inputs
 
     if( Controller.isUsernameValid(req.body.username) && 
@@ -42,8 +42,8 @@ router
         Controller.isUserPasswordValid(req.body.password)) {
 
         var tempUsername   = Controller.sanitizeString(req.body.username);
-        var tempUserMail   = Controller.sanitizeString(req.body.mail);
-        var isEmailVisible = Controller.checkBoolean(req.body.isEmailVisible);
+    var tempUserMail   = Controller.sanitizeString(req.body.mail);
+    var isEmailVisible = Controller.checkBoolean(req.body.isEmailVisible);
 
         // Checking Google Recaptcha
 
@@ -54,13 +54,13 @@ router
             var key = req.body.gRecaptchaResponse;
             recaptcha.validate(key)
             .then(function(){
-                
+
                 // Checking database for email or username
                 
                 Promise.props({
-                   username: User.findOne({username: tempUsername}, 'username').execAsync(),
-                   mail: User.findOne({mail: tempUserMail}, 'mail').execAsync()
-                })
+                 username: User.findOne({username: tempUsername}, 'username').execAsync(),
+                 mail: User.findOne({mail: tempUserMail}, 'mail').execAsync()
+             })
                 .then(function(results) {
                     if(results.username != null)
                         res.status(400).json({success: false, message: 'Username already exists'});
@@ -120,19 +120,19 @@ router
 
     // Checking Google Recaptcha
 
-        if(req.body.gRecaptchaResponse === undefined || req.body.gRecaptchaResponse === '' || req.body.gRecaptchaResponse === null) {
-            res.status(400).json({message: 'No Captcha found.'});
-        }
-        else{
-            var key = req.body.gRecaptchaResponse;
-            recaptcha.validate(key)
-            .then(function(){
+if(req.body.gRecaptchaResponse === undefined || req.body.gRecaptchaResponse === '' || req.body.gRecaptchaResponse === null) {
+    res.status(400).json({message: 'No Captcha found.'});
+}
+else{
+    var key = req.body.gRecaptchaResponse;
+    recaptcha.validate(key)
+    .then(function(){
 
-                Promise.props({
-                    user: User.findOne({username: req.body.username}).execAsync()
-                })
-                .then(function(results) {
-                    if(results.user != null) {
+        Promise.props({
+            user: User.findOne({username: req.body.username}).execAsync()
+        })
+        .then(function(results) {
+            if(results.user != null) {
                         // Load hash from your password DB.
                         bcrypt.compare(req.body.password, results.user.password, function(err, resp) {
                             if(err) {
@@ -169,9 +169,9 @@ router
                                 }
                                 else{
                                     res.status(200).json({
-                                    success: true,
-                                    message: 'User connected',
-                                    idUser: userData.userID
+                                        success: true,
+                                        message: 'User connected',
+                                        idUser: userData.userID
                                     });    
                                 }
                             }
@@ -184,9 +184,9 @@ router
                         res.status(400).json({success: false, message: 'User not found'});
                     }
                 });
-            });
-        }
-    }
+    });
+}
+}
 })
 
 
@@ -199,7 +199,7 @@ router
             console.log('Error when trying to get all infos');
             res.status(500).send(err);
         }
-    res.status(200).json(infos);
+        res.status(200).json(infos);
     });
 })
 
@@ -247,7 +247,7 @@ router
         res.status(400).send({success: false, message: 'Invalid userID'});
     }
     else{
-        
+
         // DATE CHECKING
         var tempExpiryDate = moment(req.body.expirydate, moment.ISO_8601);
         var tempBirthDate = moment();
@@ -264,35 +264,35 @@ router
         }
         else {
         	
-    		var info = new Info({
+          var info = new Info({
 
-                title: 			Controller.sanitizeString(req.body.title),
-                description: 	Controller.sanitizeString(req.body.description),
-                birthdate: 		tempBirthDate,
-                expirydate: 	tempExpiryDate,
-                category: 		Controller.sanitizeString(req.body.category),
-                location: 		Controller.sanitizeString(req.body.location),
-                addInfo: 		Controller.sanitizeString(req.body.addInfo),
-                userID: 		req.decoded.userID
-            });
-            if(info.category === 'Event') {
-                info.userLimit = req.body.userLimit;
-                info.acceptOverload = req.body.acceptOverload;
-                info.userList.push({ ID: req.decoded.userID, username: req.decoded.username});
-            }
-        	info.save(function(err, resp) {
-                if(err) {
-                    console.log('Error when adding info');
-                    res.status(500).send(err);
-        	    }
-                else {
-                    var io = req.app.get('socketio');
-                    io.emit('newInfo', info);
-                    res.status(200).json({success: true, message: 'Successfully added'});
-                }
-        	});
+            title: 			Controller.sanitizeString(req.body.title),
+            description: 	Controller.sanitizeString(req.body.description),
+            birthdate: 		tempBirthDate,
+            expirydate: 	tempExpiryDate,
+            category: 		Controller.sanitizeString(req.body.category),
+            location: 		Controller.sanitizeString(req.body.location),
+            addInfo: 		Controller.sanitizeString(req.body.addInfo),
+            userID: 		req.decoded.userID
+        });
+          if(info.category === 'Event') {
+            info.userLimit = req.body.userLimit;
+            info.acceptOverload = req.body.acceptOverload;
+            info.userList.push({ ID: req.decoded.userID, username: req.decoded.username});
         }
+        info.save(function(err, resp) {
+            if(err) {
+                console.log('Error when adding info');
+                res.status(500).send(err);
+            }
+            else {
+                var io = req.app.get('socketio');
+                io.emit('newInfo', info);
+                res.status(200).json({success: true, message: 'Successfully added'});
+            }
+        });
     }
+}
 })
 
 
@@ -306,15 +306,15 @@ router
         res.status(400).send({success: false, message: 'Invalid userID'});
     }
     else {
-            Info.find({userID: req.params.id}, function(err, infos) {
-                if(err) {
-                    console.log('Error when trying to get infos for User ID: '+req.params.id);
-                    res.status(500).send(err);
-                }
-                else {
-                    res.status(200).json(infos);
-                }
-            });
+        Info.find({userID: req.params.id}, function(err, infos) {
+            if(err) {
+                console.log('Error when trying to get infos for User ID: '+req.params.id);
+                res.status(500).send(err);
+            }
+            else {
+                res.status(200).json(infos);
+            }
+        });
     }
 })
 
@@ -329,15 +329,15 @@ router
         res.status(400).send({success: false, message: 'Invalid infoID'});
     }
     else {
-            Info.findOne({_id: req.params.id}, function(err, info) {
-                if(err) {
-                    console.log('Error when trying to get the info id: '+req.params.id);
-                    res.status(500).send(err);
-                }
-                else {
-                    res.status(200).json(info);
-                }
-            });
+        Info.findOne({_id: req.params.id}, function(err, info) {
+            if(err) {
+                console.log('Error when trying to get the info id: '+req.params.id);
+                res.status(500).send(err);
+            }
+            else {
+                res.status(200).json(info);
+            }
+        });
     }
 })
 
@@ -346,7 +346,7 @@ router
 //==============================================
 
 .post('/infos/update/:id', function(req, res, next) {
-    
+
     // IDs Cheking
 
     if( !(Controller.isObjectIDValid(req.decoded.userID)) ) {
@@ -357,9 +357,9 @@ router
 
     // DATE Checking
 
-        var tempBirthDate = moment(req.body.birthdate, moment.ISO_8601);
-        var tempExpiryDate = moment(req.body.expirydate, moment.ISO_8601);
-        var timeFromBirth = tempExpiryDate.diff(tempBirthDate);
+    var tempBirthDate = moment(req.body.birthdate, moment.ISO_8601);
+    var tempExpiryDate = moment(req.body.expirydate, moment.ISO_8601);
+    var timeFromBirth = tempExpiryDate.diff(tempBirthDate);
         if( timeFromBirth < 0 || timeFromBirth > 86400000) {           // 24h in ms
             res.status(400).send({success: false, message: 'Invalid expirydate'});
             console.log(timeFromBirth);
@@ -367,42 +367,42 @@ router
 
     // INFO Handling
 
+    else {
+        if( !(Controller.isObjectIDValid(req.params.id)) ) {
+            res.status(400).send({success: false, message: 'Invalid Info ID'});
+        }
         else {
-            if( !(Controller.isObjectIDValid(req.params.id)) ) {
-                res.status(400).send({success: false, message: 'Invalid Info ID'});
+            var infoID = req.params.id;
+            Info.findOne({_id: infoID, userID: userID}, function(err, info) {
+                if(err) {
+                    console.log('Error when trying to get the info to update: '+err);
+                    res.status(500).send({success: false, message: 'Error when trying to get the info'});
+                }
+                if(info) {
+                    if(info.userID === userID) {
+                     info.updateInfos(req.body);
+                     Info.update({_id: info._id}, info, function(err) {
+                        if(err) {
+                            console.log('Error when updating info: '+err);
+                            res.status(500).send({success: false, message: 'Error when updating info'});
+                        }
+                        var io = req.app.get('socketio');
+                        io.emit('updateInfo', info);
+                        res.status(200).send({success: true, message: 'Info updated'});
+                    }); 
+                 }
+                 else {
+                    res.status(403).send({success: false, message: 'You are not authorized to update this info'});
+                }
+
             }
             else {
-                var infoID = req.params.id;
-                Info.findOne({_id: infoID, userID: userID}, function(err, info) {
-                    if(err) {
-                        console.log('Error when trying to get the info to update: '+err);
-                        res.status(500).send({success: false, message: 'Error when trying to get the info'});
-                    }
-                    if(info) {
-                        if(info.userID === userID) {
-                           info.updateInfos(req.body);
-                            Info.update({_id: info._id}, info, function(err) {
-                            if(err) {
-                                console.log('Error when updating info: '+err);
-                                res.status(500).send({success: false, message: 'Error when updating info'});
-                            }
-                             var io = req.app.get('socketio');
-                            io.emit('updateInfo', info);
-                            res.status(200).send({success: true, message: 'Info updated'});
-                        }); 
-                        }
-                        else {
-                            res.status(403).send({success: false, message: 'You are not authorized to update this info'});
-                        }
-                        
-                    }
-                    else {
-                        res.status(404).send({success: false, message: 'No info found'});
-                    }
-                });
+                res.status(404).send({success: false, message: 'No info found'});
             }
+        });
         }
     }
+}
 })
 
 
@@ -410,31 +410,31 @@ router
 //==============================================
 
 .delete('/infos/delete/:id', function(req, res, next) {
-    
+
     // Cheking userID
     if( !(Controller.isObjectIDValid(req.decoded.userID)) ) {
         res.status(400).send({success: false, message: 'Invalid userID'});
     }
     else {
-            if (!(Controller.isObjectIDValid(req.params.id)) )
-                res.status(400).send({success: false, message: 'Info ID is invalid'});
-            else {
-                Info.findOneAndRemove({_id: req.params.id, userID: req.decoded.userID}, function(err, info) {
-                    if(err) {
-                        console.log('Error when trying to delete the info');
-                        res.status(500).send(err);
-                    }
-                    if(info) {
-                        console.log('Info removed');
-                        res.status(200).json({success: true, message: 'Info removed'});
-                        var io = req.app.get('socketio');
-                            io.emit('deleteInfo', info);
-                    }
-                    else {
-                        res.status(404).send({success: false, message: 'There is no info with this ID or you are to authorized to delete it'});
-                    }
-                });
-            }
+        if (!(Controller.isObjectIDValid(req.params.id)) )
+            res.status(400).send({success: false, message: 'Info ID is invalid'});
+        else {
+            Info.findOneAndRemove({_id: req.params.id, userID: req.decoded.userID}, function(err, info) {
+                if(err) {
+                    console.log('Error when trying to delete the info');
+                    res.status(500).send(err);
+                }
+                if(info) {
+                    console.log('Info removed');
+                    res.status(200).json({success: true, message: 'Info removed'});
+                    var io = req.app.get('socketio');
+                    io.emit('deleteInfo', info);
+                }
+                else {
+                    res.status(404).send({success: false, message: 'There is no info with this ID or you are to authorized to delete it'});
+                }
+            });
+        }
     }
 })
 
@@ -467,44 +467,44 @@ router
             else {
                 Info.findOne({_id: eventID}, function(err, event) {
                     if(err) {
-                    console.log('Error when trying to find event to join: '+err);
-                    res.status(500).send(err);
+                        console.log('Error when trying to find event to join: '+err);
+                        res.status(500).send(err);
                     }
                     if(event) {
                         if(event.category === 'Event') {
                           if(event.isFull()) {
-                                res.status(409).send({success: false, message: 'Event is full'});
-                            }
-                            else {
-                                var isUserAlreadyIn = false;
-                                for (var i = event.userList.length - 1; i >= 0; i--) {
-                                    if(event.userList[i].ID === userID) {
-                                        isUserAlreadyIn = true;
-                                        res.status(409).send({success: false, message: 'User already in the event'});
-                                    }
-                                }
-                                if(!isUserAlreadyIn) {
-                                    event.userList.push({ID: userID, username: username});
-                                    Info.update({_id: eventID}, event, function(err) {
-                                        if(err) {
-                                            console.log('Error when updating the event after user joined: '+err);
-                                            res.status(500).send({success: false, message: 'Error when updating the event'});
-                                        }
-                                        res.status(200).send({success: true, message: 'Event joined'});
-                                        var io = req.app.get('socketio');
-                                        io.emit('joinEvent', {'ID': event._id, 'userID': userID, 'username': username});
-                                    });
-                                }
-                            }  
-                        } 
-                        else {
-                            res.status(404).send({success: false, message: 'No event found'});
+                            res.status(409).send({success: false, message: 'Event is full'});
                         }
-                    }
+                        else {
+                            var isUserAlreadyIn = false;
+                            for (var i = event.userList.length - 1; i >= 0; i--) {
+                                if(event.userList[i].ID === userID) {
+                                    isUserAlreadyIn = true;
+                                    res.status(409).send({success: false, message: 'User already in the event'});
+                                }
+                            }
+                            if(!isUserAlreadyIn) {
+                                event.userList.push({ID: userID, username: username});
+                                Info.update({_id: eventID}, event, function(err) {
+                                    if(err) {
+                                        console.log('Error when updating the event after user joined: '+err);
+                                        res.status(500).send({success: false, message: 'Error when updating the event'});
+                                    }
+                                    res.status(200).send({success: true, message: 'Event joined'});
+                                    var io = req.app.get('socketio');
+                                    io.emit('joinEvent', {'ID': event._id, 'userID': userID, 'username': username});
+                                });
+                            }
+                        }  
+                    } 
                     else {
                         res.status(404).send({success: false, message: 'No event found'});
                     }
-                });
+                }
+                else {
+                    res.status(404).send({success: false, message: 'No event found'});
+                }
+            });
             }
         });
     }
@@ -573,25 +573,25 @@ router
 .post('/infos/:id/:votetype', function(req, res, next) {
     if( !(Controller.isObjectIDValid(req.params.id)) ||
         !(Controller.isObjectIDValid(req.decoded.userID)) ) {
-        
+
         res.status(400).send({success: false, message: 'Invalid ID'});
-    }
-    else if ( !(Controller.isVoteTypeValid(req.params.votetype)) ) {
-        res.status(400).send({success: false, message: 'Bad request'});
-    }
-    else {
-        var userID      = req.decoded.userID;
-        var infoID      = req.params.id;
-        var votetype    = req.params.votetype === 'upvote'?(1):(-1);
-        
-        Info.findOne({_id: infoID}, function(err, info) {
-            if(err) {
-                console.log('Error when updating votes');
-                res.status(500).send(err);
-            }
-            if(info) {
-                var vote;
-                var isVoteExist = false;
+}
+else if ( !(Controller.isVoteTypeValid(req.params.votetype)) ) {
+    res.status(400).send({success: false, message: 'Bad request'});
+}
+else {
+    var userID      = req.decoded.userID;
+    var infoID      = req.params.id;
+    var votetype    = req.params.votetype === 'upvote'?(1):(-1);
+
+    Info.findOne({_id: infoID}, function(err, info) {
+        if(err) {
+            console.log('Error when updating votes');
+            res.status(500).send(err);
+        }
+        if(info) {
+            var vote;
+            var isVoteExist = false;
                 // We search if the user already added a vote
                 for (var i = 0; i < info.votes.length; i++) {
                     vote = info.votes[i];
@@ -616,13 +616,13 @@ router
                     info.votes.push({userID: userID, value: votetype});
                     info.updateVoteCount();
                     Info.update({_id: infoID}, info, function(err) {
-                    if(err) {
-                        console.log('Error when updating the info: '+err);
-                        res.status(500).send({success: true, message: 'Error when updating the info'});
-                    }
-                    res.status(200).send({success: true, message: 'Vote sent !'});
-                    var io = req.app.get('socketio');
-                    io.emit('voteUpdated', {'ID': infoID, 'voteCount': info.voteCount});
+                        if(err) {
+                            console.log('Error when updating the info: '+err);
+                            res.status(500).send({success: true, message: 'Error when updating the info'});
+                        }
+                        res.status(200).send({success: true, message: 'Vote sent !'});
+                        var io = req.app.get('socketio');
+                        io.emit('voteUpdated', {'ID': infoID, 'voteCount': info.voteCount});
                     });
                 } 
             }
@@ -630,7 +630,7 @@ router
                 res.status(404).send({success: true, message: 'No info found'});
             }
         });
-    }
+}
 })
 
 
@@ -646,8 +646,8 @@ router
         }
         if(users) {
             users.forEach(function(user){
-            if(user.isEmailVisible === false)
-                user.mail = '';
+                if(user.isEmailVisible === false)
+                    user.mail = '';
             });
             res.status(200).json(users);
         }
@@ -691,17 +691,17 @@ router
         var name = Controller.sanitizeString(req.params.name);
 
         User.findOne({username: name}, '-password', function(err, user) {
-        if(err) {
-            console.log('error when trying to get the user by name');
-            res.status(500).send(err);
-        }
-        if(user) {
-            if(user.isEmailVisible === false) {
-                user.mail = '';
+            if(err) {
+                console.log('error when trying to get the user by name');
+                res.status(500).send(err);
             }
-        }
-        res.status(200).json(user);        
-        
+            if(user) {
+                if(user.isEmailVisible === false) {
+                    user.mail = '';
+                }
+            }
+            res.status(200).json(user);        
+
         });    
     }
     else {
@@ -733,17 +733,21 @@ router
 //=============================================
 
 .post('/user/update', function(req, res, next) {
-    
-    var checkPwd    = false;
-    var checkEmail  = false;
+
+    var checkPwd          = false;
+    var checkEmail        = false;
+    var checkVisible      = false;
     if(Controller.checkBoolean(req.body.isNewPwd) && Controller.isUserPasswordValid(req.body.password)) {
         checkPwd = true;
     }
     if( Controller.checkBoolean(req.body.isNewEmail) && Controller.isUserMailValid(req.body.mail)) {
         checkEmail = true;
     }
-    
-    if(checkPwd === false && checkEmail === false) {
+    if( Controller.checkBoolean(req.body.isNewVisible) ) {
+        checkVisible = true;
+    }
+
+    if(checkPwd === false && checkEmail === false && checkVisible === false ) {
         res.status(400).send({success: false, message: 'Bad request, nothing to change'});
     }
     else {
@@ -757,36 +761,31 @@ router
         })
         .then(function(results) {
             if(results.user != null) {
-                if(results.user.mail != null)
-                    res.status(409).send({success: false, message: 'Email already exists'});
-                else {
-                    if(newIsEmailVisible != null)
-                        results.user.isEmailVisible = newIsEmailVisible; 
-                    if(checkEmail)
-                        results.user.mail = newEmail;
-                    if(checkPwd) {
-                        bcrypt.hash(newPassword, saltRounds, function(err, hash) {
-                            results.user.password = hash;
-                            results.user.save(function(err, resp) {
-                                if(err) {
-                                    console.log('Error when trying to update the user: '+user.username);
-                                    res.status(500).send(err);
-                                }
-                                res.status(200).send({success: true, message: 'Successfully updated'});
-                            });  
-                        });
-                    }
-                    else {
+                if(checkVisible)
+                    results.user.isEmailVisible = newIsEmailVisible; 
+                if(checkEmail)
+                    results.user.mail = newEmail;
+                if(checkPwd) {
+                    bcrypt.hash(newPassword, saltRounds, function(err, hash) {
+                        results.user.password = hash;
                         results.user.save(function(err, resp) {
                             if(err) {
                                 console.log('Error when trying to update the user: '+user.username);
                                 res.status(500).send(err);
                             }
                             res.status(200).send({success: true, message: 'Successfully updated'});
-                        });
-                    }
+                        });  
+                    });
                 }
-
+                else {
+                    results.user.save(function(err, resp) {
+                        if(err) {
+                            console.log('Error when trying to update the user: '+user.username);
+                            res.status(500).send(err);
+                        }
+                        res.status(200).send({success: true, message: 'Successfully updated'});
+                    });
+                }
             }
             else 
                 res.status(404).send({success: false, message: 'User doesn\'t exist'});
