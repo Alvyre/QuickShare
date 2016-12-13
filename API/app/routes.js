@@ -155,7 +155,7 @@ router
                                         issuer: 'API-auth',
                                         audience: 'web-frontend'
                                     });
-                                    res.cookie('token', token, {
+                                    res.cookie('tokenHttp', token, {
                                         path: '/',
                                         domain: config.domain,
                                         httpOnly: true, 

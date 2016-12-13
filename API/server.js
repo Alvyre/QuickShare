@@ -38,6 +38,7 @@ mongoose.connect(config.database, function (err) {			// Connect to the mongoDB
 		console.log("Database connection Error");
 	}
 });
+
 app.use(cookieParser(config.cookieSecret));
 app.use(express.static(__dirname + '/public'));						// set static files location
 app.use(morgan('dev'));												// log every request to the console

@@ -30,7 +30,8 @@ Then, you have to create a config.js file into the /src folder:
 
 	domain: '.<your_domain>',
 	urlAPI: '<your_API_URL>', 	// without the /api/...
-	contactEmail: <your_@Mail>
+	contactEmail: <your_@Mail>,
+	infoTTL: <value> 					//in days 
 	};
 
 **Serve & Build:**

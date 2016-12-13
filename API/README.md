@@ -31,7 +31,8 @@ Then, you have to create a config folder and a config file inside with the follo
             googleSecret: <your_G-recaptcha_secretKey>,
             cookieSecret: <your_cookieParser_secretKey>,
             domain: <your_domain_for_setCookie>,
-            whitelist: [<Array of authorized domains]
+            whitelist: [<Array of authorized domains],
+            infoTTL: <value>                            // in days
 	};
 
 then you can serve by taping:
