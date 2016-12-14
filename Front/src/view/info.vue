@@ -400,18 +400,24 @@ export default {
 
 				//API delete info Request (DELETE)
 				this.$http.delete(Config.urlAPI +'/api/infos/delete/'+this.infoData._id, options).then(( response) => {
+					
+					//If success
+
+					//If error (data error)
 					if(response.status != 200) {
 						this.errorMsg = response.data.message;
 						this.errorCode = response.status;
 					}
 					else {
+						//redirect to the home page in 3secs
 						this.successMsg = response.data.message;
 						window.setTimeout(function(){
-							    // Move to login page
 							    vue.$router.push('/');
-							    }, 3000); // 3 secs
+							    }, 3000);
 					}
 				}, (response) => {
+
+					//If error (request error)
 					this.errorMsg = response.data.message;
 					this.errorCode = response.status;
 				});
@@ -421,14 +427,19 @@ export default {
 			this.editedArticle.expirydate = moment(val).utc().format();
 		},
 		updateArticle () {
+
+			//If user disconnected: return
 			if(!this.checkEditedInfo() ) return;
 
+			//Request options (COORS, token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
 				},
 				credentials: true
 			};
+
+			//Payload to send
 			var payload = {
 				title:  		(this.editedArticle.title 			|| this.infoData.title),
 				description: 	(this.editedArticle.description 	|| this.infoData.description),
@@ -440,8 +451,13 @@ export default {
 				expirydate: 	(this.editedArticle.expirydate 		|| this.infoData.expirydate)
 			};
 			payload.acceptOverload ? payload.userLimit = '' : '';
+			
+			//API request to update information (POST)
 			this.$http.post(Config.urlAPI +'/api/infos/update/'+this.infoData._id, payload, options).then((response) => {
 
+				//If success
+
+				//If data error
 				if(response.status != 200) {
 					this.errorMsg = response.data.message;
 					this.errorCode = response.status;
@@ -452,6 +468,8 @@ export default {
 					this.errorMsg = '';
 				}
 			}, (response) => {
+
+				//If Request error
 				console.log('Error:', response);
 				this.successMsg = '';
 				this.errorMsg = response.data.message;
@@ -461,30 +479,43 @@ export default {
 			});
 		},
 		voteUp () {
+
+			//If user disconnected, return
 			if(!this.isConnected) return;
+			
+			//Request options (COORS, Token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
 				},
 				credentials: true
 			};
+
+			//API Request to upvote (POST)
 			this.$http.post(Config.urlAPI +'/api/infos/'+this.infoData._id+'/upvote', {}, options).then((response) => {
 			}, (response) => {
+
+				//If Error
 				console.log('Error:', response);
 			});
+
+			//Update vote locally, waiting socket update
 			var info = this.infoData;
 			var hadVoted = false;
 			this.infoData.votes.every(function(element, index, array) {
 				if(element.userID == Cookie.getCookie('userID')) {
 					hadVoted = true;
+					//The user already voted +1 so we negate to 0
 					if(element.value == 1) {
 						info.voteCount--;
 						element.value = 0;	
-					} 
+					}
+					//The user already voted -1 so we put +1 
 					else if(element.value == -1) {
 						info.voteCount +=2;
 						element.value = 1;	
 					}
+					//The user already voted 0 so we put +1
 					else {
 						info.voteCount++;
 						element.value = 1;
@@ -493,36 +524,51 @@ export default {
 				}
 				return true;
 			});
+
+			//The user never voted, so +1
 			if(!hadVoted) {
 				this.infoData.voteCount ++;
 				this.infoData.votes.push({userID: Cookie.getCookie('userID'), value: 1});	
 			}
 		},
 		voteDown () {
+
+			//If the user is disconnected, return
 			if(!this.isConnected) return;
+			
+			//Request options (COORS, token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
 				},
 				credentials: true
 			};
+
+			//API Request to downvote (POST)
 			this.$http.post(Config.urlAPI +'/api/infos/'+this.infoData._id+'/downvote', {}, options).then((response) => {
 			}, (response) => {
+
+				//If error
 				console.log('Error:', response);
 			});
+
+			//Update locally the vote waiting the socket update
 			var info = this.infoData;
 			var hadVoted = false;
 			this.infoData.votes.every(function(element, index, array) {
 				if(element.userID == Cookie.getCookie('userID')) {
 					hadVoted = true;
+					//The user already voted 1 so we put -1
 					if(element.value == 1) {
 						info.voteCount-=2;
 						element.value = -1;	
 					} 
+					//The user already voted -1 so we negate to 0
 					else if(element.value == -1) {
 						info.voteCount ++;
 						element.value = 0;	
 					}
+					//The user already vored 0, so we put -1
 					else {
 						info.voteCount--;
 						element.value = -1
@@ -531,11 +577,14 @@ export default {
 				}
 				return true;
 			});
+			//The user never voted, so -1
 			if(!hadVoted) {
 				this.infoData.voteCount --;
 				this.infoData.votes.push({userID: Cookie.getCookie('userID'), value: -1});
 			}
 		},
+
+		//Set CSS class for vote buttons
 		setVoteClassBtnGreen () {
 			return {
 				'disabled': !this.isConnected,
@@ -548,6 +597,8 @@ export default {
 				'red': this.getVoteStatus() == -1
 			};
 		},
+
+		//Get the vote status of the user for the current info
 		getVoteStatus() {
 			var status;
 			this.infoData.votes.every(function(element, index, array) {
@@ -561,19 +612,28 @@ export default {
 			});
 			return status;
 		},
+
+		//Set the route to the user profile
 		setUserRoute (userID) {
 			return '/user/' + userID;
 		},
+
+		//Check the edited info (especially the overload)
 		checkEditedInfo () {
+
+			//If we don't accept Overload, check the userLimit (we can't set limit under the current members size)
 			if(this.editedArticle.acceptOverload == false) {
 				if(this.editedArticle.userLimit < this.setMinUserLimit) {
 					this.errorMsg = 'You can\'t set this limit.'
 					return false;
 				}
 			}
+			//If we accept Overload, set the limit to 0
 			else {
 				this.editedArticle.userLimit = 0;
 			}
+
+			//Check the expiry date (null, undefined, '', before birthdate, after birthdate +1d)
 			if(this.editedArticle.expirydate == null || this.editedArticle.expirydate == undefined || this.editedArticle.expirydate == '' || moment(this.editedArticle.expirydate).isBefore(moment(this.infoData.birthdate)) || moment(this.editedArticle.expirydate, "MM/DD/YYYY HH:mm").isAfter(moment(this.infoData.birthdate).add(1,'d') ) ) {
 				this.errorMsg = 'Expiry date is incorrect.';
 				return false;

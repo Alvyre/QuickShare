@@ -36,9 +36,16 @@
 </template>
 
 <script>
+
+// Imports 
+//==================================
+
 	import Store from '../store';
 	import Cookie from '../cookie-handler';
 	import Config from '../config';
+
+// Vue 
+//==================================
 
 	export default {
 		name: 'signIn',
@@ -49,71 +56,85 @@
 				successMsg: '',
 				inputName: '',
 				inputPas: '',
-				grecaptcha: {},
-				timer : ''
+				grecaptcha: {}
 			}
 		},
 		mounted () {
+
+			//Render explicitly the g-recaptcha to avoid bug when auto refresh or navigation
 			this.grecaptcha = grecaptcha.render($('.g-recaptcha')[0], {sitekey: '6LeKFAwUAAAAAL1miQAbHCzWG9eM1dS6JpjRovmN', theme: 'dark'});
 		},
 		methods: {
 			signIn () {
+
+				//Get the response of the g-recaptcha
 				var gResponse = grecaptcha.getResponse(this.grecaptcha);
 				if(gResponse.length == 0) {
 					this.errorMsg = 'G-recaptcha is not verified !';
 				}
 				else {
 					
-					var body = {
+					//Set the payload to set
+					var payload = {
 					username: 		this.inputName,
 					password: 		this.inputPas,
 					gRecaptchaResponse: gResponse
 					};
 
-					// self reference for the routing
+					// self reference for the routing redirection
 					var vue = this;
 
-				  	// POST /someUrl
-				  	this.$http.post(Config.urlAPI +'/api/user/login', body).then((response) => {
+				  	//API request to login (POST)
+				  	this.$http.post(Config.urlAPI +'/api/user/login', payload).then((response) => {
 
-					    // get status
+					    //If success
 					    if(response.status === 200) {
 					    	this.successMsg = response.data.message;
-					    	//Change the isConnected state
 					    	
+					    	//Set cookies and logged state
 					    	Cookie.setCookie('token', response.data.JWT);
 					    	Cookie.setCookie('Connected', 'true');
 					    	Cookie.setCookie('userID', response.data.idUser);
 					    	Store.commit('login');
-					    	//Redirection to homepage
-					    	this.timer = window.setTimeout(function(){
-							    // Move to login page
+
+					    	//Redirection to homepage in 3secs
+					    	window.setTimeout(function(){
 							    vue.$router.push('/');
-							    }, 3000); // 3 secs
+							    }, 3000);
 					    }
+
+					    //If data error
 					    else {
 					    	this.errorMsg = response.data.message;
 					    }
 				  	}, (response) => {
-				    // error callback
+				    
+				    //If request error
 				    this.errorCode = response.status;
 				    this.errorMsg = response.data.message;
 
+				    //reset the recaptcha for new entry
 				   	grecaptcha.reset(this.grecaptcha);
 			  		});
 				}
 			}
 		},
 		computed: {
+
+			//Check the name (between 3 & 20 characters, no color detection for 0 char)
 			checkName () {
 				return ( this.inputName.length > 0 &&
 					 	 this.inputName.length < 3 ||
 					 	 this.inputName.length > 20);
 			},
+
+			//Check the password (more than 6 characters, no color detection for 0 char)
 			checkPwd () {
 				return ( this.inputPas.length > 0 &&
 						 this.inputPas.length < 6);
 			},
+
+			//Set CSS classes for inputs
 			className () {
 				return {
 					'has-success': 	this.inputName.length >= 3 && this.inputName.length <= 20,

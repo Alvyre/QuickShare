@@ -53,8 +53,13 @@
 
 <script>
 
-import Config from '../config';
+// Imports 
+//==================================
 
+	import Config from '../config';
+
+// Vue 
+//==================================
 
 	export default {
 		name: 'signup',
@@ -71,17 +76,20 @@ import Config from '../config';
 			}
 		},
 		mounted () {
+			//Render g-recaptcha  explicitly
 			this.grecaptcha = grecaptcha.render($('.g-recaptcha')[0], {sitekey: '6LeKFAwUAAAAAL1miQAbHCzWG9eM1dS6JpjRovmN', theme: 'dark'});
 		},
 		methods: {
 			signUp () {
+
 					var gResponse = grecaptcha.getResponse(this.grecaptcha);
 					if(gResponse.length == 0) {
 						this.errorMsg = 'G-recaptcha is not verified !';
 					}
 					else {
 						
-						var body = {
+						//Set the payload
+						var payload = {
 						username: 		this.inputName,
 						password: 		this.inputPas,
 						mail: 	  		this.inputMail,
@@ -89,40 +97,47 @@ import Config from '../config';
 						gRecaptchaResponse: gResponse
 						};
 
-						//self reference for the routing
+						//Vue reference for the routing redirection
 						var vue = this;
 					
-					  	// POST /someUrl
-					  	this.$http.post(Config.urlAPI +'/api/user/register', body).then((response) => {
+					  	//API request  to register (POST)
+					  	this.$http.post(Config.urlAPI +'/api/user/register', payload).then((response) => {
 
-					    // get status
+					    //If success
 					    if(response.status === 200) {
 					    	this.successMsg = response.data.message;
+
+					    	//redirect to homepage
 					    	window.setTimeout(function(){
-							    // Move to login page
 							    vue.$router.push('/sign-in');
 							    }, 3000); // 3 secs
 					    }
+					    //If data error
 					    else {
 					    	this.errorMsg = response.data.message;
 					    }
 
 					  	}, (response) => {
-					    // error callback
+					    
+					    //If Request error
 					    this.errorCode = response.status;
 					    this.errorMsg = response.data.message;
 
+					    //Reset the captcha
 					   	grecaptcha.reset(this.grecaptcha);
 				  		});
 				  	}
 			}
 		},
 		computed: {
+
+			//Check the name (between 3 - 20 char)
 			checkName () {
 				return ( this.inputName.length > 0 &&
 					 	 this.inputName.length < 3 ||
 					 	 this.inputName.length > 20);
 			},
+			//Check the PWD (more than 6 char)
 			checkPwd () {
 				return ( this.inputPas.length > 0 &&
 						 this.inputPas.length < 6);
@@ -136,6 +151,8 @@ import Config from '../config';
   					return false;
   				}
 			},
+
+			//Set CSS Classes
 			className () {
 				return {
 					'has-success': 	this.inputName.length >= 3 && this.inputName.length <= 20,

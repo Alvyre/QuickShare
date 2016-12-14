@@ -57,10 +57,15 @@
     $('.navbar-collapse.in').collapse('hide');
   });
 
+  //Imports
   //==========================================================
-  import Store from './store'
-  import Cookie from './cookie-handler';
+  
+    import Store from './store'
+    import Cookie from './cookie-handler';
 
+  //Vue.js
+  //==========================================================
+    
   export default {
     name: 'app',
     data () {

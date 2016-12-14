@@ -75,9 +75,16 @@
 </template>
 
 <script>
+
+// Imports 
+//==================================
+
 	import Cookie from '../cookie-handler';
 	import Store  from '../store';
 	import Config from '../config';
+
+// Vue 
+//==================================
 
 	export default {
 		name: 'profile',
@@ -96,39 +103,54 @@
 			}
 		},
 		mounted () {
+			//Get the user infos and set the loading animation
 			Store.commit('loadingOn');
 			this.getUserInfos();
 		},
 		methods: {
 			getUserInfos () {
 
+				//Request options (COORS, token)
 				var options = {
 					headers: {
 						'x-access-token': Cookie.getCookie('token')
 					},
 					credentials: true
 				};
-					// get user infos
+				
+				//API Request to get user data
 				this.$http.get(Config.urlAPI +'/api/user/myprofile', options).then((response) => {
+		    		
+					//If success
 		    		this.userData = response.data;
 		    		this.checkboxMail = this.userData.isEmailVisible;
 
+		    		//If data error
 		    		if(response.status != 200) {
 		    			this.errorMsg = response.message;
 		    			this.errorCode = response.status;
 		    		}
-		    		// get the posts
+		    		
+		    		//API Request to get the active infos of the user
 		    		this.$http.get(Config.urlAPI +'/api/infos/user/'+this.userData._id, options).then((response) => {
+		    			
+		    			//If success
 		    			this.userInfos = response.data;
 		    			Store.commit('loadingOff');
+		    			
+		    			//If data error
 		    			if(response.status != 200) {
 		    				this.errorMsg = response.message;
 		    				this.errorCode = response.status;
 		    			}
 		    		}, (response) => {
+
+		    			//If request error
 		    			console.log('Error:', response);
 		    			this.errorMsg = response.message;
 		    			Store.commit('loadingOff');
+
+		    			//Token invalid
 		    			if(response.status == 403) {
 		    				this.errorMsg = 'Unknown/Expired token, please try to login again';
 							Cookie.deleteCookie('token');
@@ -138,11 +160,16 @@
 		    			}
 		    			this.errorCode = response.status;
 		    		});
+		    		// END ACTIVE INFO REQUEST
 
 		  		}, (response) => {
+
+		  			//If request error
 		    		console.log('Error:', response);
 		    		this.errorMsg = response.message;
 		    		Store.commit('loadingOff');
+
+		    		//Token invalid
 		    		if(response.status == 403)
 		    			this.errorMsg = 'Unknown token, please try to login again'
 		    		this.errorCode = response.status;
@@ -150,7 +177,8 @@
 			},
 			updateInfo () {
 
-				var body = {
+				//Set the payload to send
+				var payload = {
 						password: 		this.inputPas,
 						mail: 	  		this.inputMail,
 						isEmailVisible: this.checkboxMail,
@@ -158,35 +186,44 @@
 						isNewEmail:		this.inputMail.length != 0,
 						isNewVisible:   this.checkboxMail != this.userData.isEmailVisible
 				};
+
+				//Request options (COORS, token)
 				var options = {
 					headers: {
 						'x-access-token': Cookie.getCookie('token')
 					},
 					credentials: true
 				};
-				// POST /someUrl
-			  	this.$http.post(Config.urlAPI +'/api/user/update', body, options).then((response) => {
+				
+				//API Request to update the user profile
+			  	this.$http.post(Config.urlAPI +'/api/user/update', payload, options).then((response) => {
 
-			    	// get status
+			    	//If success
 				    if(response.status === 200) {
 				    	this.successMsg = response.data.message;
 				    	this.errorMsgForm = '';
 				    	this.errorCodeForm = '';
 				    }
+				    //If data error
 				    else {
 				    	this.errorMsgForm = response.data.message;
 				    	this.successMsg = '';
 				    }
 			  	}, (response) => {
-				    // error callback
+				    
+				    //If request error
 				    this.successMsg = '';
 				    this.errorCodeForm = response.status;
 				    this.errorMsgForm = response.data.message;
 		  		});
 			},
+
+			//Get the route of an info with the ID
 			getRoute(infoID) {
 				return '/info/'+infoID;
 			},
+
+			//Set CSS class to the info
 			setClass (info) {
 				switch(info.category) {
 					case 'Info':
@@ -203,35 +240,48 @@
 					break;
 				}
 			},
+
+			//Delete user account
 			deleteAccount () {
 				var choice = confirm('/!\\ WARNING: this action is definitive, Are you sure? /!\\ ');
 				if(choice) {
 
+					//Request options (COORS, token)
 					var options = {
 					headers: {
 						'x-access-token': Cookie.getCookie('token')
 					},
 					credentials: true
 					};
+
+					//Set Vue reference for the redirection
 					var vue = this;
 
+					//API Request to delete user account
 					this.$http.delete(Config.urlAPI +'/api/user/delete', options).then(( response) => {
+						
+						//If success
+
+						//If data error
 						if(response.status != 200) {
 		    				this.errorMsg = response.data.message;
 		    				this.errorCode = response.status;
 		    			}
 		    			else {
 		    				this.successMsg = response.data.message;
+		    				//logout
 		    				Store.commit('logout');
 		    				Cookie.deleteCookie('token');
           					Cookie.deleteCookie('Connected');
 
+          					//redirect to homepage
 					    	window.setTimeout(function(){
-							    // Move to login page
 							    vue.$router.push('/');
 							    }, 3000); // 3 secs
 		    			}
 					}, (response) => {
+
+						//If request error
 						this.errorMsg = response.data.message;
 						this.errorCode = response.status;
 					});

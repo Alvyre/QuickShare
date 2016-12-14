@@ -59,37 +59,58 @@
 			}
 		},
 		mounted () {
+
+			//Get user info and set the loading animation
 			Store.commit('loadingOn');
 			this.fetchUserProfile();
 		},
 		methods: {
 			fetchUserProfile () {
+
+				//If user disconnected, redirect to homepage
 				if(!this.isConnected) {
 					this.$router.push('/');
 					return;
 				}
+
+				//Request options (COORS, token)
 				var options = {
 					headers: {
 						'x-access-token': Cookie.getCookie('token')
 					},
 					credentials: true
 				};
+
+				//Get the user ID from the URL
 				let idUser = (document.URL.split('/'))[4];
+
+				//API Request to get the user Data
 				this.$http.get(Config.urlAPI +'/api/user/id/' +idUser, options).then((response) => {
+					
+					// If success
 					if(response.status == 200) {
 						this.userData = response.data;
-					// get the posts
+					
+						//API Request to get the user active infos
 			    		this.$http.get(Config.urlAPI +'/api/infos/user/'+idUser, options).then((response) => {
+			    			
+			    			//If success
 			    			this.infos = response.data;
 			    			Store.commit('loadingOff');
+			    			
+			    			//If data error
 			    			if(response.status != 200) {
 			    				this.errorMsg = response.message;
 			    				this.errorCode = response.status;
 			    			}
 			    		}, (response) => {
+
+			    			//If request error
 			    			console.log('Error:', response);
 			    			this.errorMsg = response.message;
 			    			Store.commit('loadingOff');
+
+			    			//If invalid token
 			    			if(response.status == 403) {
 			    				this.errorMsg = 'Unknown/Expired token, please try to login again';
 								Cookie.deleteCookie('token');
@@ -99,15 +120,22 @@
 			    			}
 			    			this.errorCode = response.status;
 			    		});
+			    		//END API REQUEST ACTIVE INFO
 					}
 					else {
+
+						//If data error
 						this.errorMsg = response.data.message;
 						this.errorCode = response.status;
 					}
 				}, (response) => {
+
+					//If request error
 					console.log('Error:', response);
 					this.errorMsg = response.data.message;
 					Store.commit('loadingOff');
+
+					//If invalid token
 					if(response.status == 403) {
 						this.errorMsg = 'Unknown/Expired token, please try to login again';
 						Cookie.deleteCookie('token');
