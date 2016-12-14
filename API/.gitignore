@@ -38,3 +38,6 @@ jspm_packages
 
 # Config directory
 config
+
+# Txt files
+*.txt

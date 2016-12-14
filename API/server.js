@@ -46,7 +46,6 @@ app.use(bodyParser.urlencoded({'extended':'true'}));				// parse application/x-w
 app.use(bodyParser.json());											// parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' }));		// parse application/vnd.api+json as json
 app.use(methodOverride());
-app.use(cors(corsOptions));
 app.set('socketio', io);
 
 // ROUTES
@@ -56,6 +55,11 @@ app.use('/robots.txt', function(req,res) {
 		console.log('robot: '+req.hostname +', IP: '+req.ip);
 		res.status(200).sendFile(__dirname+'/robots.txt');
 });
+app.use('/E40A3C755494A14C14BE29B78115CE50.txt', function(req,res) {
+	console.log('SSL Checking');
+	res.status(200).sendFile(__dirname+ '/E40A3C755494A14C14BE29B78115CE50.txt');
+});
+app.use(cors(corsOptions));
 //Enable Preflight request cors
 app.options('*', cors()); // include before other routes
 
