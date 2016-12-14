@@ -2,6 +2,7 @@
 	<div id="info">
 		<div class="row" v-if="infoData.length != 0">
 			<div class="col-xs-12 col-sm-12">
+			<!-- Display Information -->
 				<div class="panel panel-success" :class="setInfoClass()">
 					<div class="panel-heading">
 						<span>{{infoData.title}}</span>
@@ -45,15 +46,18 @@
 				</div>
 			</div>
 		</div>
+		<!-- EDIT ARTICLE -->
 		<div class="row" v-if="infoData.length != 0 && isMyArticle">
-			<!-- EDIT ARTICLE -->
+			<!-- Edit & Delete buttons -->
 			<div class="col-xs-4 col-xs-offset-1 col-sm-4 col-sm-offset-1">
 				<button type="button" class="btn btn-large btn-block btn-primary" v-on:click.prevent.stop="toggleEdit()" >Edit <span class="glyphicon glyphicon-menu-down" aria-hidden="true" v-show='!isArticleEditing'></span><span class="glyphicon glyphicon-menu-up" aria-hidden="true" v-show='isArticleEditing'></span></button>
 			</div>
 			<div class="col-xs-4 col-xs-offset-2 col-sm-4 col-sm-offset-2">
 				<button type="button" class="btn btn-large btn-block btn-danger" v-on:click="deleteArticle()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
 			</div>
-			<div class="clearfix"><br><br></div>			
+			<div class="clearfix"><br><br></div>
+
+			<!-- Edit Form -->			
 			<div class="col-xs-12 col-sm-12">
 				<form action="" method="POST" role="form" v-show="isArticleEditing" v-on:submit.prevent.stop="updateArticle()">
 					<legend>Edit my info:</legend>
@@ -105,7 +109,7 @@
 <script>
 
 //IMPORTS
-//==========================
+//==================================
 
 import Store from '../store';
 import Cookie from '../cookie-handler';
@@ -115,14 +119,18 @@ var moment = require('moment');
 moment().format();
 
 // Vue 
-//=========================
+//==================================
 
 export default {
 	name: 'info',
 	sockets: {
+
+		//Triggered when the socket connect to the server
 		connect: function(){
 			console.log('socket connected');
 		},
+
+		//Triggered when an info is updated on the server
 		updateInfo (info) {
 			console.log('socket:updateinfo');
 			if(this.infoData._id == info._id) {
@@ -137,6 +145,8 @@ export default {
 				this.infoData.acceptOverload= info.acceptOverload;
 			}
 		},
+
+		//Triggered when an info is deleted on the server
 		deleteInfo (info) {
 			console.log('socket:deleteinfo');
 			if(this.infoData._id == info._id && this.infoData.userID != Cookie.getCookie('userID')) {
@@ -144,18 +154,24 @@ export default {
 				this.$router.push('/');
 			}
 		},
+
+		//Triggered when a user join a event
 		joinEvent (info) {
 			console.log('socket:joinEvent');
 			if(this.infoData._id == info.ID && this.infoData.category == 'Event') {
 				this.infoData.userList.push({ID: info.userID, username: info.username });
 			}
 		},
+
+		//Trigerred when a user leave and event
 		leaveEvent (info) {
 			console.log('socket:leaveEvent');
 			if(this.infoData._id == info.ID && this.infoData.category == 'Event') {
 				this.infoData.userList.splice(this.infoData.userList.indexOf(info.userID), 1);
 			}
 		},
+
+		//Triggered when a user vote
 		voteUpdated (info) {
 			console.log('socket:voteUpdated');
 			if(this.infoData._id == info.ID) {
@@ -193,33 +209,46 @@ export default {
 		Flatpickr
 	},
 	mounted () {
+		//Get info and set loading screen
 		Store.commit('loadingOn');
 		this.fetchInfoData();	
 	},
 	methods : {
 		fetchInfoData () {
+
+			//If user disconnected, redirect to the homepage
 			if(!this.isConnected) {
 				this.$router.push('/');
 				return;
 			}
+
+			//Request options (COORS, token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
 				},
 				credentials: true
 			};
+			//Get the info ID from the URL
 			let idInfo = (document.URL.split('/'))[4];
+			
+			//API Get the info by ID
 			this.$http.get(Config.urlAPI +'/api/infos/id/'+idInfo, options).then((response) => {
 
+				//If success request
 				Store.commit('loadingOff');
+
+				//If error (data error)
 				if(response.status != 200) {
 					this.errorMsg = response.data.message;
 					this.errorCode = response.status;
 				}
 				else {
+					
 					this.infoData = response.data;
 					this.editedArticle.acceptOverload = this.infoData.acceptOverload;
-					// bind dates to the options var (flatpickr)
+					
+					//Bind Dates to the Flatpickr object (expirydate edit info side)
 					this.options.minDate = moment(this.infoData.birthdate).format();
 					this.options.defaultDate = moment(this.infoData.expirydate).format();
 					this.editedArticle.expirydate = moment(this.infoData.expirydate).format();
@@ -227,9 +256,12 @@ export default {
 				}
 
 			}, (response) => {
+				//If error (request error)
 				console.log('Error:', response);
 				this.errorMsg = response.data.message;
 				Store.commit('loadingOff');
+
+				//If Token invalid
 				if(response.status == 403) {
 					this.errorMsg = 'Unknown/Expired token, please try to login again';
 					Cookie.deleteCookie('token');
@@ -240,6 +272,8 @@ export default {
 				this.errorCode = response.status;
 			});
 		},
+
+		//Set CSS class of the info
 		setInfoClass () {
 			switch(this.infoData.category) {
 				case 'Info':
@@ -257,8 +291,10 @@ export default {
 			}
 		},
 		joinEvent (event, click) {
-			if(!click) return;
-			if(event.category != 'Event') return;
+			//Avoid the method to be called if no click and not an event 
+			if(!click || event.category != 'Event') return;
+			
+			//Request options (COORS, token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -266,28 +302,43 @@ export default {
 				credentials: true
 			};
 
+			//Get the info ID from the URL
 			let idInfo = (document.URL.split('/'))[4];
 
+			//API request Joining event (POST)
 			this.$http.post(Config.urlAPI +'/api/infos/'+this.infoData._id+'/join',{}, options).then((response) => {
+
+				//If success
 				if(response.status == 200)
 					this.successMsg = response.data.message;
+				
+				//If error (data error)
 				else {
 					this.errorMsg = response.data.message;
 					this.errorCode = response.status;
 				}
-				this.fetchInfoData();
+				//this.fetchInfoData();
+
 			}, (response) => {
+				
+				//If error (request error)
 				this.errorMsg = response.data.message;
 				this.errorCode = response.status;
 				console.log('Error: ' +response);
 			});
 		},
 		leaveEvent (event, click) {
+
+			//Avoid the method to be called if no click and not an event 
 			if(!click || event.category != 'Event') return;
+			
+			//Prevent Owner of the info to leave his event
 			if(this.isMyArticle) {
 				$('#leaveBtn').text('You can\'t leave your own event !');
 				return;
 			}
+
+			//Request options (COORS, Token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -295,39 +346,59 @@ export default {
 				credentials: true
 			};
 
+			//Get the info ID from the URL
 			let idInfo = (document.URL.split('/'))[4];
 
+			//API Leave event request (POST)
 			this.$http.post(Config.urlAPI +'/api/infos/'+idInfo+'/leave',{}, options).then((response) => {
+				
+				//If success
 				if(response.status == 200)
 					this.successMsg = response.data.message;
+				
+				//If error (data error)
 				else {
 					this.errorMsg = response.data.message;
 					this.errorCode = response.status;
 				}
-				this.fetchInfoData();
+				
+				//this.fetchInfoData();
+			
 			}, (response) => {
+
+				//If error (request error)
 				this.errorMsg = response.data.message;
 				this.errorCode = response.status;
 				console.log('Error: ' +response);
 			});
 		},
+
+		//Toggle functions
 		toggleEdit () {
 			this.isArticleEditing = !this.isArticleEditing;
 		},
 		toggleShowMembers () {
 			this.showMembers = !this.showMembers;
 		},
+
 		deleteArticle () {
+			//Confirm the action (avoid miss click)
 			var choice = confirm('/!\\ WARNING: this action is definitive, Are you sure? /!\\ ');
+			
 			if(choice) {
+				
+				//Request options (COORS, Token)
 				var options = {
 					headers: {
 						'x-access-token': Cookie.getCookie('token')
 					},
 					credentials: true
 				};
+
+				//Set Vue reference for the redirection
 				var vue = this;
 
+				//API delete info Request (DELETE)
 				this.$http.delete(Config.urlAPI +'/api/infos/delete/'+this.infoData._id, options).then(( response) => {
 					if(response.status != 200) {
 						this.errorMsg = response.data.message;
