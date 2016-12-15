@@ -32,12 +32,17 @@ Then, you have to create a config folder and a config file inside with the follo
             cookieSecret: <your_cookieParser_secretKey>,
             domain: <your_domain_for_setCookie>,
             whitelist: [<Array of authorized domains],
-            infoTTL: <value>                            // in days
+            infoTTL: <value>,                            // in days
+            //Only for HTTPS server
+            ca: 'PATH/example_com.ca-bundle',
+            key: 'PATH/example_com.key',
+            cert: 'PATH/example_com.crt'
 	};
 
-then you can serve by taping:
+then you can serve an HTTP or HTTPS server with:
 
-    npm start
+    npm run HTTP
+    npm run HTTPS
 
 
 

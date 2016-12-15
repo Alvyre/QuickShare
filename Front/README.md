@@ -34,6 +34,8 @@ Then, you have to create a config.js file into the /src folder:
 	infoTTL: <value> 					//in days 
 	};
 
+NOTE : If your front-end is served on HTTPS you must provide HTTPS API URL.
+
 **Serve & Build:**
 ``` bash
 # serve with hot reload at sharinfo.io:80: (dev)
