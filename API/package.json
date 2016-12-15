@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "nodemon server.js"
+    "HTTP": "nodemon server.js",
+    "HTTPS": "nodemon serverHttps.js"
   },
   "dependencies": {
     "bcrypt-as-promised": "^1.1.0",
