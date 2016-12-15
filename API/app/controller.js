@@ -14,7 +14,7 @@ var Controller = {
 	},
 
 	isObjectIDValid: function(id) {
-		id += '';
+		id += ''; // Be sure to have a string input;
 
 		if(id.match(/^[0-9a-fA-F]{24}$/))
 			return true;
@@ -31,7 +31,7 @@ var Controller = {
 	},
 
 	isUserPasswordValid: function(password) {
-		password += ''; // be sure to have string input
+		password += ''; // Be sure to have string input
 
 		if( !validator.isEmpty(password) && validator.isLength(password, {min: 6, max: undefined}) ) {
 			return true;
@@ -40,7 +40,7 @@ var Controller = {
 	},
 
 	checkBoolean: function(stringBool) {
-		stringBool+= '';
+		stringBool+= ''; // Be sure to have a string input;
 		if(stringBool === 'true')
 			return true;
 		if(stringBool === 'false')
@@ -56,7 +56,8 @@ var Controller = {
 	},
 
 	sanitizeString: function(string) {
-		string += '';
+		string += ''; // Be sure to have a string input;
+		
 		string = validator.escape(string);
 		if(validator.isEmail(string)) {
 			string = validator.normalizeEmail(string, [{	

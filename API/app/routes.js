@@ -1,6 +1,8 @@
 'use strict';
 
-// Requires
+// Getting packages
+//=======================================================
+
 var express         = require('express');
 var router          = express.Router();
 var config          = require('../config/config');
@@ -10,14 +12,13 @@ var Info 		    = require('./models/Info');
 var User		    = require('./models/User');
 var Controller      = require('./controller.js');
 var bcrypt          = require('bcrypt');
-var jwt             = require('jsonwebtoken');                  // used to create, sign, and verify tokens
+var jwt             = require('jsonwebtoken');
 var reCAPTCHA       = require('recaptcha2');
 
-//hash setup
+//Set the hash salt for encrypt
 const saltRounds = 10;
 
 //reCAPTCHA setup
-
 var recaptcha = new reCAPTCHA({
     siteKey:'6LeKFAwUAAAAAL1miQAbHCzWG9eM1dS6JpjRovmN',
     secretKey: config.googleSecret
@@ -96,7 +97,7 @@ router
                 });
             })
             .catch(function(errorCodes){
-                // invalid
+                // Invalid Captcha
                 res.status(500).json({message: 'Unknown error when validate the Captcha'})
                 console.log('reCAPTCHA error: ' +recaptcha.translateErrors(errorCodes));// translate error codes to human readable text
             });
@@ -120,19 +121,19 @@ router
 
         // Checking Google Recaptcha
 
-        if(req.body.gRecaptchaResponse === undefined || req.body.gRecaptchaResponse === '' || req.body.gRecaptchaResponse === null) {
-            res.status(400).json({message: 'No Captcha found.'});
-        }
-        else{
-            var key = req.body.gRecaptchaResponse;
-            recaptcha.validate(key)
-            .then(function(){
+    if(req.body.gRecaptchaResponse === undefined || req.body.gRecaptchaResponse === '' || req.body.gRecaptchaResponse === null) {
+        res.status(400).json({message: 'No Captcha found.'});
+    }
+    else{
+        var key = req.body.gRecaptchaResponse;
+        recaptcha.validate(key)
+        .then(function(){
 
-                Promise.props({
-                    user: User.findOne({username: req.body.username}).execAsync()
-                })
-                .then(function(results) {
-                    if(results.user != null) {
+            Promise.props({
+                user: User.findOne({username: req.body.username}).execAsync()
+            })
+            .then(function(results) {
+                if(results.user != null) {
                         // Load hash from your password DB.
                         bcrypt.compare(req.body.password, results.user.password, function(err, resp) {
                             if(err) {
@@ -184,9 +185,9 @@ router
                         res.status(400).json({success: false, message: 'User not found'});
                     }
                 });
-            });
-        }
+        });
     }
+}
 })
 
 
@@ -389,16 +390,16 @@ router
                         var io = req.app.get('socketio');
                         io.emit('updateInfo', info);
                         res.status(200).send({success: true, message: 'Info updated'});
-                        }); 
-                    }
+                    }); 
+                   }
                    else {
                     res.status(403).send({success: false, message: 'You are not authorized to update this info'});
-                    }
                 }
-                else {
-                    res.status(404).send({success: false, message: 'No info found'});
-                }
-            });
+            }
+            else {
+                res.status(404).send({success: false, message: 'No info found'});
+            }
+        });
         }
     }
 }
@@ -455,6 +456,7 @@ router
         var userID  = req.decoded.userID;
         var username= req.decoded.username;
         var eventID = req.params.id;
+        //Finding the user
         User.findOne({_id: userID}, function(err, user) {
             if(err) {
                 console.log('Error when checking user identity');
@@ -469,41 +471,44 @@ router
                         console.log('Error when trying to find event to join: '+err);
                         res.status(500).send(err);
                     }
+                    // The event requested exists
                     if(event) {
                         if(event.category === 'Event') {
-                          if(event.isFull()) {
-                            res.status(409).send({success: false, message: 'Event is full'});
-                        }
-                        else {
-                            var isUserAlreadyIn = false;
-                            for (var i = event.userList.length - 1; i >= 0; i--) {
-                                if(event.userList[i].ID === userID) {
-                                    isUserAlreadyIn = true;
-                                    res.status(409).send({success: false, message: 'User already in the event'});
-                                }
+                            if(event.isFull()) {
+                                res.status(409).send({success: false, message: 'Event is full'});
                             }
-                            if(!isUserAlreadyIn) {
-                                event.userList.push({ID: userID, username: username});
-                                Info.update({_id: eventID}, event, function(err) {
-                                    if(err) {
-                                        console.log('Error when updating the event after user joined: '+err);
-                                        res.status(500).send({success: false, message: 'Error when updating the event'});
+                            else {
+                                var isUserAlreadyIn = false;
+                                for (var i = event.userList.length - 1; i >= 0; i--) {
+                                    if(event.userList[i].ID === userID) {
+                                        isUserAlreadyIn = true;
+                                        res.status(409).send({success: false, message: 'User already in the event'});
                                     }
-                                    res.status(200).send({success: true, message: 'Event joined'});
-                                    var io = req.app.get('socketio');
-                                    io.emit('joinEvent', {'ID': event._id, 'userID': userID, 'username': username});
-                                });
-                            }
-                        }  
-                    } 
+                                }
+                                if(!isUserAlreadyIn) {
+                                    event.userList.push({ID: userID, username: username});
+                                    Info.update({_id: eventID}, event, function(err) {
+                                        if(err) {
+                                            console.log('Error when updating the event after user joined: '+err);
+                                            res.status(500).send({success: false, message: 'Error when updating the event'});
+                                        }
+                                        res.status(200).send({success: true, message: 'Event joined'});
+                                        var io = req.app.get('socketio');
+                                        io.emit('joinEvent', {'ID': event._id, 'userID': userID, 'username': username});
+                                    });
+                                }
+                            }  
+                        }
+                        // Info found but not an event
+                        else {
+                            res.status(404).send({success: false, message: 'No event found'});
+                        }
+                    }
+                    // No info found
                     else {
                         res.status(404).send({success: false, message: 'No event found'});
                     }
-                }
-                else {
-                    res.status(404).send({success: false, message: 'No event found'});
-                }
-            });
+                });
             }
         });
     }
@@ -527,12 +532,16 @@ router
         var eventID = req.params.id;
         var username= req.decoded.username;
         var userID  = req.decoded.userID;
+
+        // Find info
         Info.findOne({_id: eventID}, function(err, event) {
             if(err) {
                 console.log('Error when trying to find the event to leave: '+err);
                 res.status(500).send(err);
             }
+            // If info found
             if(event) {
+                // If info is an event
                 if(event.category === 'Event') {
                     var isUserIn = false;
                     for (var i = event.userList.length - 1; i >= 0; i--) {
@@ -554,10 +563,12 @@ router
                         res.status(404).send({success: false, message: 'user not found in the event'});
                     }
                 }
+                // Info found but not an event
                 else {
                     res.status(404).send({success: false, message: 'Event not found'});
                 }
             }
+            // Info not found
             else {
                 res.status(404).send({success: false, message: 'Event not found'});
             }
@@ -570,27 +581,29 @@ router
 //==============================================
 
 .post('/infos/:id/:votetype', function(req, res, next) {
+
+    //Check ID
     if( !(Controller.isObjectIDValid(req.params.id)) ||
         !(Controller.isObjectIDValid(req.decoded.userID)) ) {
 
         res.status(400).send({success: false, message: 'Invalid ID'});
-}
-else if ( !(Controller.isVoteTypeValid(req.params.votetype)) ) {
-    res.status(400).send({success: false, message: 'Bad request'});
-}
-else {
-    var userID      = req.decoded.userID;
-    var infoID      = req.params.id;
-    var votetype    = req.params.votetype === 'upvote'?(1):(-1);
+    }
+    else if ( !(Controller.isVoteTypeValid(req.params.votetype)) ) {
+        res.status(400).send({success: false, message: 'Bad request'});
+    }
+    else {
+        var userID      = req.decoded.userID;
+        var infoID      = req.params.id;
+        var votetype    = req.params.votetype === 'upvote'?(1):(-1);
 
-    Info.findOne({_id: infoID}, function(err, info) {
-        if(err) {
-            console.log('Error when updating votes');
-            res.status(500).send(err);
-        }
-        if(info) {
-            var vote;
-            var isVoteExist = false;
+        Info.findOne({_id: infoID}, function(err, info) {
+            if(err) {
+                console.log('Error when updating votes');
+                res.status(500).send(err);
+            }
+            if(info) {
+                var vote;
+                var isVoteExist = false;
                 // We search if the user already added a vote
                 for (var i = 0; i < info.votes.length; i++) {
                     vote = info.votes[i];
@@ -610,6 +623,7 @@ else {
                     }
                     if(isVoteExist) break;
                 } // END FOR
+
                 // If no vote found, we add a new one
                 if(!isVoteExist) {
                     info.votes.push({userID: userID, value: votetype});
@@ -625,13 +639,13 @@ else {
                     });
                 } 
             }
+            //No info found
             else {
                 res.status(404).send({success: true, message: 'No info found'});
             }
         });
-}
+    }
 })
-
 
 
 // GET all users
@@ -686,6 +700,8 @@ else {
 //==============================================
 
 .get('/user/name/:name', function(req, res, next) {
+    
+    //Check names
     if(Controller.isUsernameValid(req.params.name)) {
         var name = Controller.sanitizeString(req.params.name);
 
@@ -694,13 +710,14 @@ else {
                 console.log('error when trying to get the user by name');
                 res.status(500).send(err);
             }
+
+            //If user found
             if(user) {
                 if(user.isEmailVisible === false) {
                     user.mail = '';
                 }
             }
             res.status(200).json(user);        
-
         });    
     }
     else {
@@ -733,6 +750,7 @@ else {
 
 .post('/user/update', function(req, res, next) {
 
+    //Check datas
     var checkPwd          = false;
     var checkEmail        = false;
     var checkVisible      = false;
@@ -797,6 +815,8 @@ else {
 //=============================================
 
 .delete('/user/delete', function(req, res, next) {
+
+    // Check ID
     if(! (Controller.isObjectIDValid(req.decoded.userID)) ) {
         res.status(400).send({success: false, message: 'Invalid ID'});
     }
@@ -814,7 +834,6 @@ else {
                         console.log('Error when trying to delete infos of the deleted user');
                     }
                 });
-
                 res.status(200).send({success: true, message: 'User Deleted'});
             }
             else {
