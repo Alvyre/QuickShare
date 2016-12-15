@@ -601,6 +601,7 @@ router
                 console.log('Error when updating votes');
                 res.status(500).send(err);
             }
+            // If info found
             if(info) {
                 var vote;
                 var isVoteExist = false;
@@ -754,6 +755,7 @@ router
     var checkPwd          = false;
     var checkEmail        = false;
     var checkVisible      = false;
+
     if(Controller.checkBoolean(req.body.isNewPwd) && Controller.isUserPasswordValid(req.body.password)) {
         checkPwd = true;
     }
@@ -763,7 +765,6 @@ router
     if( Controller.checkBoolean(req.body.isNewVisible) ) {
         checkVisible = true;
     }
-
     if(checkPwd === false && checkEmail === false && checkVisible === false ) {
         res.status(400).send({success: false, message: 'Bad request, nothing to change'});
     }
@@ -783,6 +784,7 @@ router
                 if(checkEmail)
                     results.user.mail = newEmail;
                 if(checkPwd) {
+                    //Hash password
                     bcrypt.hash(newPassword, saltRounds, function(err, hash) {
                         results.user.password = hash;
                         results.user.save(function(err, resp) {
@@ -828,7 +830,7 @@ router
                 res.status(500).send(err);
             }
             if(user){
-                //Delete all the info of the user
+                //Delete all info of the user
                 Info.remove({userID: userID }, function(err) {
                     if(err) {
                         console.log('Error when trying to delete infos of the deleted user');
