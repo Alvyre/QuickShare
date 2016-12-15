@@ -83,7 +83,7 @@
 							</label>
 						</div>
 					</div>
-					<div class="form-group" v-show="!editedArticle.acceptOverload">
+					<div class="form-group" v-if="!editedArticle.acceptOverload && infoData.category == 'Event'">
 						<label for="userLimit">User limit</label> <em>(minimum: {{setMinUserLimit}})</em>
 						<input type="text" class="form-control" id="userLimit" v-bind:placeholder="infoData.userLimit" v-model="editedArticle.userLimit">
 					</div>
@@ -622,7 +622,7 @@ export default {
 		checkEditedInfo () {
 
 			//If we don't accept Overload, check the userLimit (we can't set limit under the current members size)
-			if(this.editedArticle.acceptOverload == false) {
+			if(this.editedArticle.acceptOverload == false && this.editedArticle.category == 'Event') {
 				if(this.editedArticle.userLimit < this.setMinUserLimit) {
 					this.errorMsg = 'You can\'t set this limit.'
 					return false;
