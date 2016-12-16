@@ -14,7 +14,14 @@
 							<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{infoData.location}}<span v-if='infoData.addInfo'>,</span> {{infoData.addInfo}}
 						</p>
 						<p>
-							<span v-if="infoData.category == 'Event'"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> : {{infoData.userList.length}}<span v-if="infoData.userLimit">/{{infoData.userLimit}}</span></span> <button type="button" class="btn btn-xs btn-default" v-show="!showMembers" v-on:click="toggleShowMembers()">Show members</button><button type="button" class="btn btn-xs btn-default" v-show="showMembers" v-on:click="toggleShowMembers()">Hide members</button>
+							<span v-if="infoData.category == 'Event'">
+								<span class="glyphicon glyphicon-user" aria-hidden="true"></span> : {{infoData.userList.length}}
+								<span v-if="infoData.userLimit">/{{infoData.userLimit}}</span>
+							</span>
+							<span v-if="infoData.category == 'Event'">
+								<button type="button" class="btn btn-xs btn-default" v-show="!showMembers" v-on:click="toggleShowMembers()">Show members</button>
+								<button type="button" class="btn btn-xs btn-default" v-show="showMembers" v-on:click="toggleShowMembers()">Hide members</button>
+							</span>
 						</p>
 							<div class="col-centered col-xs-6 col-xs-offset-3" v-show="showMembers">
 							  
