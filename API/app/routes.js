@@ -20,7 +20,7 @@ const saltRounds = 10;
 
 //reCAPTCHA setup
 var recaptcha = new reCAPTCHA({
-    siteKey:'6LeKFAwUAAAAAL1miQAbHCzWG9eM1dS6JpjRovmN',
+    siteKey: config.googlePublic,
     secretKey: config.googleSecret
 });
 

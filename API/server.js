@@ -5,7 +5,7 @@
 var express 		= require('express');
 var app     		= express();						// create the app with express
 var mongoose		= require('mongoose');				// mongoose for mongodb
-var config 	 		= require('./config/config'); 		// Database information
+var config 	 		= require('./config/config'); 		
 var morgan			= require('morgan');				// log requests to the console (express4)
 var bodyParser		= require('body-parser');			// pull information from HTML POST (express4)
 var router  		= require('./app/routes');			// Routes of the app
@@ -55,10 +55,7 @@ app.use('/robots.txt', function(req,res) {
 		console.log('robot: '+req.hostname +', IP: '+req.ip);
 		res.status(200).sendFile(__dirname+'/robots.txt');
 });
-app.use('/E40A3C755494A14C14BE29B78115CE50.txt', function(req,res) {
-	console.log('SSL Checking');
-	res.status(200).sendFile(__dirname+ '/E40A3C755494A14C14BE29B78115CE50.txt');
-});
+
 app.use(cors(corsOptions));
 //Enable Preflight request cors
 app.options('*', cors()); // include before other routes
