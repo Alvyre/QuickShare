@@ -3,6 +3,7 @@
 //require
 var mongoose 	= require('mongoose');
 var Promise 	= require('bluebird');
+
 mongoose.Promise = require('bluebird');
 Promise.promisifyAll(mongoose);
 
@@ -12,7 +13,9 @@ Promise.promisifyAll(mongoose);
 // Schema
 //=========================================
 
-var schema = new mongoose.Schema({
+var Schema = mongoose.Schema;
+
+var schema = new Schema({
 	userID 		: { type: String, required: true },
 	value		: { type: Number, required: true, default: 0}
 });

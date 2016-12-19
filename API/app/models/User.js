@@ -10,6 +10,7 @@ var Promise  = require('bluebird');
 
 
 // Setup 
+mongoose.Promise = require('bluebird');
 Promise.promisifyAll(mongoose);
 
 var Schema = mongoose.Schema;

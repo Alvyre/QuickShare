@@ -7,7 +7,7 @@ module.exports = {
 	deleteOldInfo() {
 		var now = moment().utc().format();
 
-		Info.remove({expirydate: {$lt: moment().utc().format()} }, function(err) {
+		Info.remove({expirydate: {$lt: now} }, function(err) {
 			if(err) {
 				console.log('Error when trying to delete old infos');
 				return;
