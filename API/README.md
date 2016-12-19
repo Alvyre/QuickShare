@@ -29,6 +29,7 @@ Then, you have to create a config folder and a config file inside with the follo
             database : <your_database_url>,
             secret: <your_JWT_secretKey>,
             googleSecret: <your_G-recaptcha_secretKey>,
+            googlePublic: <your_G-recaptcha_publicKey>,
             cookieSecret: <your_cookieParser_secretKey>,
             domain: <your_domain_for_setCookie>,
             whitelist: [<Array of authorized domains],
