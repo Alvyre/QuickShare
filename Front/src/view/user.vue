@@ -171,7 +171,7 @@
 		},
 		computed: {
 			isConnected () {
-				return Cookie.getCookie('Connected') == 'true';
+				return Store.state.isConnected;
 			},
 			loading () {
 				return Store.state.loading;

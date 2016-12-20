@@ -28,7 +28,7 @@
 						<!-- Start Date -->
 						<div class="form-group">
 							<label for='startdate'>Start Date*</label> <em>(Maximum 7 days from now)</em><br>
-							<Flatpickr :options='optionsBegin' :class="form-control" @update="updateStartDate"/>
+							<Flatpickr :options='optionsBegin' :class="form-control" @update="updateStartDate" @FlatpickrRef="setBeginFlatpickrRef"/>
 						</div>
 
 						<!-- End Date -->
@@ -145,6 +145,7 @@ export default {
 				enableTime: true,
 				time_24hr: true
 			},
+			beginFlatpickr: '',
 			endFlatpickr: '',
 			defaultEndDate: ''
 		}
@@ -159,6 +160,9 @@ export default {
 		Flatpickr
 	},
 	methods: {
+		setBeginFlatpickrRef (ref) {
+			this.beginFlatpickr = ref;
+		},
 		setEndFlatpickrRef (ref) {
 			this.endFlatpickr = ref;
 		},

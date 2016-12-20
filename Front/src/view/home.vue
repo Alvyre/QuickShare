@@ -566,7 +566,8 @@
 				return Store.state.loading;
 			},
 			isConnected() {
-				return Cookie.getCookie('Connected') == 'true';
+				return Store.state.isConnected;
+				//return Cookie.getCookie('Connected') == 'true';
 			},
 
 			//Toggle sort states

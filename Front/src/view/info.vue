@@ -650,7 +650,7 @@ export default {
 	},
 	computed: {
 		isConnected () {
-			return Cookie.getCookie('Connected') == 'true';
+			return Store.state.isConnected;
 		},
 		updateVoteCount () {
 			return this.infoData.voteCount;
