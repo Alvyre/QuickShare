@@ -8,6 +8,7 @@ var mongoose 	= require('mongoose');
 var Promise		= require('bluebird');
 var moment 		= require('moment');
 var Vote 		= require('./Vote');
+var Comment 	= require('./Comment');
 var Controller  = require('../controller');
 
 moment().format();
@@ -32,20 +33,16 @@ var InfoSchema = new Schema({
 	userList		: { type: [{ID: String, username: String}], default: []},
 	userLimit		: { type: Number, min: 0, default: 0}, 
 	acceptOverload  : { type: Boolean, default: false },
+	acceptComments  : { type: Boolean, default: false },
+	comments 		: { type: [Comment.schema], default: []},
 	votes			: { type: [Vote.schema], default: [] },
-	voteCount		: { type: Number, default: 0}
+	voteCount		: { type: Number, default: 0},
+	isComplete 		: { type: Boolean, default: false}
 });
 
 
 // Methods
 //======================================
-
-InfoSchema.methods.getRemainingTime = function() {
-	var birthMoment = moment(this.birthdate);
-	var deathMoment = moment(this.expirydate);
-	var timeleft 	 = deathMoment.diff(birthMoment);
-	return timeleft.format('HH:mm:ss').toJSON();
-};
 
 InfoSchema.methods.isFull = function() {
 	if(this.acceptOverload)
@@ -106,10 +103,18 @@ InfoSchema.methods.updateInfos = function(data) {
     }
     if(data.userLimit) {
     	this.userLimit = data.userLimit;
+    	console.log(data.userLimit);
+    	console.log(this.userLimit);
     }
-    if(this.acceptOverload == true) {
+    if(this.acceptOverload === true) {
     	this.userLimit = '';	
-    } 
+    }
+    if(data.acceptComments != this.acceptComments) {
+    	this.acceptComments = data.acceptComments;
+    }
+    if(data.isComplete) {
+    	this.isComplete = data.isComplete;
+    }
 }
 
 // Model
