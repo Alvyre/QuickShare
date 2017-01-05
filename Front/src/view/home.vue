@@ -86,16 +86,32 @@
 								<span>{{info.title}}</span>
 							</div>
 							<div class="panel-body">
-									<p v-if="info.description"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> : {{info.description}}</p>
-									<p>
-										<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{info.location}}, {{info.addInfo}}
-									</p>
-									<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
-									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.expirydate | localeDate }}</p>
-									<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
-									<router-link v-bind:to="getRoute(info._id)" tag="a" v-if="isConnected"><p>Read more..</p></router-link>
-									<hr>
+								<div class="row">
+									<div v-if="info.description" class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-console" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.description}}</div> 
+								</div>
+								<div class="row">
+									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.location}}<span v-show="info.addInfo">,</span>{{info.addInfo}}</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.birthdate | localeDate }}</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.expirydate | localeDate }}</div>
+								</div>	
+								<div class="row">
+									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.expirydate | TimeRemainingWith(info.birthdate) }}</div>
+								</div>
+								<br/>
+								<router-link v-bind:to="getRoute(info._id)" tag="a" v-if="isConnected"><p>Read more..</p></router-link>
+								<hr>
+							
 								<footer>
+									<router-link v-bind:to="getRoute(info._id)" class="pull-left" tag="a" v-if="info.acceptComments && isConnected"> {{info.comments.length}} <span class="glyphicon glyphicon-comment" aria-hidden="true"></span></router-link>
 									<div class="right">
 										<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen(info)" v-on:click.stop.prevent="voteUp(info)">
 											<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" style="color: white;"></span>
@@ -116,17 +132,32 @@
 								<span>{{info.title}}</span>
 							</div>
 							<div class="panel-body">
-									<p v-if="info.description"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> : {{info.description}}</p>
-									<p>
-										<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{info.location}}, {{info.addInfo}}
-									</p>
-									<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
-									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.expirydate | localeDate }}</p>
-									<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
-									<router-link v-bind:to="getRoute(info._id)" tag="a" v-if="isConnected"><p>Read more..</p></router-link>
-									<hr>
+								<div class="row">
+									<div v-if="info.description" class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-console" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11 col-centered text-center">{{info.description}}</div> 
+								</div>
+								<div class="row">
+									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.location}}<span v-show="info.addInfo">,</span>{{info.addInfo}}</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.birthdate | localeDate }}</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.expirydate | localeDate }}</div>
+								</div>	
+								<div class="row">
+									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.expirydate | TimeRemainingWith(info.birthdate) }}</div>
+								</div>
+								<br/>
+								<router-link v-bind:to="getRoute(info._id)" tag="a" v-if="isConnected"><p>Read more..</p></router-link>
+								<hr>
 							
 								<footer>
+									<router-link v-bind:to="getRoute(info._id)" class="pull-left" tag="a" v-if="info.acceptComments && isConnected"> {{info.comments.length}} <span class="glyphicon glyphicon-comment" aria-hidden="true"></span></router-link>
 									<div class="right">
 										<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen(info)" v-on:click.stop.prevent="voteUp(info)">
 											<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" style="color: white;"></span>
@@ -147,20 +178,36 @@
 								<span>{{info.title}}</span>
 							</div>
 							<div class="panel-body">
-									<p><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> : {{info.description}}</p>
-									<p>
-										<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{info.location}}, {{info.addInfo}}
-									</p>
-									<p>
-										<span class="glyphicon glyphicon-user" aria-hidden="true"></span> : {{info.userList.length}}<span v-if="info.userLimit">/{{info.userLimit}}</span>
-									</p>
-									<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{info.birthdate | localeDate }}</p>
-									<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{info.expirydate | localeDate }}</p>
-									<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{info.expirydate | TimeRemainingWith(info.birthdate) }}</p>
-									<router-link v-bind:to="getRoute(info._id)" tag="a" v-if="isConnected"><p>Read more..</p></router-link>
-									<hr>
-								
+								<div class="row">
+									<div v-if="info.description" class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-console" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11 col-centered text-center">{{info.description}}</div> 
+								</div>
+								<div class="row">
+									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.location}}<span v-show="info.addInfo">,</span>{{info.addInfo}}</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.userList.length}}<span v-if="info.userLimit">/{{info.userLimit}}</span></div>
+								</div>
+								<div class="row">
+									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.birthdate | localeDate }}</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.expirydate | localeDate }}</div>
+								</div>	
+								<div class="row">
+									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> :</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.expirydate | TimeRemainingWith(info.birthdate) }}</div>
+								</div>
+								<br/>
+								<router-link v-bind:to="getRoute(info._id)" tag="a" v-if="isConnected"><p>Read more..</p></router-link>
+								<hr>
+
 								<footer>
+									<router-link v-bind:to="getRoute(info._id)" class="pull-left" tag="a" v-if="info.acceptComments && isConnected"> {{info.comments.length}} <span class="glyphicon glyphicon-comment" aria-hidden="true"></span></router-link>
 									<div class="right">
 										<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen(info)" v-on:click.stop.prevent="voteUp(info)">
 											<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" style="color: white;"></span>

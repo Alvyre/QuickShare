@@ -1,40 +1,72 @@
 <template>
 	<div id="info">
-		<div class="row" v-if="infoData.length != 0">
-			<div class="col-xs-12 col-sm-12">
+		<div class="row-centered" v-if="infoData.length != 0">
+			<div class="col-xs-12 col-sm-12 col-centered">
 			<!-- Display Information -->
-				<div class="panel panel-success" :class="setInfoClass()">
+				<div class="panel" :class="setInfoClass()">
 					<div class="panel-heading">
 						<span>{{infoData.title}}</span>
 					</div>
 					<div class="panel-body">
-						<p><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> : {{infoData.category}}</p>
-						<p><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> : {{infoData.description}}</p>
-						<p>
-							<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{infoData.location}}<span v-if='infoData.addInfo'>,</span> {{infoData.addInfo}}
-						</p>
-						<p>
-							<span v-if="infoData.category == 'Event'">
-								<span class="glyphicon glyphicon-user" aria-hidden="true"></span> : {{infoData.userList.length}}
-								<span v-if="infoData.userLimit">/{{infoData.userLimit}}</span>
-							</span>
-							<span v-if="infoData.category == 'Event'">
+						<div class="row">
+							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> :</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{infoData.category}}</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> :</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{infoData.description}}</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> :</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{infoData.location}}<span v-if='infoData.addInfo'>,</span> {{infoData.addInfo}}</div>
+						</div>
+						<div class="row" v-if="infoData.category == 'Event'">
+							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> :</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">
+								{{infoData.userList.length}}<span v-if="infoData.userLimit">/{{infoData.userLimit}}</span>
 								<button type="button" class="btn btn-xs btn-default" v-show="!showMembers" v-on:click="toggleShowMembers()">Show members</button>
 								<button type="button" class="btn btn-xs btn-default" v-show="showMembers" v-on:click="toggleShowMembers()">Hide members</button>
-							</span>
-						</p>
-							<div class="col-centered col-xs-6 col-xs-offset-3" v-show="showMembers">
-							  
-							  <router-link v-for="user in infoData.userList" v-bind:to="setUserRoute(user.ID)"><button type="button" class="text-center list-group-item" style="text-align: center!important;">{{ user.username }}</button></router-link>
 							</div>
-							<div class="clearfix" v-if="showMembers"><br></div>
-						<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{infoData.birthdate | localeDate }}</p>
-						<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{infoData.expirydate | localeDate }}</p>
-						<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{infoData.expirydate | TimeRemainingWith(infoData.birthdate) }}</p>
-						<button type="button" class="btn btn-large btn-block btn-success" v-if="infoData.category == 'Event' && !isEventJoined" :class="isEventFull" v-on:click.prevent.stop="joinEvent(infoData, $event)">Join Event</button>
-						<button type="button" class="btn btn-large btn-block btn-danger" v-if="infoData.category == 'Event' && isEventJoined" v-on:click.prevent.stop="leaveEvent(infoData, $event)" :class="disableLeave" id="leaveBtn">Leave Event</button>
+						</div>
+						<div class="clearfix" v-if="showMembers"><br/></div>
+						<div class="row">
+							<div class="col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3 col col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3" v-show="showMembers">
+							 	<router-link v-for="user in infoData.userList" v-bind:to="setUserRoute(user.ID)">
+							 		<button type="button" class="text-center list-group-item" style="text-align: center!important;">{{ user.username }}</button>
+							 	</router-link>
+							</div>
+						</div>
+						<div class="clearfix" v-if="showMembers"><br/></div>
+						<div class="row">
+							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> :</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{infoData.birthdate | localeDate }}</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> :</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{infoData.expirydate | localeDate }}</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> :</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{infoData.expirydate | TimeRemainingWith(infoData.birthdate) }}</div>
+						</div>
+						<div class="clearfix"><br/></div>
+						<div class="row">
+							<div class="col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3">
+								
+								<button type="button" class="btn btn-large btn-block btn-success" v-if="infoData.category == 'Event' && !isEventJoined" :class="isEventFull" v-on:click.prevent.stop="joinEvent(infoData, $event)">Join Event</button>
+								<button type="button" class="btn btn-large btn-block btn-danger" v-if="infoData.category == 'Event' && isEventJoined" v-on:click.prevent.stop="leaveEvent(infoData, $event)" :class="disableLeave" id="leaveBtn">Leave Event</button>
+							</div>
+						</div>
+						
 						<hr>
 						<footer>
+							<!-- Comments buttons -->
+							<div class="left">
+								<a v-show="infoData.comments.length && !showComments" class="btn btn-xs btn-default" href="#" v-on:click.prevent.stop="toggleShowComments()" role="button"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Show comments </a>
+								<a v-show="infoData.comments.length && showComments" class="btn btn-xs btn-default" href="#" v-on:click.prevent.stop="toggleShowComments()" role="button"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Hide comments </a>
+							</div>
+
+							<!-- Votes -->
 							<div class="right">
 								<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen()" v-on:click.prevent.stop="voteUp()">
 									<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" style="color: white;"></span>
@@ -46,13 +78,65 @@
 							</div>
 						</footer>
 					</div>
-					<div class="clearfix"><br></div>
+					<div class="clearfix"><br/></div>
+					<!-- Error message -->
 					<div class="alert alert-danger text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-if="errorCode">
 						<strong>Error {{errorCode}}:</strong> {{errorMsg}}
 					</div>
-				</div>
+				</div> <!-- END PANEL -->
 			</div>
+			<!-- Comments section -->
+
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" v-show="showComments">
+				<h4 class="text-center">Comments</h4>
+				<div class="panel panel-default" v-for="comment in infoData.comments">
+					<div class="panel-heading">
+						<h3 class="panel-title">{{comment.title}}</h3>
+					</div>
+					<div class="panel-body">
+						<p class="left">{{comment.content}}</p>
+						<footer>
+							<hr>
+							<div class="right"><em><small>by {{comment.username}}</small></em></div>
+						</footer>
+					</div>
+
+				</div>				
+			</div>
+
+			<!-- Add comment -->
+			<div class="clearfix"><br/></div>
+			<div class="row text-left">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-centered">
+					<button type="button" class="btn btn-large btn-block btn-default" v-on:click.prevent.stop="togglerAddComment()">Add comment</button>
+					<br/>
+				</div>
+				<div class="clearfix"></div>
+
+				<!-- FORM -->
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" v-show="addComment">
+					<div class="comment-form">
+						<form action="" method="POST" role="form" v-on:submit.stop.prevent="addNewComment()">
+							<legend>New comment:</legend>
+							<div class="form-group">
+								<label for="">Title</label>
+								<input type="text" class="form-control" id="" placeholder="Input title">
+							</div>
+							<div class="form-group">
+								<label for="">Content</label>
+								<textarea type="text" class="form-control" id="" placeholder="Input your content"></textarea>
+								
+							</div>
+											
+							<button type="submit" class="btn btn-block btn-primary">Add</button>
+						</form>
+					</div>	
+				</div>
+				
+			</div>
+			<hr>
 		</div>
+
 		<!-- EDIT ARTICLE -->
 		<div class="row" v-if="infoData.length != 0 && isMyArticle">
 			<!-- Edit & Delete buttons -->
@@ -62,7 +146,7 @@
 			<div class="col-xs-4 col-xs-offset-2 col-sm-4 col-sm-offset-2">
 				<button type="button" class="btn btn-large btn-block btn-danger" v-on:click="deleteArticle()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
 			</div>
-			<div class="clearfix"><br><br></div>
+			<div class="clearfix"><br/><br/></div>
 
 			<!-- Edit Form -->			
 			<div class="col-xs-12 col-sm-12">
@@ -100,12 +184,15 @@
 						<em>(maximum date: {{options.maxDate | localeDate}})</em>
 						<Flatpickr :options='options' :class="form-control" :message="infoData.expirydate" @update="updateExpiryDate"/>
 					</div>
+
+					<!-- Success & Error Message -->
 					<div class="alert alert-success text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-show="successMsg">
 						<strong>{{successMsg}}</strong>
 					</div>
 					<div class="alert alert-danger text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-if="errorMsg">
 						<strong>Error {{errorCode}}:</strong> {{errorMsg}}
 					</div>
+					<!-- Submit -->
 					<button type="submit" class="btn btn-large btn-block btn-primary">Submit</button>
 				</form>
 			</div>
@@ -194,6 +281,8 @@ export default {
 			successMsg: '',
 			isArticleEditing: false,
 			showMembers: false,
+			showComments: false,
+			addComment: false,
 			editedArticle: {
 				title: '',
 				description: '',
@@ -386,6 +475,12 @@ export default {
 		},
 		toggleShowMembers () {
 			this.showMembers = !this.showMembers;
+		},
+		toggleShowComments () {
+			this.showComments = !this.showComments;
+		},
+		togglerAddComment () {
+			this.addComment = !this.addComment;
 		},
 
 		deleteArticle () {
@@ -629,7 +724,7 @@ export default {
 		checkEditedInfo () {
 
 			//If we don't accept Overload, check the userLimit (we can't set limit under the current members size)
-			if(this.editedArticle.acceptOverload == false && this.editedArticle.category == 'Event') {
+			if(this.editedArticle.acceptOverload == false && this.infoData.category == 'Event') {
 				if(this.editedArticle.userLimit < this.setMinUserLimit) {
 					this.errorMsg = 'You can\'t set this limit.'
 					return false;

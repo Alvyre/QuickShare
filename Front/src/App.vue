@@ -161,6 +161,9 @@
   .right {
     float:right;
   }
+  .left {
+    float:left;
+  }
   /* Transitions */
   .component-fade-enter-active, .component-fade-leave-active {
   	transition: opacity .3s ease;
