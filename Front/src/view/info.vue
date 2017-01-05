@@ -120,14 +120,22 @@
 							<legend>New comment:</legend>
 							<div class="form-group">
 								<label for="">Title</label>
-								<input type="text" class="form-control" id="" placeholder="Input title">
+								<input type="text" class="form-control" id="" placeholder="Input title" v-model="newComment.title">
 							</div>
 							<div class="form-group">
 								<label for="">Content</label>
-								<textarea type="text" class="form-control" id="" placeholder="Input your content"></textarea>
+								<textarea type="text" class="form-control" id="" placeholder="Input your content" v-model="newComment.content"></textarea>
 								
 							</div>
-											
+							
+							<!-- Success & Error Message -->
+							<div class="alert alert-success text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-show="commentSuccessMsg">
+								<strong>{{commentSuccessMsg}}</strong>
+							</div>
+							<div class="alert alert-danger text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-if="commentErrorMsg">
+								<strong>Error:</strong> {{commentErrorMsg}}
+							</div>
+
 							<button type="submit" class="btn btn-block btn-primary">Add</button>
 						</form>
 					</div>	
@@ -279,6 +287,8 @@ export default {
 			errorMsg: '',
 			errorCode: '',
 			successMsg: '',
+			commentErrorMsg: '',
+			commentSuccessMsg: '',
 			isArticleEditing: false,
 			showMembers: false,
 			showComments: false,
@@ -298,6 +308,10 @@ export default {
 				defaultDate: null,
 				minDate: null,
 				maxDate: null
+			},
+			newComment: {
+				title: '',
+				content: ''
 			}
 		}
 	},
@@ -318,7 +332,7 @@ export default {
 				return;
 			}
 
-			//Request options (COORS, token)
+			//Request options (CORS, token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -390,7 +404,7 @@ export default {
 			//Avoid the method to be called if no click and not an event 
 			if(!click || event.category != 'Event') return;
 			
-			//Request options (COORS, token)
+			//Request options (CORS, token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -434,7 +448,7 @@ export default {
 				return;
 			}
 
-			//Request options (COORS, Token)
+			//Request options (CORS, Token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -489,7 +503,7 @@ export default {
 			
 			if(choice) {
 				
-				//Request options (COORS, Token)
+				//Request options (CORS, Token)
 				var options = {
 					headers: {
 						'x-access-token': Cookie.getCookie('token')
@@ -533,7 +547,7 @@ export default {
 			//If user disconnected: return
 			if(!this.checkEditedInfo() ) return;
 
-			//Request options (COORS, token)
+			//Request options (CORS, token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -585,7 +599,7 @@ export default {
 			//If user disconnected, return
 			if(!this.isConnected) return;
 			
-			//Request options (COORS, Token)
+			//Request options (CORS, Token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -638,7 +652,7 @@ export default {
 			//If the user is disconnected, return
 			if(!this.isConnected) return;
 			
-			//Request options (COORS, token)
+			//Request options (CORS, token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -741,6 +755,72 @@ export default {
 				return false;
 			}
 			return true;
+		},
+		checkComment (comment) {
+			var isValid = false;
+			switch(comment.title) {
+				case '':
+				case undefined:
+				case null:
+					isValid = false;
+					break;
+				default:
+					isValid = true;
+					break;
+			};
+			switch(comment.content) {
+				case '':
+				case undefined:
+				case null:
+					isValid = false;
+					break;
+				default:
+					isValid = true;
+					break;
+			};
+
+			return isValid;
+		},
+		addNewComment () {
+
+			//Check if the comment is valid
+			if(!this.checkComment(this.newComment)) {
+				this.commentErrorMsg = 'Comment is invalid';
+				return;
+			}
+
+			//Request options (CORS, token)
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+
+			//API Request to add a comment (POST)
+			this.$http.post(Config.urlAPI +'/api/infos/'+this.infoData._id+'/comment', this.newComment, options).then((response) => {
+
+				
+					this.commentSuccessMsg = response.data.message;
+					let vue = this;
+					window.setTimeout(function(){
+						vue.commentSuccessMsg = '';
+					}, 3000);
+
+			}, (response) => {
+
+				//If error
+				this.commentErrorMsg = response.data.message;
+				console.log('Error:', response);
+			});
+
+
+		},
+		editComment () {
+			//TODO
+		},
+		deleteComment () {
+			//TODO
 		}
 	},
 	computed: {

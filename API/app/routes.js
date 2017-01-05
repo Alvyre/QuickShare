@@ -578,77 +578,6 @@ router
 }) 
 
 
-// POST add upvote/downvote
-//==============================================
-
-.post('/infos/:id/:votetype', function(req, res, next) {
-
-    //Check ID
-    if( !(Controller.isObjectIDValid(req.params.id)) ||
-        !(Controller.isObjectIDValid(req.decoded.userID)) ) {
-
-        res.status(400).send({success: false, message: 'Invalid ID'});
-    }
-    else if ( !(Controller.isVoteTypeValid(req.params.votetype)) ) {
-        res.status(400).send({success: false, message: 'Bad request'});
-    }
-    else {
-        var userID      = req.decoded.userID;
-        var infoID      = req.params.id;
-        var votetype    = req.params.votetype === 'upvote'?(1):(-1);
-
-        Info.findOne({_id: infoID}, function(err, info) {
-            if(err) {
-                console.log('Error when updating votes');
-                res.status(500).send(err);
-            }
-            // If info found
-            if(info) {
-                var vote;
-                var isVoteExist = false;
-                // We search if the user already added a vote
-                for (var i = 0; i < info.votes.length; i++) {
-                    vote = info.votes[i];
-                    if(vote.userID === userID) {
-                        isVoteExist = true;
-                        vote.value == votetype ? vote.value = 0 : vote.value = votetype;
-                        info.updateVoteCount();
-                        Info.update({_id: infoID}, info, function(err) {
-                            if(err) {
-                                console.log('Error when updating the info: '+err);
-                                res.status(500).send({success: false, message: 'Error when updating the info'});
-                            }
-                            res.status(200).send({success: true, message: 'Vote updated !'});
-                            var io = req.app.get('socketio');
-                            io.emit('voteUpdated', {'ID': infoID, 'voteCount': info.voteCount});
-                        }); 
-                    }
-                    if(isVoteExist) break;
-                } // END FOR
-
-                // If no vote found, we add a new one
-                if(!isVoteExist) {
-                    info.votes.push({userID: userID, value: votetype});
-                    info.updateVoteCount();
-                    Info.update({_id: infoID}, info, function(err) {
-                        if(err) {
-                            console.log('Error when updating the info: '+err);
-                            res.status(500).send({success: true, message: 'Error when updating the info'});
-                        }
-                        res.status(200).send({success: true, message: 'Vote sent !'});
-                        var io = req.app.get('socketio');
-                        io.emit('voteUpdated', {'ID': infoID, 'voteCount': info.voteCount});
-                    });
-                } 
-            }
-            //No info found
-            else {
-                res.status(404).send({success: false, message: 'No info found'});
-            }
-        });
-    }
-})
-
 // POST New comment
 //==============================================
 
@@ -661,6 +590,7 @@ router
         res.status(400).send({success: false, message: 'Invalid ID'});
     }
     else {
+        var infoID = req.params.id;
         //Search Info
         Info.findOne({_id: infoID}, function(err, info) {
             if(err) {
@@ -812,6 +742,78 @@ router
                 }
             }
             // No info found
+            else {
+                res.status(404).send({success: false, message: 'No info found'});
+            }
+        });
+    }
+})
+
+
+// POST add upvote/downvote
+//==============================================
+
+.post('/infos/:id/:votetype', function(req, res, next) {
+
+    //Check ID
+    if( !(Controller.isObjectIDValid(req.params.id)) ||
+        !(Controller.isObjectIDValid(req.decoded.userID)) ) {
+
+        res.status(400).send({success: false, message: 'Invalid ID'});
+    }
+    else if ( !(Controller.isVoteTypeValid(req.params.votetype)) ) {
+        res.status(400).send({success: false, message: 'Bad request'});
+    }
+    else {
+        var userID      = req.decoded.userID;
+        var infoID      = req.params.id;
+        var votetype    = req.params.votetype === 'upvote'?(1):(-1);
+
+        Info.findOne({_id: infoID}, function(err, info) {
+            if(err) {
+                console.log('Error when updating votes');
+                res.status(500).send(err);
+            }
+            // If info found
+            if(info) {
+                var vote;
+                var isVoteExist = false;
+                // We search if the user already added a vote
+                for (var i = 0; i < info.votes.length; i++) {
+                    vote = info.votes[i];
+                    if(vote.userID === userID) {
+                        isVoteExist = true;
+                        vote.value == votetype ? vote.value = 0 : vote.value = votetype;
+                        info.updateVoteCount();
+                        Info.update({_id: infoID}, info, function(err) {
+                            if(err) {
+                                console.log('Error when updating the info: '+err);
+                                res.status(500).send({success: false, message: 'Error when updating the info'});
+                            }
+                            res.status(200).send({success: true, message: 'Vote updated !'});
+                            var io = req.app.get('socketio');
+                            io.emit('voteUpdated', {'ID': infoID, 'voteCount': info.voteCount});
+                        }); 
+                    }
+                    if(isVoteExist) break;
+                } // END FOR
+
+                // If no vote found, we add a new one
+                if(!isVoteExist) {
+                    info.votes.push({userID: userID, value: votetype});
+                    info.updateVoteCount();
+                    Info.update({_id: infoID}, info, function(err) {
+                        if(err) {
+                            console.log('Error when updating the info: '+err);
+                            res.status(500).send({success: true, message: 'Error when updating the info'});
+                        }
+                        res.status(200).send({success: true, message: 'Vote sent !'});
+                        var io = req.app.get('socketio');
+                        io.emit('voteUpdated', {'ID': infoID, 'voteCount': info.voteCount});
+                    });
+                } 
+            }
+            //No info found
             else {
                 res.status(404).send({success: false, message: 'No info found'});
             }
