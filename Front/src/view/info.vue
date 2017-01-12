@@ -893,7 +893,10 @@ export default {
 	},
 	computed: {
 		isConnected () {
-			return Store.state.isConnected;
+		    return Store.state.isConnected;
+		},
+		loading () {
+		    return Store.state.loading;
 		},
 		updateVoteCount () {
 			return this.infoData.voteCount;

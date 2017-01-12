@@ -318,7 +318,12 @@ export default {
 		}
 	},
 	computed: {
-
+		isConnected () {
+		        return Store.state.isConnected;
+		},
+		loading () {
+		        return Store.state.loading;
+		},
 		//Set the CSS class for the title
 		classTitle () {
 			return {

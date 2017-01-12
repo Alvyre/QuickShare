@@ -56,7 +56,14 @@
 		},
 		mounted () {},
 		methods: {},
-		computed: {}
+		computed: {
+			isConnected () {
+		        return Store.state.isConnected;
+		    },
+		    loading () {
+		        return Store.state.loading;
+		    }
+		}
 	}
 
 </script>

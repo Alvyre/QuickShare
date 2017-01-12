@@ -363,6 +363,12 @@
 			Store.commit('loadingOn');
 		},
 		components: {
+			isConnected () {
+		        return Store.state.isConnected;
+		    },
+		    loading () {
+		        return Store.state.loading;
+		    }
 		},
 		methods: {
 			fetchInfos () {

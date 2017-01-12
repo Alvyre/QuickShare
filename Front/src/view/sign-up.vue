@@ -130,7 +130,12 @@
 			}
 		},
 		computed: {
-
+			isConnected () {
+		        return Store.state.isConnected;
+		    },
+		    loading () {
+		        return Store.state.loading;
+		    },
 			//Check the name (between 3 - 20 char)
 			checkName () {
 				return ( this.inputName.length > 0 &&
