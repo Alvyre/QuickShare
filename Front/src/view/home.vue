@@ -112,7 +112,7 @@
 							
 								<footer>
 									<router-link v-bind:to="getRoute(info._id)" class="pull-left" tag="a" v-if="info.acceptComments && isConnected"> {{info.comments.length}} <span class="glyphicon glyphicon-comment" aria-hidden="true"></span></router-link>
-									<div class="right">
+									<div class="pull-right">
 										<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen(info)" v-on:click.stop.prevent="voteUp(info)">
 											<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" style="color: white;"></span>
 										</button>
@@ -158,7 +158,7 @@
 							
 								<footer>
 									<router-link v-bind:to="getRoute(info._id)" class="pull-left" tag="a" v-if="info.acceptComments && isConnected"> {{info.comments.length}} <span class="glyphicon glyphicon-comment" aria-hidden="true"></span></router-link>
-									<div class="right">
+									<div class="pull-right">
 										<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen(info)" v-on:click.stop.prevent="voteUp(info)">
 											<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" style="color: white;"></span>
 										</button>
@@ -208,7 +208,7 @@
 
 								<footer>
 									<router-link v-bind:to="getRoute(info._id)" class="pull-left" tag="a" v-if="info.acceptComments && isConnected"> {{info.comments.length}} <span class="glyphicon glyphicon-comment" aria-hidden="true"></span></router-link>
-									<div class="right">
+									<div class="pull-right">
 										<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen(info)" v-on:click.stop.prevent="voteUp(info)">
 											<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" style="color: white;"></span>
 										</button>
@@ -313,6 +313,26 @@
     			for (var i = this.infos.length - 1; i >= 0; i--) {
     				if(this.infos[i]._id == info.ID) {
     					this.infos[i].voteCount = info.voteCount;
+    				}
+    			}
+    		},
+    		commentDeleted (comment) {
+    			console.log('socket:commentDeleted');
+    			for (var i = this.infos.length - 1; i >= 0; i--) {
+    				if(this.infos[i]._id == comment.infoID) {
+    					for (var j = this.infos[i].comments.length - 1; i >= 0; i--) {
+    						if(this.infos[i].comments[j]._id == comment.ID) {
+    							this.infos[i].comments.splice(j,1);
+    						}
+    					}
+    				}
+    			}
+    		},
+    		newComment (comment) {
+    			console.log('socket:commentAdded');
+    			for (var i = this.infos.length - 1; i >= 0; i--) {
+    				if(this.infos[i]._id == comment.infoID) {
+    					this.infos[i].comments.push(comment.content);
     				}
     			}
     		}

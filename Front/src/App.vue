@@ -158,12 +158,6 @@
     /* inline-block space fix */
     margin-right:-4px;
   }
-  .right {
-    float:right;
-  }
-  .left {
-    float:left;
-  }
   /* Transitions */
   .component-fade-enter-active, .component-fade-leave-active {
   	transition: opacity .3s ease;

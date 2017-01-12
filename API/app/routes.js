@@ -615,7 +615,7 @@ router
                         else {
                             res.status(200).send({success: true, message: 'Comment added!'});
                             var io = req.app.get('socketio');
-                            io.emit('newComment', {ID: info._id, comment: newComment});
+                            io.emit('newComment', {infoID: info._id, content: newComment});
                         }
                     });
                 }
@@ -667,6 +667,8 @@ router
                                     res.status(500).send(err);
                                 }
                                 else {
+                                    var io = req.app.get('socketio');
+                                    io.emit('commentEdited', {infoID: info._id, content: info.comments[i]});
                                     res.status(200).send({success: true, message: 'Comment updated'});
                                 }
                             });    
@@ -726,6 +728,8 @@ router
                                     res.status(500).send(err);
                                 }
                                 else {
+                                    var io = req.app.get('socketio');
+                                    io.emit('commentDeleted', {infoID: info._id, ID: req.params.commentID});
                                     res.status(200).send({success: true, message: 'Comment deleted'});
                                 }
                             });    
