@@ -61,13 +61,13 @@
 						<hr>
 						<footer>
 							<!-- Comments buttons -->
-							<div class="left">
+							<div class="pull-left">
 								<a v-show="infoData.comments.length && !showComments" class="btn btn-xs btn-default" href="#" v-on:click.prevent.stop="toggleShowComments()" role="button"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Show comments </a>
 								<a v-show="infoData.comments.length && showComments" class="btn btn-xs btn-default" href="#" v-on:click.prevent.stop="toggleShowComments()" role="button"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Hide comments </a>
 							</div>
 
 							<!-- Votes -->
-							<div class="right">
+							<div class="pull-right">
 								<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen()" v-on:click.prevent.stop="voteUp()">
 									<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" style="color: white;"></span>
 								</button>
@@ -91,13 +91,20 @@
 				<h4 class="text-center">Comments</h4>
 				<div class="panel panel-default" v-for="comment in infoData.comments">
 					<div class="panel-heading">
-						<h3 class="panel-title">{{comment.title}}</h3>
+						<div class="pull-right comment-icon">
+							<a href="" class="" v-on:click.prevent.stop="editComment(comment)"><span class="glyphicon glyphicon-edit" v-if="isCommentOwner(comment)" aria-hidden="true"></span></a>
+							<a href="" class="red" v-on:click.stop.prevent="deleteComment(comment)"><span class="glyphicon glyphicon-remove" aria-hidden="true" v-if="isCommentOwner(comment)"></span></a>
+						</div>
+						<!-- <input class="panel-title" v-model='comment.title'/> -->
+						<a class="panel-title" style="padding-left:32.16px;" href="#" data-type="text" data-url="" data-title="Uptade title">{{ comment.title }}</a>
 					</div>
 					<div class="panel-body">
-						<p class="left">{{comment.content}}</p>
+						<!-- <input class="pull-left" v-model='comment.content'/> -->
+						<a href="#" class="pull-left" data-type="textarea" data-title="Update content">{{ comment.content }}</a>
 						<footer>
+						<div class="clearfix"></div>
 							<hr>
-							<div class="right"><em><small>by {{comment.username}}</small></em></div>
+							<div class="pull-right"><em><small>by {{comment.username}}</small></em></div>
 						</footer>
 					</div>
 
@@ -108,13 +115,14 @@
 			<div class="clearfix"><br/></div>
 			<div class="row text-left">
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-centered">
-					<button type="button" class="btn btn-large btn-block btn-default" v-on:click.prevent.stop="togglerAddComment()">Add comment</button>
+					<button type="button" class="btn btn-large btn-block btn-default" v-on:click.prevent.stop="toggleAddComment()" v-show="!showAddComment">Add comment</button>
+					<button type="button" class="btn btn-large btn-block btn-default" v-on:click.prevent.stop="toggleAddComment()" v-show="showAddComment">Hide Form</button>
 					<br/>
 				</div>
 				<div class="clearfix"></div>
 
 				<!-- FORM -->
-				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" v-show="addComment">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" v-show="showAddComment">
 					<div class="comment-form">
 						<form action="" method="POST" role="form" v-on:submit.stop.prevent="addNewComment()">
 							<legend>New comment:</legend>
@@ -279,7 +287,34 @@ export default {
 			if(this.infoData._id == info.ID) {
 				this.infoData.voteCount = info.voteCount;
 			}
+		},
+		newComment (comment) {
+			if(this.infoData._id == comment.infoID) {
+				console.log('socket:newComment');
+				this.infoData.comments.push(comment.content);
+			}
+		},
+		commentDeleted (comment) {
+			if(this.infoData._id == comment.infoID) {
+				console.log('socket:commentDeleted');
+				for (var i = this.infoData.comments.length - 1; i >= 0; i--) {
+					if(this.infoData.comments[i]._id == comment.ID) {
+						this.infoData.comments.splice(i,1);
+					}
+				}
+			}
+		},
+		commentEdited(comment) {
+			if(this.infoData._id == comment.infoID) {
+				console.log('socket:commentEdited');
+				for (var i = this.infoData.comments.length - 1; i >= 0; i--) {
+					if(this.infoData.comments[i]._id == comment.content._id) {
+						this.infoData.comments[i] = comment.content;
+					}
+				}
+			}
 		}
+
 	},
 	data () {
 		return {
@@ -292,7 +327,7 @@ export default {
 			isArticleEditing: false,
 			showMembers: false,
 			showComments: false,
-			addComment: false,
+			showAddComment: false,
 			editedArticle: {
 				title: '',
 				description: '',
@@ -493,8 +528,8 @@ export default {
 		toggleShowComments () {
 			this.showComments = !this.showComments;
 		},
-		togglerAddComment () {
-			this.addComment = !this.addComment;
+		toggleAddComment () {
+			this.showAddComment = !this.showAddComment;
 		},
 
 		deleteArticle () {
@@ -781,6 +816,13 @@ export default {
 
 			return isValid;
 		},
+		//We check if the user owns the comment, to make it editable or deletable
+		isCommentOwner(comment) {
+			let idUser = Cookie.getCookie('userID');
+			if(idUser == comment.userID)
+				return true;
+			return false;
+		},
 		addNewComment () {
 
 			//Check if the comment is valid
@@ -816,11 +858,37 @@ export default {
 
 
 		},
-		editComment () {
-			//TODO
+		editComment (comment) {
+			
+
 		},
-		deleteComment () {
-			//TODO
+		deleteComment (comment) {
+			
+			//Delete the comment locally
+			for (var i = this.infoData.comments.length - 1; i >= 0; i--) {
+				if(this.infoData.comments[i]._id == comment._id) {
+					this.infoData.comments.splice(i,1);
+				}
+			}
+
+			//Then delete request on the API
+
+			//Request options (CORS, token)
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+
+			this.$http.delete(Config.urlAPI +'/api/infos/'+this.infoData._id+'/comment/'+comment._id, options).then((response) => {
+
+			}, (response) => {
+
+				//If error
+				this.errorMsg = response.data.message;
+				console.log('Error:', response);
+			});
 		}
 	},
 	computed: {
@@ -838,13 +906,11 @@ export default {
 			}
 			return false;
 		},
-
 		isEventFull () {
 			return {
 				'disabled': (this.infoData.userList.length >= this.infoData.userLimit && !this.infoData.acceptOverload)
 			}
 		},
-
 		isMyArticle () {
 			return this.infoData.userID == Cookie.getCookie('userID');
 		},
@@ -899,5 +965,13 @@ export default {
 	}
 	.red>span {
 		color: red!important;
+	}
+	.panel input {
+		text-align:center;
+		background: white;
+		border:none;
+		resize:none;
+		overflow: none;
+		outline:none;
 	}
 </style>

@@ -1,5 +1,6 @@
 var path = require('path')
 var webpack = require('webpack')
+var ExtractTextPlugin = require("extract-text-webpack-plugin")
 
 module.exports = {
   entry: './src/main.js',
@@ -13,12 +14,12 @@ module.exports = {
         jQuery: 'jquery',
         $: 'jquery',
         jquery: 'jquery'
-    })
+    }),
+    new ExtractTextPlugin("style.css")
   ],
   module: {
     rules: [
-      { test: /\.css$/, loader: "style-loader!css-loader" },
-      { test: /\.vue$/, loader: 'vue-loader', options: {} },
+      { test: /\.vue$/, loader: 'vue-loader', options: { loaders: { css: ExtractTextPlugin.extract({ loader: 'css-loader', fallbackLoader: 'vue-style-loader'})}} },
       { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ },
       { test: /\.(png|jpg|gif|svg)$/, loader: 'file', options: {name: '[name].[ext]?[hash]'} }
     ]
