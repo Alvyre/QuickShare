@@ -3,7 +3,8 @@ import VueRouter from 'vue-router';
 import VueResource from 'vue-resource';
 import Vuex from 'vuex';
 import VueSocketio from 'vue-socket.io';
-import 'bootstrap/dist/js/bootstrap';
+import 'bootstrap/dist/js/bootstrap.min';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Config from './config';
 
 Vue.use(VueRouter);

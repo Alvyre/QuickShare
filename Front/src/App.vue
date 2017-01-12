@@ -62,7 +62,7 @@
   
     import Store from './store'
     import Cookie from './cookie-handler';
-
+    
   //Vue.js
   //==========================================================
     
@@ -103,7 +103,6 @@
 </script>
 
 <style>
-
   /* JAPANESE STYLE */
 
   .alert, .badge, .breadcrumb, .btn, .form-control, .input-gruop, .label, .lead, .list-group, .nav-pills, .nav-tabs, .navbar, .no-thank-yu, .pager, .pagination, .panel-heading, .panel-title, .popover, .tooltip {
@@ -116,8 +115,6 @@
       font-size: 16px;
       line-height: 1.42857;
   }
-
-
   p {
       margin: 0 0 11px;
   }
