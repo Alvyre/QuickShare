@@ -77,6 +77,16 @@
 							<div id="infoUserLimit" class="help-block" v-show="!displayHelpMaxNumber">Please type a number superior to 1.</div>
 						</div>
 
+						<!-- Accept Comments -->
+						<div class="form-group">
+							<div class="checkbox checkbox-inline">
+								<label>
+									<input type="checkbox" v-model="newInfo.acceptComments">
+									Accept comments?*
+								</label>
+							</div>
+						</div>
+
 						<!-- Success/Error messages -->
 						<div class="alert alert-success text-center" v-show="successMsg">
 							<strong>{{successMsg}}</strong>
@@ -128,7 +138,8 @@ export default {
 				location: '',
 				addInfo: '',
 				userLimit: '',
-				acceptOverload: false
+				acceptOverload: false,
+				acceptComments: false
 			},
 			optionsBegin: {
 				alInputClass: 'form-control',
@@ -307,7 +318,12 @@ export default {
 		}
 	},
 	computed: {
-
+		isConnected () {
+		        return Store.state.isConnected;
+		},
+		loading () {
+		        return Store.state.loading;
+		},
 		//Set the CSS class for the title
 		classTitle () {
 			return {

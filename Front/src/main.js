@@ -1,11 +1,10 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import VueResource from 'vue-resource'
-import Vuex from 'vuex'
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import VueResource from 'vue-resource';
+import Vuex from 'vuex';
 import VueSocketio from 'vue-socket.io';
-import $ from 'jquery';
-import 'bootstrap/dist/js/bootstrap';
-import Config from './config'
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Config from './config';
 
 Vue.use(VueRouter);
 Vue.use(VueResource);

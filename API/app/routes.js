@@ -274,11 +274,12 @@ router
             category: 		Controller.sanitizeString(req.body.category),
             location: 		Controller.sanitizeString(req.body.location),
             addInfo: 		Controller.sanitizeString(req.body.addInfo),
-            userID: 		req.decoded.userID
+            userID: 		req.decoded.userID,
+            acceptComments: Controller.checkBoolean(req.body.acceptComments)
         });
           if(info.category === 'Event') {
             info.userLimit = req.body.userLimit;
-            info.acceptOverload = req.body.acceptOverload;
+            info.acceptOverload = Controller.checkBoolean(req.body.acceptOverload);
             info.userList.push({ ID: req.decoded.userID, username: req.decoded.username});
         }
         info.save(function(err, resp) {
@@ -577,6 +578,182 @@ router
 }) 
 
 
+// POST New comment
+//==============================================
+
+.post('/infos/:id/comment', function(req, res, next) {
+
+    //Check ID
+    if( !(Controller.isObjectIDValid(req.params.id)) ||
+        !(Controller.isObjectIDValid(req.decoded.userID)) ) {
+
+        res.status(400).send({success: false, message: 'Invalid ID'});
+    }
+    else {
+        var infoID = req.params.id;
+        //Search Info
+        Info.findOne({_id: infoID}, function(err, info) {
+            if(err) {
+                console.log('Error when adding comment');
+                res.status(500).send(err);
+            }
+            // If info found
+            if(info) {
+                if(info.acceptComments) {
+                    var newComment = {
+                        title:      Controller.sanitizeString(req.body.title),
+                        content:    Controller.sanitizeString(req.body.content),
+                        userID:     req.decoded.userID,
+                        username:   req.decoded.username 
+                    };
+                    info.comments.push(newComment);
+                    Info.update({_id: info._id}, info, function(err) {
+                        if(err) {
+                            res.status(500).send(err);
+                            console.log(err);
+                        }
+                        else {
+                            res.status(200).send({success: true, message: 'Comment added!'});
+                            var io = req.app.get('socketio');
+                            io.emit('newComment', {infoID: info._id, content: newComment});
+                        }
+                    });
+                }
+                // Accept Comments is set to false
+                else {
+                    res.status(400).send({success: false, message: 'The info doesn\'t accept comments.'});
+                }
+            }
+            // No info found
+            else {
+                res.status(404).send({success: false, message: 'No info found'});
+            }
+        });       
+    }
+})
+
+
+// UPDATE Comment
+//==============================================
+
+.post('/infos/:infoID/comment/:commentID', function(req, res, next) {
+
+    //Check ID
+    if( !(Controller.isObjectIDValid(req.params.infoID))  ||
+        !(Controller.isObjectIDValid(req.decoded.userID)) ||
+        !(Controller.isObjectIDValid(req.params.commentID)) ) {
+
+        res.status(400).send({success: false, message: 'Invalid ID'});
+    }
+    else {
+        Info.findOne({_id: req.params.infoID}, function(err, info) {
+            if(err) {
+                console.log('Error when searching info:'+err);
+                res.status(500).send(err);
+            }
+            // If info found
+            if(info) {
+                var isFound = false;
+                for (var i = info.comments.length - 1; i >= 0; i--) {
+                    //Comment found
+                    if(info.comments[i]._id == req.params.commentID) {
+                        isFound = true;
+                        //Checking the ownership
+                        if(info.comments[i].userID == req.decoded.userID) {
+                            info.comments[i].edit(req.body);
+                            Info.update({_id: info._id}, info, function(err) {
+                                if(err) {
+                                    console.log('error when updating comment' +err);
+                                    res.status(500).send(err);
+                                }
+                                else {
+                                    var io = req.app.get('socketio');
+                                    io.emit('commentEdited', {infoID: info._id, content: req.body });
+                                    res.status(200).send({success: true, message: 'Comment updated'});
+                                }
+                            });    
+                        }
+                        // Error not the owner
+                        else {
+                            res.status(403).send({success: false, message: 'Permission denied: You are not the owner'});
+                        }
+                    }
+                }
+                //Comment not found
+                if(!isFound) {
+                    res.status(404).send({success: false, message: 'Comment not found'})
+                }
+            }
+            // No info found
+            else {
+                res.status(404).send({success: false, message: 'No info found'});
+            }
+        });
+    }
+
+})
+
+
+// DELETE Comment
+//==============================================
+
+.delete('/infos/:infoID/comment/:commentID', function(req, res, next) {
+
+    //Check ID
+    if( !(Controller.isObjectIDValid(req.params.infoID))  ||
+        !(Controller.isObjectIDValid(req.decoded.userID)) ||
+        !(Controller.isObjectIDValid(req.params.commentID)) ) {
+
+        res.status(400).send({success: false, message: 'Invalid ID'});
+    }
+    else {
+        Info.findOne({_id: req.params.infoID}, function(err, info) {
+            if(err) {
+                console.log('Error when searching info:'+err);
+                res.status(500).send(err);
+            }
+            // If info found
+            if(info) {
+                var isFound = false;
+                for (var i = info.comments.length - 1; i >= 0; i--) {
+                    //Comment found
+                    if(info.comments[i]._id == req.params.commentID) {
+                        isFound = true;
+                        //Checking the ownership
+                        if(info.comments[i].userID == req.decoded.userID) {
+                            info.comments.splice(info.comments.indexOf(i), 1);
+                            Info.update({_id: info._id}, info, function(err) {
+                                if(err) {
+                                    console.log('error when deleting comment' +err);
+                                    res.status(500).send(err);
+                                }
+                                else {
+                                    var io = req.app.get('socketio');
+                                    io.emit('commentDeleted', {infoID: info._id, ID: req.params.commentID});
+                                    res.status(200).send({success: true, message: 'Comment deleted'});
+                                }
+                            });    
+                        }
+                        // Error not the owner
+                        else {
+                            res.status(403).send({success: false, message: 'Permission denied: You are not the owner'});
+                        }
+                    }
+                }
+                //Comment not found
+                if(!isFound) {
+                    res.status(404).send({success: false, message: 'Comment not found'})
+                }
+            }
+            // No info found
+            else {
+                res.status(404).send({success: false, message: 'No info found'});
+            }
+        });
+    }
+})
+
+
 // POST add upvote/downvote
 //==============================================
 
@@ -642,7 +819,7 @@ router
             }
             //No info found
             else {
-                res.status(404).send({success: true, message: 'No info found'});
+                res.status(404).send({success: false, message: 'No info found'});
             }
         });
     }

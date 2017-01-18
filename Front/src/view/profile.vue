@@ -289,9 +289,12 @@
 			}
 		},
 		computed: {
-			loading () {
-				return Store.state.loading;
-			},
+			isConnected () {
+		        return Store.state.isConnected;
+		    },
+		    loading () {
+		        return Store.state.loading;
+		    },
 			checkPwd () {
 				return ( this.inputPas.length > 0 &&
 						 this.inputPas.length < 6);

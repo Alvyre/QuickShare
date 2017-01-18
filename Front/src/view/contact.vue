@@ -38,6 +38,14 @@
 				},
 				mailto: 'mailto:'+ Config.contactEmail + '?subject=[Contact QuickShare]' 
 			}
+		},
+		computed: {
+			isConnected () {
+		        return Store.state.isConnected;
+		      },
+		    loading () {
+		        return Store.state.loading;
+		      }
 		}
 	}
 </script>

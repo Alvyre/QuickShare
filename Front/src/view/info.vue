@@ -1,41 +1,73 @@
 <template>
 	<div id="info">
-		<div class="row" v-if="infoData.length != 0">
-			<div class="col-xs-12 col-sm-12">
+		<div class="row-centered" v-if="infoData.length != 0">
+			<div class="col-xs-12 col-sm-12 col-centered">
 			<!-- Display Information -->
-				<div class="panel panel-success" :class="setInfoClass()">
+				<div class="panel" :class="setInfoClass()">
 					<div class="panel-heading">
 						<span>{{infoData.title}}</span>
 					</div>
 					<div class="panel-body">
-						<p><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> : {{infoData.category}}</p>
-						<p><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> : {{infoData.description}}</p>
-						<p>
-							<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> : {{infoData.location}}<span v-if='infoData.addInfo'>,</span> {{infoData.addInfo}}
-						</p>
-						<p>
-							<span v-if="infoData.category == 'Event'">
-								<span class="glyphicon glyphicon-user" aria-hidden="true"></span> : {{infoData.userList.length}}
-								<span v-if="infoData.userLimit">/{{infoData.userLimit}}</span>
-							</span>
-							<span v-if="infoData.category == 'Event'">
+						<div class="row">
+							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> :</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{infoData.category}}</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> :</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{infoData.description}}</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> :</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{infoData.location}}<span v-if='infoData.addInfo'>,</span> {{infoData.addInfo}}</div>
+						</div>
+						<div class="row" v-if="infoData.category == 'Event'">
+							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> :</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">
+								{{infoData.userList.length}}<span v-if="infoData.userLimit">/{{infoData.userLimit}}</span>
 								<button type="button" class="btn btn-xs btn-default" v-show="!showMembers" v-on:click="toggleShowMembers()">Show members</button>
 								<button type="button" class="btn btn-xs btn-default" v-show="showMembers" v-on:click="toggleShowMembers()">Hide members</button>
-							</span>
-						</p>
-							<div class="col-centered col-xs-6 col-xs-offset-3" v-show="showMembers">
-							  
-							  <router-link v-for="user in infoData.userList" v-bind:to="setUserRoute(user.ID)"><button type="button" class="text-center list-group-item" style="text-align: center!important;">{{ user.username }}</button></router-link>
 							</div>
-							<div class="clearfix" v-if="showMembers"><br></div>
-						<p><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{infoData.birthdate | localeDate }}</p>
-						<p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{infoData.expirydate | localeDate }}</p>
-						<p><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> {{infoData.expirydate | TimeRemainingWith(infoData.birthdate) }}</p>
-						<button type="button" class="btn btn-large btn-block btn-success" v-if="infoData.category == 'Event' && !isEventJoined" :class="isEventFull" v-on:click.prevent.stop="joinEvent(infoData, $event)">Join Event</button>
-						<button type="button" class="btn btn-large btn-block btn-danger" v-if="infoData.category == 'Event' && isEventJoined" v-on:click.prevent.stop="leaveEvent(infoData, $event)" :class="disableLeave" id="leaveBtn">Leave Event</button>
+						</div>
+						<div class="clearfix" v-if="showMembers"><br/></div>
+						<div class="row">
+							<div class="col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3 col col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3" v-show="showMembers">
+							 	<router-link v-for="(user, index) in infoData.userList" v-bind:to="setUserRoute(user.ID)">
+							 		<button type="button" class="text-center list-group-item" style="text-align: center!important;">{{ user.username }}</button>
+							 	</router-link>
+							</div>
+						</div>
+						<div class="clearfix" v-if="showMembers"><br/></div>
+						<div class="row">
+							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> :</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{infoData.birthdate | localeDate }}</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> :</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{infoData.expirydate | localeDate }}</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> :</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{infoData.expirydate | TimeRemainingWith(infoData.birthdate) }}</div>
+						</div>
+						<div class="clearfix"><br/></div>
+						<div class="row">
+							<div class="col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3">
+								
+								<button type="button" class="btn btn-large btn-block btn-success" v-if="infoData.category == 'Event' && !isEventJoined" :class="isEventFull" v-on:click.prevent.stop="joinEvent(infoData, $event)">Join Event</button>
+								<button type="button" class="btn btn-large btn-block btn-danger" v-if="infoData.category == 'Event' && isEventJoined" v-on:click.prevent.stop="leaveEvent(infoData, $event)" :class="disableLeave" id="leaveBtn">Leave Event</button>
+							</div>
+						</div>
+						
 						<hr>
 						<footer>
-							<div class="right">
+							<!-- Comments buttons -->
+							<div class="pull-left">
+								<a v-show="infoData.comments.length && !showComments" class="btn btn-xs btn-default" href="#" v-on:click.prevent.stop="toggleShowComments()" role="button"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Show comments </a>
+								<a v-show="infoData.comments.length && showComments" class="btn btn-xs btn-default" href="#" v-on:click.prevent.stop="toggleShowComments()" role="button"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Hide comments </a>
+							</div>
+
+							<!-- Votes -->
+							<div class="pull-right">
 								<button type="button" class="btn btn-xs btn-success" :class="setVoteClassBtnGreen()" v-on:click.prevent.stop="voteUp()">
 									<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" style="color: white;"></span>
 								</button>
@@ -46,13 +78,85 @@
 							</div>
 						</footer>
 					</div>
-					<div class="clearfix"><br></div>
+					<div class="clearfix"><br/></div>
+					<!-- Error message -->
 					<div class="alert alert-danger text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-if="errorCode">
 						<strong>Error {{errorCode}}:</strong> {{errorMsg}}
 					</div>
-				</div>
+				</div> <!-- END PANEL -->
 			</div>
+			<!-- Comments section -->
+
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" v-show="showComments && infoData.acceptComments">
+				<h4 class="text-center">Comments</h4>
+				<div class="panel panel-default" v-for="(comment, index) in infoData.comments" v-bind:id="comment._id">
+					<div class="panel-heading" contenteditable="false">
+						<div class="pull-right comment-icon">
+							<a href="" class="" v-on:click.prevent.stop="editComment(comment)"><span class="glyphicon glyphicon-edit" v-if="isCommentOwner(comment)" aria-hidden="true"></span></a>
+							<a href="" class="red" v-on:click.stop.prevent="deleteComment(comment)"><span class="glyphicon glyphicon-remove" aria-hidden="true" v-if="isCommentOwner(comment)"></span></a>
+						</div>
+						<span class="panel-title" data-url="/internal/person/firstname" style="margin-left:32.16px;">{{ comment.title }}</span>
+						<input type="text" name="" v-if="isCommentOwner" class="hidden">
+					</div>
+					<div class="panel-body">
+						<div class="comment-content">
+							<span class="pull-left">{{ comment.content }}</span>	
+						</div>
+						<div class="clearfix"></div>
+						<a class="btn btn-primary hidden" style="margin: 10px 0 0 0" href="#" role="button" v-on:click="applyEditedComment(comment)">Apply changes</a>
+						<div class="clearfix"></div>
+						<footer>
+							<hr>
+							<div class="pull-left"><em><small>{{comment.date | localeDate}}</small></em></div>
+							<div class="pull-right"><em><small>by {{comment.username}}</small></em></div>
+						</footer>
+					</div>
+
+				</div>				
+			</div>
+
+			<!-- Add comment -->
+			<div class="clearfix"><br/></div>
+			<div class="row text-left" v-if="infoData.acceptComments">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-centered">
+					<button type="button" class="btn btn-large btn-block btn-default" v-on:click.prevent.stop="toggleAddComment()" v-show="!showAddComment">Add comment</button>
+					<button type="button" class="btn btn-large btn-block btn-default" v-on:click.prevent.stop="toggleAddComment()" v-show="showAddComment">Hide Form</button>
+					<br/>
+				</div>
+				<div class="clearfix"></div>
+
+				<!-- FORM -->
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" v-show="showAddComment">
+					<div class="comment-form">
+						<form action="" method="POST" role="form" v-on:submit.stop.prevent="addNewComment()">
+							<legend>New comment:</legend>
+							<div class="form-group">
+								<label for="">Title <em><small>(20 chars max)</small></em></label>
+								<input type="text" class="form-control" id="" placeholder="Input title" v-model="newComment.title">
+							</div>
+							<div class="form-group">
+								<label for="">Content</label>
+								<textarea type="text" class="form-control" id="" placeholder="Input your content" v-model="newComment.content"></textarea>
+								
+							</div>
+							
+							<!-- Success & Error Message -->
+							<div class="alert alert-success text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-show="commentSuccessMsg">
+								<strong>{{commentSuccessMsg}}</strong>
+							</div>
+							<div class="alert alert-danger text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-if="commentErrorMsg">
+								<strong>Error:</strong> {{commentErrorMsg}}
+							</div>
+
+							<button type="submit" class="btn btn-block btn-primary">Add</button>
+						</form>
+					</div>	
+				</div>
+				
+			</div>
+			<hr>
 		</div>
+
 		<!-- EDIT ARTICLE -->
 		<div class="row" v-if="infoData.length != 0 && isMyArticle">
 			<!-- Edit & Delete buttons -->
@@ -62,7 +166,7 @@
 			<div class="col-xs-4 col-xs-offset-2 col-sm-4 col-sm-offset-2">
 				<button type="button" class="btn btn-large btn-block btn-danger" v-on:click="deleteArticle()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
 			</div>
-			<div class="clearfix"><br><br></div>
+			<div class="clearfix"><br/><br/></div>
 
 			<!-- Edit Form -->			
 			<div class="col-xs-12 col-sm-12">
@@ -100,12 +204,15 @@
 						<em>(maximum date: {{options.maxDate | localeDate}})</em>
 						<Flatpickr :options='options' :class="form-control" :message="infoData.expirydate" @update="updateExpiryDate"/>
 					</div>
+
+					<!-- Success & Error Message -->
 					<div class="alert alert-success text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-show="successMsg">
 						<strong>{{successMsg}}</strong>
 					</div>
 					<div class="alert alert-danger text-center col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3" v-if="errorMsg">
 						<strong>Error {{errorCode}}:</strong> {{errorMsg}}
 					</div>
+					<!-- Submit -->
 					<button type="submit" class="btn btn-large btn-block btn-primary">Submit</button>
 				</form>
 			</div>
@@ -184,7 +291,35 @@ export default {
 			if(this.infoData._id == info.ID) {
 				this.infoData.voteCount = info.voteCount;
 			}
+		},
+		newComment (comment) {
+			if(this.infoData._id == comment.infoID) {
+				console.log('socket:newComment');
+				this.infoData.comments.push(comment.content);
+			}
+		},
+		commentDeleted (comment) {
+			if(this.infoData._id == comment.infoID) {
+				console.log('socket:commentDeleted');
+				for (var i = this.infoData.comments.length - 1; i >= 0; i--) {
+					if(this.infoData.comments[i]._id == comment.ID) {
+						this.infoData.comments.splice(i,1);
+					}
+				}
+			}
+		},
+		commentEdited(comment) {
+			if(this.infoData._id == comment.infoID) {
+				console.log('socket:commentEdited');
+				for (var i = this.infoData.comments.length - 1; i >= 0; i--) {
+					if(this.infoData.comments[i]._id == comment.content._id) {
+						this.infoData.comments[i].title = comment.content.title;
+						this.infoData.comments[i].content= comment.content.content;
+					}
+				}
+			}
 		}
+
 	},
 	data () {
 		return {
@@ -192,8 +327,12 @@ export default {
 			errorMsg: '',
 			errorCode: '',
 			successMsg: '',
+			commentErrorMsg: '',
+			commentSuccessMsg: '',
 			isArticleEditing: false,
 			showMembers: false,
+			showComments: false,
+			showAddComment: false,
 			editedArticle: {
 				title: '',
 				description: '',
@@ -209,6 +348,10 @@ export default {
 				defaultDate: null,
 				minDate: null,
 				maxDate: null
+			},
+			newComment: {
+				title: '',
+				content: ''
 			}
 		}
 	},
@@ -218,7 +361,7 @@ export default {
 	mounted () {
 		//Get info and set loading screen
 		Store.commit('loadingOn');
-		this.fetchInfoData();	
+		this.fetchInfoData();
 	},
 	methods : {
 		fetchInfoData () {
@@ -229,7 +372,7 @@ export default {
 				return;
 			}
 
-			//Request options (COORS, token)
+			//Request options (CORS, token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -301,7 +444,7 @@ export default {
 			//Avoid the method to be called if no click and not an event 
 			if(!click || event.category != 'Event') return;
 			
-			//Request options (COORS, token)
+			//Request options (CORS, token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -345,7 +488,7 @@ export default {
 				return;
 			}
 
-			//Request options (COORS, Token)
+			//Request options (CORS, Token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -387,6 +530,12 @@ export default {
 		toggleShowMembers () {
 			this.showMembers = !this.showMembers;
 		},
+		toggleShowComments () {
+			this.showComments = !this.showComments;
+		},
+		toggleAddComment () {
+			this.showAddComment = !this.showAddComment;
+		},
 
 		deleteArticle () {
 			//Confirm the action (avoid miss click)
@@ -394,7 +543,7 @@ export default {
 			
 			if(choice) {
 				
-				//Request options (COORS, Token)
+				//Request options (CORS, Token)
 				var options = {
 					headers: {
 						'x-access-token': Cookie.getCookie('token')
@@ -438,7 +587,7 @@ export default {
 			//If user disconnected: return
 			if(!this.checkEditedInfo() ) return;
 
-			//Request options (COORS, token)
+			//Request options (CORS, token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -490,7 +639,7 @@ export default {
 			//If user disconnected, return
 			if(!this.isConnected) return;
 			
-			//Request options (COORS, Token)
+			//Request options (CORS, Token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -543,7 +692,7 @@ export default {
 			//If the user is disconnected, return
 			if(!this.isConnected) return;
 			
-			//Request options (COORS, token)
+			//Request options (CORS, token)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
@@ -629,7 +778,7 @@ export default {
 		checkEditedInfo () {
 
 			//If we don't accept Overload, check the userLimit (we can't set limit under the current members size)
-			if(this.editedArticle.acceptOverload == false && this.editedArticle.category == 'Event') {
+			if(this.editedArticle.acceptOverload == false && this.infoData.category == 'Event') {
 				if(this.editedArticle.userLimit < this.setMinUserLimit) {
 					this.errorMsg = 'You can\'t set this limit.'
 					return false;
@@ -646,11 +795,172 @@ export default {
 				return false;
 			}
 			return true;
+		},
+		checkComment (comment) {
+			var isValid = false;
+			switch(comment.title) {
+				case '':
+				case undefined:
+				case null:
+				case this.length > 20:
+					isValid = false;
+					break;
+				default:
+					isValid = true;
+					break;
+			};
+			switch(comment.content) {
+				case '':
+				case undefined:
+				case null:
+					isValid = false;
+					break;
+				default:
+					isValid = true;
+					break;
+			};
+
+			return isValid;
+		},
+		//We check if the user owns the comment, to make it editable or deletable
+		isCommentOwner(comment) {
+			let idUser = Cookie.getCookie('userID');
+			if(idUser == comment.userID)
+				return true;
+			return false;
+		},
+		addNewComment () {
+
+			//Check if the comment is valid
+			if(!this.checkComment(this.newComment)) {
+				this.commentErrorMsg = 'Comment is invalid';
+				return;
+			}
+
+			//Request options (CORS, token)
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+
+			//API Request to add a comment (POST)
+			this.$http.post(Config.urlAPI +'/api/infos/'+this.infoData._id+'/comment', this.newComment, options).then((response) => {
+
+				
+					this.commentSuccessMsg = response.data.message;
+					let vue = this;
+					window.setTimeout(function(){
+						vue.commentSuccessMsg = '';
+						vue.toggleAddComment();
+					}, 3000);
+
+			}, (response) => {
+
+				//If error
+				this.commentErrorMsg = response.data.message;
+				console.log('Error:', response);
+			});
+		},
+		editComment (comment) {
+
+			var a 				= "contenteditable";
+			var commentNode 	= $("#"+comment._id);
+			var title 			= commentNode.find('div .panel-title');
+			var content 		= commentNode.find('div .comment-content'); 
+			var button 			= commentNode.find('div .btn');
+
+			title.attr(a) == 'true' ? title.attr(a,'false') : title.attr(a, 'true');
+			content.attr(a) == 'true' ? content.attr(a, 'false') : content.attr(a, 'true');
+
+			//limit 20 chars max
+			title.on('keydown paste', function(event) { //Prevent on paste as well
+				//You can add delete key event code as well over here for windows users.
+				if( ($(this).text().length >= 20 && event.keyCode != 8) || event.keyCode === 13) { 
+					event.preventDefault();
+				}
+			});
+
+			//Toggle button
+			button.toggleClass('hidden');
+			if(button.hasClass('hidden')) {
+				title.text(comment.title);
+				content.text(comment.content);
+				console.log('comment editing reset');
+			}
+
+		},
+		applyEditedComment (comment) {
+			
+			//Update locally the comment
+			var a 				= "contenteditable";
+			var commentNode 	= $("#"+comment._id);
+			var title 			= commentNode.find('div .panel-title');
+			var content 		= commentNode.find('div .comment-content');
+			var button 			= commentNode.find('div .btn');
+
+			title.attr(a) 		== 'true' ? title.attr(a,'false') : title.attr(a, 'true');
+			content.attr(a) 	== 'true' ? content.attr(a, 'false') : content.attr(a, 'true');
+
+			comment.title 		= title.text();
+			comment.content 	= content.text();
+
+			button.toggleClass('hidden');
+
+			//Request options (CORS, token)
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+
+			this.$http.post(Config.urlAPI + '/api/infos/'+this.infoData._id+'/comment/'+comment._id, comment, options).then((response) => {
+
+				console.log('comment updated');
+			}, (response) => {
+
+				//If error
+				this.errorMsg = response.data.message;
+				console.log('Error:', response);
+			});
+		},
+		deleteComment (comment) {
+
+			//Delete request on the API
+
+			//Request options (CORS, token)
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+
+			this.$http.delete(Config.urlAPI +'/api/infos/'+this.infoData._id+'/comment/'+comment._id, options).then((response) => {
+
+			}, (response) => {
+
+				//If error
+				this.errorMsg = response.data.message;
+				console.log('Error:', response);
+			});
+
+			//Then delete the comment locally
+			for (var i = this.infoData.comments.length - 1; i >= 0; i--) {
+				if(this.infoData.comments[i]._id == comment._id) {
+					this.infoData.comments.splice(i,1);
+				}
+			}
 		}
 	},
 	computed: {
 		isConnected () {
-			return Store.state.isConnected;
+		    return Store.state.isConnected;
+		},
+		loading () {
+		    return Store.state.loading;
 		},
 		updateVoteCount () {
 			return this.infoData.voteCount;
@@ -663,13 +973,11 @@ export default {
 			}
 			return false;
 		},
-
 		isEventFull () {
 			return {
 				'disabled': (this.infoData.userList.length >= this.infoData.userLimit && !this.infoData.acceptOverload)
 			}
 		},
-
 		isMyArticle () {
 			return this.infoData.userID == Cookie.getCookie('userID');
 		},
@@ -724,5 +1032,25 @@ export default {
 	}
 	.red>span {
 		color: red!important;
+	}
+	[contenteditable=true] {
+		width: 100%;
+		min-height: 34px;
+		padding: 6px 12px!important;
+		font-size: 14px;
+		line-height: 1.42857143;
+		color: #555;
+		background-color: #fff;
+		background-image:none;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.075);
+		box-shadow:inset 0 1px 1px rgba(0,0,0,.075);
+		-webkit-transition:border-color ease-in-out .15s,
+		-webkit-box-shadow ease-in-out .15s;
+		-o-transition:border-color ease-in-out .15s,
+		box-shadow ease-in-out .15s;
+		transition:border-color ease-in-out .15s;
+		text-align: left;
 	}
 </style>
