@@ -1,7 +1,6 @@
 var path = require('path')
 var webpack = require('webpack')
 var ExtractTextPlugin = require("extract-text-webpack-plugin")
-var bootstrapJS = "node_modules/bootstrap/dist/js/bootstrap.min.js"
 
 module.exports = {
   entry: {

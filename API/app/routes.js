@@ -668,7 +668,7 @@ router
                                 }
                                 else {
                                     var io = req.app.get('socketio');
-                                    io.emit('commentEdited', {infoID: info._id, content: info.comments[i]});
+                                    io.emit('commentEdited', {infoID: info._id, content: req.body });
                                     res.status(200).send({success: true, message: 'Comment updated'});
                                 }
                             });    

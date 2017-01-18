@@ -31,7 +31,7 @@
 						<div class="clearfix" v-if="showMembers"><br/></div>
 						<div class="row">
 							<div class="col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3 col col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3" v-show="showMembers">
-							 	<router-link v-for="user in infoData.userList" v-bind:to="setUserRoute(user.ID)">
+							 	<router-link v-for="(user, index) in infoData.userList" v-bind:to="setUserRoute(user.ID)">
 							 		<button type="button" class="text-center list-group-item" style="text-align: center!important;">{{ user.username }}</button>
 							 	</router-link>
 							</div>
@@ -87,23 +87,27 @@
 			</div>
 			<!-- Comments section -->
 
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" v-show="showComments">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" v-show="showComments && infoData.acceptComments">
 				<h4 class="text-center">Comments</h4>
-				<div class="panel panel-default" v-for="comment in infoData.comments">
-					<div class="panel-heading">
+				<div class="panel panel-default" v-for="(comment, index) in infoData.comments" v-bind:id="comment._id">
+					<div class="panel-heading" contenteditable="false">
 						<div class="pull-right comment-icon">
 							<a href="" class="" v-on:click.prevent.stop="editComment(comment)"><span class="glyphicon glyphicon-edit" v-if="isCommentOwner(comment)" aria-hidden="true"></span></a>
 							<a href="" class="red" v-on:click.stop.prevent="deleteComment(comment)"><span class="glyphicon glyphicon-remove" aria-hidden="true" v-if="isCommentOwner(comment)"></span></a>
 						</div>
-						<!-- <input class="panel-title" v-model='comment.title'/> -->
-						<a class="panel-title" style="padding-left:32.16px;" href="#" data-type="text" data-url="" data-title="Uptade title">{{ comment.title }}</a>
+						<span class="panel-title" data-url="/internal/person/firstname" style="margin-left:32.16px;">{{ comment.title }}</span>
+						<input type="text" name="" v-if="isCommentOwner" class="hidden">
 					</div>
 					<div class="panel-body">
-						<!-- <input class="pull-left" v-model='comment.content'/> -->
-						<a href="#" class="pull-left" data-type="textarea" data-title="Update content">{{ comment.content }}</a>
-						<footer>
+						<div class="comment-content">
+							<span class="pull-left">{{ comment.content }}</span>	
+						</div>
 						<div class="clearfix"></div>
+						<a class="btn btn-primary hidden" style="margin: 10px 0 0 0" href="#" role="button" v-on:click="applyEditedComment(comment)">Apply changes</a>
+						<div class="clearfix"></div>
+						<footer>
 							<hr>
+							<div class="pull-left"><em><small>{{comment.date | localeDate}}</small></em></div>
 							<div class="pull-right"><em><small>by {{comment.username}}</small></em></div>
 						</footer>
 					</div>
@@ -113,7 +117,7 @@
 
 			<!-- Add comment -->
 			<div class="clearfix"><br/></div>
-			<div class="row text-left">
+			<div class="row text-left" v-if="infoData.acceptComments">
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-centered">
 					<button type="button" class="btn btn-large btn-block btn-default" v-on:click.prevent.stop="toggleAddComment()" v-show="!showAddComment">Add comment</button>
 					<button type="button" class="btn btn-large btn-block btn-default" v-on:click.prevent.stop="toggleAddComment()" v-show="showAddComment">Hide Form</button>
@@ -127,7 +131,7 @@
 						<form action="" method="POST" role="form" v-on:submit.stop.prevent="addNewComment()">
 							<legend>New comment:</legend>
 							<div class="form-group">
-								<label for="">Title</label>
+								<label for="">Title <em><small>(20 chars max)</small></em></label>
 								<input type="text" class="form-control" id="" placeholder="Input title" v-model="newComment.title">
 							</div>
 							<div class="form-group">
@@ -309,7 +313,8 @@ export default {
 				console.log('socket:commentEdited');
 				for (var i = this.infoData.comments.length - 1; i >= 0; i--) {
 					if(this.infoData.comments[i]._id == comment.content._id) {
-						this.infoData.comments[i] = comment.content;
+						this.infoData.comments[i].title = comment.content.title;
+						this.infoData.comments[i].content= comment.content.content;
 					}
 				}
 			}
@@ -356,7 +361,7 @@ export default {
 	mounted () {
 		//Get info and set loading screen
 		Store.commit('loadingOn');
-		this.fetchInfoData();	
+		this.fetchInfoData();
 	},
 	methods : {
 		fetchInfoData () {
@@ -797,6 +802,7 @@ export default {
 				case '':
 				case undefined:
 				case null:
+				case this.length > 20:
 					isValid = false;
 					break;
 				default:
@@ -847,6 +853,7 @@ export default {
 					let vue = this;
 					window.setTimeout(function(){
 						vue.commentSuccessMsg = '';
+						vue.toggleAddComment();
 					}, 3000);
 
 			}, (response) => {
@@ -855,23 +862,73 @@ export default {
 				this.commentErrorMsg = response.data.message;
 				console.log('Error:', response);
 			});
-
-
 		},
 		editComment (comment) {
-			
 
-		},
-		deleteComment (comment) {
-			
-			//Delete the comment locally
-			for (var i = this.infoData.comments.length - 1; i >= 0; i--) {
-				if(this.infoData.comments[i]._id == comment._id) {
-					this.infoData.comments.splice(i,1);
+			var a 				= "contenteditable";
+			var commentNode 	= $("#"+comment._id);
+			var title 			= commentNode.find('div .panel-title');
+			var content 		= commentNode.find('div .comment-content'); 
+			var button 			= commentNode.find('div .btn');
+
+			title.attr(a) == 'true' ? title.attr(a,'false') : title.attr(a, 'true');
+			content.attr(a) == 'true' ? content.attr(a, 'false') : content.attr(a, 'true');
+
+			//limit 20 chars max
+			title.on('keydown paste', function(event) { //Prevent on paste as well
+				//You can add delete key event code as well over here for windows users.
+				if( ($(this).text().length >= 20 && event.keyCode != 8) || event.keyCode === 13) { 
+					event.preventDefault();
 				}
+			});
+
+			//Toggle button
+			button.toggleClass('hidden');
+			if(button.hasClass('hidden')) {
+				title.text(comment.title);
+				content.text(comment.content);
+				console.log('comment editing reset');
 			}
 
-			//Then delete request on the API
+		},
+		applyEditedComment (comment) {
+			
+			//Update locally the comment
+			var a 				= "contenteditable";
+			var commentNode 	= $("#"+comment._id);
+			var title 			= commentNode.find('div .panel-title');
+			var content 		= commentNode.find('div .comment-content');
+			var button 			= commentNode.find('div .btn');
+
+			title.attr(a) 		== 'true' ? title.attr(a,'false') : title.attr(a, 'true');
+			content.attr(a) 	== 'true' ? content.attr(a, 'false') : content.attr(a, 'true');
+
+			comment.title 		= title.text();
+			comment.content 	= content.text();
+
+			button.toggleClass('hidden');
+
+			//Request options (CORS, token)
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+
+			this.$http.post(Config.urlAPI + '/api/infos/'+this.infoData._id+'/comment/'+comment._id, comment, options).then((response) => {
+
+				console.log('comment updated');
+			}, (response) => {
+
+				//If error
+				this.errorMsg = response.data.message;
+				console.log('Error:', response);
+			});
+		},
+		deleteComment (comment) {
+
+			//Delete request on the API
 
 			//Request options (CORS, token)
 			var options = {
@@ -889,6 +946,13 @@ export default {
 				this.errorMsg = response.data.message;
 				console.log('Error:', response);
 			});
+
+			//Then delete the comment locally
+			for (var i = this.infoData.comments.length - 1; i >= 0; i--) {
+				if(this.infoData.comments[i]._id == comment._id) {
+					this.infoData.comments.splice(i,1);
+				}
+			}
 		}
 	},
 	computed: {
@@ -969,12 +1033,24 @@ export default {
 	.red>span {
 		color: red!important;
 	}
-	.panel input {
-		text-align:center;
-		background: white;
-		border:none;
-		resize:none;
-		overflow: none;
-		outline:none;
+	[contenteditable=true] {
+		width: 100%;
+		min-height: 34px;
+		padding: 6px 12px!important;
+		font-size: 14px;
+		line-height: 1.42857143;
+		color: #555;
+		background-color: #fff;
+		background-image:none;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.075);
+		box-shadow:inset 0 1px 1px rgba(0,0,0,.075);
+		-webkit-transition:border-color ease-in-out .15s,
+		-webkit-box-shadow ease-in-out .15s;
+		-o-transition:border-color ease-in-out .15s,
+		box-shadow ease-in-out .15s;
+		transition:border-color ease-in-out .15s;
+		text-align: left;
 	}
 </style>
