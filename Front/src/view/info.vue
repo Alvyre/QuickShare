@@ -367,7 +367,7 @@ export default {
 		fetchInfoData () {
 
 			//If user disconnected, redirect to the homepage
-			if(!this.isConnected) {
+			if(Cookie.getCookie('Connected') != 'true') {
 				this.$router.push('/');
 				return;
 			}
@@ -418,6 +418,9 @@ export default {
 					Cookie.deleteCookie('Connected');
 					Cookie.deleteCookie('userID');
 					Store.commit('logout');
+				}
+				if(response.status == 400) {
+					this.$router.push('/');
 				}
 				this.errorCode = response.status;
 			});
