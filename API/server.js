@@ -11,7 +11,6 @@ var bodyParser		= require('body-parser');			// pull information from HTML POST (
 var router  		= require('./app/routes');			// Routes of the app
 var methodOverride 	= require('method-override');		// simulate DELETE and PUT (express4)
 var http			= require('http').Server(app);
-var fs 				= require('fs');
 var io 				= require('socket.io')(http);
 var cors			= require('cors');
 var cookieParser 	= require('cookie-parser');
@@ -34,8 +33,8 @@ var corsOptions = {
 var port = process.env.PORT || 80;						// define the port
 mongoose.connect(config.database, function (err) {			// Connect to the mongoDB
 	if(err) { 
-		throw err; 
 		console.log("Database connection Error");
+		throw err;
 	}
 });
 

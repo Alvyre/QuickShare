@@ -55,7 +55,7 @@ InfoSchema.methods.isFull = function() {
 
 InfoSchema.methods.getCurrentSize = function() {
 	return this.userList.length;
-}
+};
 
 InfoSchema.methods.updateVoteCount = function() {
 
@@ -69,7 +69,7 @@ InfoSchema.methods.updateVoteCount = function() {
 };
 
 InfoSchema.methods.updateInfos = function(data) {
-	if(data.title && data.title != '') {
+	if(data.title && data.title !== '') {
 		this.title = Controller.sanitizeString(data.title); 
 	}
 	if(data.description) {
@@ -115,7 +115,7 @@ InfoSchema.methods.updateInfos = function(data) {
     if(data.isComplete) {
     	this.isComplete = data.isComplete;
     }
-}
+};
 
 // Model
 //======================================

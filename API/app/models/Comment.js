@@ -38,7 +38,7 @@ schema.methods.edit = function (data) {
 	if(data.content) {
 		this.content = Controller.sanitizeString(data.content);
 	}
-}
+};
 
 // Model
 //=========================================

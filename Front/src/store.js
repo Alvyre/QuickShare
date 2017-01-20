@@ -1,5 +1,7 @@
-import Vue from 'vue'
-import VueX from 'vuex'
+'use strict';
+
+import Vue from 'vue';
+import VueX from 'vuex';
 
 Vue.use(VueX);
 
@@ -14,6 +16,6 @@ const store = new VueX.Store({
     	loadingOn: 	state => state.loading 		= true,
     	loadingOff: state => state.loading 		= false
     }
-})
+});
 
 export default store;
