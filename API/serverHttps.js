@@ -45,8 +45,8 @@ var corsOptions = {
 var port = process.env.PORT || 443;						// define the port
 mongoose.connect(config.database, function (err) {			// Connect to the mongoDB
 	if(err) { 
-		throw err; 
 		console.log("Database connection Error");
+		throw err;
 	}
 });
 
@@ -88,7 +88,7 @@ app.use('*', function(req, res) {
 // ==============================================
 
 io.on('connection', function(socket) {
-	console.log('a user connected');
+	console.log('a user connected: ', socket);
 });
 
 // CRON DELETE OLD INFOS Every 30 min

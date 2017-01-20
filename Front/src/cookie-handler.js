@@ -1,4 +1,6 @@
-import Config from './config'
+'use strict';
+
+import Config from './config';
 
 const Cookie = {
 	setCookie (cname, cvalue, exdays) {
@@ -16,7 +18,7 @@ const Cookie = {
         	while (c.charAt(0) == ' ') {
             	c = c.substring(1);
         	}
-        	if (c.indexOf(name) == 0) {
+        	if (c.indexOf(name) === 0) {
             return c.substring(name.length, c.length);
         	}
     	}

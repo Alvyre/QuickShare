@@ -1,3 +1,5 @@
+'use strict';
+
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import VueResource from 'vue-resource';
@@ -60,7 +62,7 @@ const router = new VueRouter({
 			component: require('./view/contact.vue')
 		}
 	]
-})
+});
 
 new Vue({
   el: '#app',

@@ -63,9 +63,9 @@ router
                    mail: User.findOne({mail: tempUserMail}, 'mail').execAsync()
                })
                 .then(function(results) {
-                    if(results.username != null)
+                    if(results.username !== null)
                         res.status(400).json({success: false, message: 'Username already exists'});
-                    else if(results.mail != null)
+                    else if(results.mail !== null)
                         res.status(400).json({success: false, message: 'Mail already exists'});
                     else {
                         var user = new User({
@@ -98,7 +98,7 @@ router
             })
             .catch(function(errorCodes){
                 // Invalid Captcha
-                res.status(500).json({message: 'Unknown error when validate the Captcha'})
+                res.status(500).json({message: 'Unknown error when validate the Captcha'});
                 console.log('reCAPTCHA error: ' +recaptcha.translateErrors(errorCodes));// translate error codes to human readable text
             });
         } // End ELSE Google recaptcha
@@ -133,7 +133,7 @@ router
                 user: User.findOne({username: req.body.username}).execAsync()
             })
             .then(function(results) {
-                if(results.user != null) {
+                if(results.user !== null) {
                         // Load hash from your password DB.
                         bcrypt.compare(req.body.password, results.user.password, function(err, resp) {
                             if(err) {
@@ -141,16 +141,18 @@ router
                                 res.status(500).json({success: false, message: 'Error when checking password'});
                             }
                             if(resp === true) {
+
+                                var userData = {
+                                    userID: results.user._id,
+                                    username: results.user.username,
+                                    mail: results.user.mail,
+                                    isEmailVisible: results.user.isEmailVisible
+                                };
+
                                 // we check if a cookie already exists
                                 var cookie = req.cookies.token;
                                 if (cookie === undefined) {
 
-                                    var userData = {
-                                        userID: results.user._id,
-                                        username: results.user.username,
-                                        mail: results.user.mail,
-                                        isEmailVisible: results.user.isEmailVisible
-                                    };
                                     var token = jwt.sign(userData, config.secret, {
                                         expiresIn: '3h',
                                         issuer: 'API-auth',
@@ -177,7 +179,7 @@ router
                                 }
                             }
                             else {
-                                res.status(400).json({success: false, message: 'wrong password'})
+                                res.status(400).json({success: false, message: 'wrong password'});
                             }
                         });
                     }
@@ -212,7 +214,7 @@ router
     //check header or url params or post params for token
     var token = req.headers['x-access-token'];
     //decode token
-    if(token != undefined) {
+    if(token !== undefined) {
 
         //verifies secret and checks expiry
         jwt.verify(token, config.secret, function(err, decoded) {
@@ -252,7 +254,7 @@ router
         // DATE CHECKING
         var tempExpiryDate = moment(req.body.expirydate, moment.ISO_8601);
         var tempBirthDate = moment();
-        if(req.body.birthdate != '' && req.body.birthdate != undefined) {
+        if(req.body.birthdate !== '' && req.body.birthdate !== undefined) {
             tempBirthDate = moment(req.body.birthdate, moment.ISO_8601);
         }
         var timeFromNow = tempBirthDate.diff(moment());
@@ -681,7 +683,7 @@ router
                 }
                 //Comment not found
                 if(!isFound) {
-                    res.status(404).send({success: false, message: 'Comment not found'})
+                    res.status(404).send({success: false, message: 'Comment not found'});
                 }
             }
             // No info found
@@ -742,7 +744,7 @@ router
                 }
                 //Comment not found
                 if(!isFound) {
-                    res.status(404).send({success: false, message: 'Comment not found'})
+                    res.status(404).send({success: false, message: 'Comment not found'});
                 }
             }
             // No info found
@@ -918,7 +920,7 @@ router
             res.status(200).json(user);
         }
         else {
-            res.status(404).send({message: 'ID error, sign-in again please'})
+            res.status(404).send({message: 'ID error, sign-in again please'});
         }
     });
 })
@@ -955,7 +957,7 @@ router
             user: User.findOne({username: username}).execAsync()
         })
         .then(function(results) {
-            if(results.user != null) {
+            if(results.user !== null) {
                 if(checkVisible)
                     results.user.isEmailVisible = newIsEmailVisible; 
                 if(checkEmail)
@@ -966,7 +968,7 @@ router
                         results.user.password = hash;
                         results.user.save(function(err, resp) {
                             if(err) {
-                                console.log('Error when trying to update the user: '+user.username);
+                                console.log('Error when trying to update the user: '+results.user.username);
                                 res.status(500).send(err);
                             }
                             res.status(200).send({success: true, message: 'Successfully updated'});
@@ -976,7 +978,7 @@ router
                 else {
                     results.user.save(function(err, resp) {
                         if(err) {
-                            console.log('Error when trying to update the user: '+user.username);
+                            console.log('Error when trying to update the user: '+results.user.username);
                             res.status(500).send(err);
                         }
                         res.status(200).send({success: true, message: 'Successfully updated'});
