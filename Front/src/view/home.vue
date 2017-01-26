@@ -373,8 +373,13 @@
 		methods: {
 			fetchInfos () {
 
+				//Request Options (CORS, Token etc..)
+				var options = {
+					credentials: true
+				};
+
 				// GET All info Request
-				this.$http.get(Config.urlAPI +'/api/infos').then((response) => {
+				this.$http.get(Config.urlAPI +'/api/infos', options).then((response) => {
 
 					//If Success
 					this.infos = response.data;

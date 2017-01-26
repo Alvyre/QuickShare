@@ -315,6 +315,8 @@ export default {
 					if(this.infoData.comments[i]._id == comment.content._id) {
 						this.infoData.comments[i].title = comment.content.title;
 						this.infoData.comments[i].content= comment.content.content;
+						this.infoData.comments[i].content.date = moment(this.infoData.comments[i].content.date).format();
+						// to test
 					}
 				}
 			}
@@ -352,6 +354,7 @@ export default {
 			newComment: {
 				title: '',
 				content: ''
+				date: moment().format();
 			}
 		}
 	},

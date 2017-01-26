@@ -55,14 +55,15 @@
 
   $(document).on('click','body', function(e) {
     $('.navbar-collapse.in').collapse('hide');
-  });
+  });  
 
   //Imports
   //==========================================================
   
     import Store from './store'
     import Cookie from './cookie-handler';
-    
+    import OneSignal from './notif';
+
   //Vue.js
   //==========================================================
     
@@ -98,6 +99,8 @@
       if(Cookie.getCookie('Connected') == 'true') {
         Store.commit('login');
       }
+      OneSignal.init();
+      OneSignal.register();
     }
   }
 </script>

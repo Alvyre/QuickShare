@@ -12,7 +12,7 @@
 					<div id="personal-contact" v-if="userData.isEmailVisible">
 						<div class="row row-centered">
 							<div class="col-xs-6 col-xs-offset-3 col-sm-4 col-sm-offset-4">
-								<a class="btn btn-primary" v-bind:href="mailto" role="">Contact</a>
+								<a class="btn btn-primary" v-bind:href="mailto()" role="">Contact</a>
 							</div>
 						</div>
 					</div>

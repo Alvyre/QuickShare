@@ -3,17 +3,19 @@
 // Getting packages
 //=======================================================
 
-var express         = require('express');
-var router          = express.Router();
-var config          = require('../config/config');
-var moment		    = require('moment');
-var Promise		    = require('bluebird');
-var Info 		    = require('./models/Info');
-var User		    = require('./models/User');
-var Controller      = require('./controller.js');
-var bcrypt          = require('bcrypt');
-var jwt             = require('jsonwebtoken');
-var reCAPTCHA       = require('recaptcha2');
+var express             = require('express');
+var router              = express.Router();
+var config              = require('../config/config');
+var moment		        = require('moment');
+var Promise		        = require('bluebird');
+var Info 		        = require('./models/Info');
+var User		        = require('./models/User');
+var WebNotification     = require('./models/WebNotification');
+var Controller          = require('./controller.js');
+var Cleaner              = require('./cleaner');
+var bcrypt              = require('bcrypt');
+var jwt                 = require('jsonwebtoken');
+var reCAPTCHA           = require('recaptcha2');
 
 //Set the hash salt for encrypt
 const saltRounds = 10;
@@ -229,7 +231,6 @@ router
         });
     }
     else {
-
         //if there is no token : return error
         return res.status(403).send({
             success: false,
@@ -259,10 +260,10 @@ router
         }
         var timeFromNow = tempBirthDate.diff(moment());
         var timeFromBirth = tempExpiryDate.diff(tempBirthDate);
-        if( timeFromNow < 0 || timeFromNow > config.infoTTL * 86400000) {                    // 86400000 = 24h
+        if( timeFromNow < 0 || timeFromNow > config.infoTTL * 86400000) {                   // 86400000 = 24h
             res.status(400).send({success: false, message: 'Invalid birthdate'});
         }
-        else if( timeFromBirth < 0 || timeFromBirth > 86400000) {           // 24 in ms
+        else if( timeFromBirth < 0 || timeFromBirth > 86400000) {                           // 24 in ms
             res.status(400).send({success: false, message: 'Invalid expirydate'});
         }
         else {
@@ -390,9 +391,29 @@ router
                             console.log('Error when updating info: '+err);
                             res.status(500).send({success: false, message: 'Error when updating info'});
                         }
-                        var io = req.app.get('socketio');
-                        io.emit('updateInfo', info);
-                        res.status(200).send({success: true, message: 'Info updated'});
+                        else {
+                            var io = req.app.get('socketio');
+                            io.emit('updateInfo', info);
+                            res.status(200).send({success: true, message: 'Info updated'});
+                        
+                            // Notifications
+                            WebNotification.find({infoID: info._id}, "-infoID -userID", function(err, subUsers) {
+                                if(err) {
+                                    console.log('Error when trying to get SubUsers from info ID: '+info._id);
+                                }
+                                else {
+                                    if(subUsers.length !== 0 && subUsers !== undefined) {
+                                        
+                                        var message = {
+                                            content: "The info '" +info.title +"' just has been edited.",
+                                            url: "info/" +info._id 
+                                        };
+
+                                        WebNotification.pushMessage(subUsers, message);  
+                                    }
+                                }
+                            });
+                        }
                     }); 
                    }
                    else {
@@ -432,6 +453,7 @@ router
                     res.status(200).json({success: true, message: 'Info removed'});
                     var io = req.app.get('socketio');
                     io.emit('deleteInfo', info);
+                    Cleaner.cleanNotifications(info._id);
                 }
                 else {
                     res.status(404).send({success: false, message: 'There is no info with this ID or you are to authorized to delete it'});
@@ -479,6 +501,23 @@ router
                         if(event.category === 'Event') {
                             if(event.isFull()) {
                                 res.status(409).send({success: false, message: 'Event is full'});
+                                                            // Notifications
+/*                                WebNotification.find({userID: event.userID}, "-infoID -userID", function(err, subUsers) {
+                                    if(err) {
+                                        console.log('Error when trying to get SubUsers from info ID: '+event._id);
+                                    }
+                                    else {
+                                        if(subUsers.length !== 0 && subUsers !== undefined) {
+                                            
+                                            var message = {
+                                                content: "Someone tried to join your event, but it's full. Do you want to Edit the limit?",
+                                                url: "info/" +event._id 
+                                            };
+
+                                            WebNotification.pushMessage(subUsers, message);  
+                                        }
+                                    }
+                                });*/
                             }
                             else {
                                 var isUserAlreadyIn = false;
@@ -618,7 +657,23 @@ router
                             res.status(200).send({success: true, message: 'Comment added!'});
                             var io = req.app.get('socketio');
                             io.emit('newComment', {infoID: info._id, content: newComment});
-                        }
+
+                            WebNotification.find({infoID: info._id}, "-infoID -userID", function(err, subUsers) {
+                                if(err) {
+                                    console.log('Error when trying to get SubUsers from info ID: '+info._id);
+                                }
+                                else {
+                                    if(subUsers.length !== 0 && subUsers !== undefined) {
+                                        
+                                        var message = {
+                                            content: "Someone added a new comment on '" +info.title +"'",
+                                            url: "info/" +info._id 
+                                        };
+                                        WebNotification.pushMessage(subUsers, message);  
+                                    }
+                                }
+                            });
+                        } // end else
                     });
                 }
                 // Accept Comments is set to false

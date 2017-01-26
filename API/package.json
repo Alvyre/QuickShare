@@ -7,6 +7,7 @@
     "HTTPS": "nodemon serverHttps.js"
   },
   "dependencies": {
+    "async": "^2.1.4",
     "bcrypt-as-promised": "^1.1.0",
     "bcrypt-nodejs": "0.0.3",
     "bluebird": "^3.4.6",

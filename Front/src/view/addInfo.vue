@@ -197,7 +197,7 @@ export default {
 			if(this.isInfoCorrect() != 0) return;
 			
 
-			//Request Options (COORS, Token etc..)
+			//Request Options (CORS, Token etc..)
 			var options = {
 				headers: {
 					'x-access-token': Cookie.getCookie('token')
