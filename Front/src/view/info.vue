@@ -5,6 +5,8 @@
 			<!-- Display Information -->
 				<div class="panel" :class="setInfoClass()">
 					<div class="panel-heading">
+						<a v-on:click.stop.prevent="subscribeInfo()" v-show="!hasSubscribed"><i class="fa fa-bell-o pull-right notif" style="line-height: 21px;" aria-hidden="true"></i></a>
+						<a v-on:click.stop.prevent="unsubscribeInfo()" v-show="hasSubscribed"><i class="fa fa-bell-slash-o pull-right notif" style="line-height: 21px;" aria-hidden="true"></i></a>
 						<span>{{infoData.title}}</span>
 					</div>
 					<div class="panel-body">
@@ -51,7 +53,7 @@
 						</div>
 						<div class="clearfix"><br/></div>
 						<div class="row">
-							<div class="col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3">
+							<div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3">
 								
 								<button type="button" class="btn btn-large btn-block btn-success" v-if="infoData.category == 'Event' && !isEventJoined" :class="isEventFull" v-on:click.prevent.stop="joinEvent(infoData, $event)">Join Event</button>
 								<button type="button" class="btn btn-large btn-block btn-danger" v-if="infoData.category == 'Event' && isEventJoined" v-on:click.prevent.stop="leaveEvent(infoData, $event)" :class="disableLeave" id="leaveBtn">Leave Event</button>
@@ -229,6 +231,8 @@ import Store from '../store';
 import Cookie from '../cookie-handler';
 import Config from '../config';
 import Flatpickr from 'vue-flatpickr/vue-flatpickr-material_blue.vue'
+import OneSignal from '../notif';
+
 var moment = require('moment');
 moment().format();
 
@@ -353,9 +357,10 @@ export default {
 			},
 			newComment: {
 				title: '',
-				content: ''
-				date: moment().format();
-			}
+				content: '',
+				date: moment().format()
+			},
+			hasSubscribed: false
 		}
 	},
 	components: {
@@ -406,6 +411,9 @@ export default {
 					this.options.defaultDate = moment(this.infoData.expirydate).format();
 					this.editedArticle.expirydate = moment(this.infoData.expirydate).format();
 					this.options.maxDate = moment(this.infoData.birthdate).add(1, 'd').format();
+
+					//Check the subscription state
+					this.hasSubscribedInfo();
 				}
 
 			}, (response) => {
@@ -959,6 +967,93 @@ export default {
 					this.infoData.comments.splice(i,1);
 				}
 			}
+		},
+		hasSubscribedInfo() {
+
+			if(!OneSignal.isPushEnabled()) {
+				OneSignal.register();
+			}
+
+			//Request options (CORS, token)
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+
+			let infoID = this.infoData._id;
+
+			this.$http.get(Config.urlAPI +'/api/infos/'+infoID +'/subscription', options).then((response) => {
+				if(response.data.success) {
+					this.hasSubscribed = true;
+				}
+				else {
+					this.hasSubscribed = false;
+				}
+			}, (response) => {
+				console.log(response);
+				this.hasSubscribed = false;
+			});
+		},
+		subscribeInfo() {
+
+			if(this.hasSubscribed != false || OneSignal.isPushEnabled() === false) {
+				
+				console.log('Cannot subscribe, user refused WebNotifications');
+				this.errorCode = 409;
+				this.errorMsg = "You declined Web Push notifications, you can\'t subscribe.";
+				return;
+			}
+
+			//Request options (CORS, token)
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+
+			//Retrieve the OneSignal ID
+			let callbackID;
+			OneSignal.getUserID(callbackID);
+
+			let payload = {
+				playerID: callbackID
+			}
+			let infoID = this.infoData._id;
+
+
+			//POST request subscription
+			this.$http.post(Config.urlAPI +'/api/infos/' +infoID +'/subscribe', payload , options).then((response) => {
+				if(response.data.success) {
+					this.hasSubscribed = true;
+				}
+				else {
+					this.hasSubscribed = false;
+				}
+			}, (response) => {
+				console.log(response);
+				this.hasSubscribed = false;
+			});
+		},
+		unsubscribeInfo() {
+			//Request options (CORS, token)
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+
+			let infoID = this.infoData._id;
+
+			this.$http.delete(Config.urlAPI +'/api/infos/' +infoID +'/unsubscribe', options).then((response) => {
+				if(response.data.success) {
+					this.hasSubscribed = false;
+				}
+				
+			})
 		}
 	},
 	computed: {
@@ -1058,5 +1153,8 @@ export default {
 		box-shadow ease-in-out .15s;
 		transition:border-color ease-in-out .15s;
 		text-align: left;
+	}
+	.notif {
+		line-height: 21px;
 	}
 </style>

@@ -1,6 +1,7 @@
 'use strict';
 
 import Config from './config';
+import Cookie from './cookie-handler';
 
 export default {
   self: window.OneSignal || [],
@@ -27,7 +28,7 @@ export default {
   },
   register () {
     var self = this.self;
-    if(!this.isPushEnabled()) {
+    if(this.isPushEnabled() === false) {
       self.push(function() {
         self.registerForPushNotifications({
           modalPrompt: true
@@ -35,12 +36,14 @@ export default {
       });
     }    
   },
-  getUserID () {
+  getUserID (callback) {
     var self = this.self;
     self.push(function() {
-      self.getUserId().then(function(userId) {
-      console.log("OneSignal User ID:", userId);   
+      self.getUserId().then(function(callback) {
+      console.log("OneSignal User ID:", callback);
+      //callback = userId;
       });
     });
   }
 };
+//TODO

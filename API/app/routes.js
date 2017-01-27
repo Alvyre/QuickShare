@@ -810,7 +810,7 @@ router
 })
 
 
-//Get subscription of info for the current user
+//Check if the current user has subscribed to the info
 //=============================================
 
 .get('/infos/:id/subscription', function(req, res, next) {
