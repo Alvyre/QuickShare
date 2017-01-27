@@ -501,31 +501,18 @@ router
                         if(event.category === 'Event') {
                             if(event.isFull()) {
                                 res.status(409).send({success: false, message: 'Event is full'});
-                                                            // Notifications
-/*                                WebNotification.find({userID: event.userID}, "-infoID -userID", function(err, subUsers) {
-                                    if(err) {
-                                        console.log('Error when trying to get SubUsers from info ID: '+event._id);
-                                    }
-                                    else {
-                                        if(subUsers.length !== 0 && subUsers !== undefined) {
-                                            
-                                            var message = {
-                                                content: "Someone tried to join your event, but it's full. Do you want to Edit the limit?",
-                                                url: "info/" +event._id 
-                                            };
-
-                                            WebNotification.pushMessage(subUsers, message);  
-                                        }
-                                    }
-                                });*/
                             }
                             else {
                                 var isUserAlreadyIn = false;
-                                for (var i = event.userList.length - 1; i >= 0; i--) {
+                                var i = event.userList.length - 1;
+                                while (i >= 0) {
                                     if(event.userList[i].ID === userID) {
                                         isUserAlreadyIn = true;
                                         res.status(409).send({success: false, message: 'User already in the event'});
+                                        //break while
+                                        i = -1;
                                     }
+                                    i--;
                                 }
                                 if(!isUserAlreadyIn) {
                                     event.userList.push({ID: userID, username: username});
@@ -586,7 +573,8 @@ router
                 // If info is an event
                 if(event.category === 'Event') {
                     var isUserIn = false;
-                    for (var i = event.userList.length - 1; i >= 0; i--) {
+                    var i = event.userList.length - 1;
+                    while (i >= 0) {
                         if(event.userList[i].ID === userID) {
                             isUserIn = true;
                             event.userList.pull();
@@ -599,7 +587,10 @@ router
                                 var io = req.app.get('socketio');
                                 io.emit('leaveEvent', {'ID': event._id, 'userID': userID});
                             });
+                            //Break the while
+                            i = -1;
                         }
+                        i--;
                     }
                     if(!isUserIn) {
                         res.status(404).send({success: false, message: 'user not found in the event'});
@@ -711,7 +702,8 @@ router
             // If info found
             if(info) {
                 var isFound = false;
-                for (var i = info.comments.length - 1; i >= 0; i--) {
+                var i = info.comments.length - 1;
+                while (i >= 0) {
                     //Comment found
                     if(info.comments[i]._id == req.params.commentID) {
                         isFound = true;
@@ -734,7 +726,10 @@ router
                         else {
                             res.status(403).send({success: false, message: 'Permission denied: You are not the owner'});
                         }
+                        //break loop
+                        i = -1;
                     }
+                    i--;
                 }
                 //Comment not found
                 if(!isFound) {
@@ -772,7 +767,8 @@ router
             // If info found
             if(info) {
                 var isFound = false;
-                for (var i = info.comments.length - 1; i >= 0; i--) {
+                var i = info.comments.length - 1;
+                while (i >= 0) {
                     //Comment found
                     if(info.comments[i]._id == req.params.commentID) {
                         isFound = true;
@@ -795,7 +791,10 @@ router
                         else {
                             res.status(403).send({success: false, message: 'Permission denied: You are not the owner'});
                         }
+                        //break loop;
+                        i = -1;
                     }
+                    i--;
                 }
                 //Comment not found
                 if(!isFound) {
@@ -805,6 +804,119 @@ router
             // No info found
             else {
                 res.status(404).send({success: false, message: 'No info found'});
+            }
+        });
+    }
+})
+
+
+//Get subscription of info for the current user
+//=============================================
+
+.get('/infos/:id/subscription', function(req, res, next) {
+
+    //Check ID
+    if( !(Controller.isObjectIDValid(req.params.id)) ||
+        !(Controller.isObjectIDValid(req.decoded.userID)) ) {
+
+        res.status(400).send({success: false, message: 'Invalid ID'});
+    }
+    else {
+        var userID      = req.decoded.userID;
+        var infoID      = req.params.id;
+
+        WebNotification.findOne({infoID: infoID, userID: userID}, function(err, notif) {
+            if(err) {
+                console.log('Error when getting WebNotification from infoID:' +infoID);
+                console.log(err);
+                res.status(500).send(err);
+            }
+            else if(notif) {
+                res.status(200).send({success: true, notif});
+            }
+            else {
+                res.status(200).send({success: false, message: 'Not subscribed'});
+            }
+        });
+    }
+})
+
+
+//Subscribe current user to the info
+//==============================================
+
+.post('/infos/:id/subscribe', function(req, res, next) {
+
+    //Check ID
+    if( !(Controller.isObjectIDValid(req.params.id)) ||
+        !(Controller.isObjectIDValid(req.decoded.userID)) ) {
+
+        res.status(400).send({success: false, message: 'Invalid ID'});
+    }
+    else {
+        var userID      = req.decoded.userID;
+        var infoID      = req.params.id;
+
+        //Search if the user is already subscribed
+        WebNotification.findOne({infoID: infoID, userID: userID}, function(err, webNotif) {
+            if(err) {
+                console.log('Error when trying to retrieve webnotification for info' +infoID);
+                console.log(err);
+                res.status(500).send(err);
+            }
+            else if(webNotif) {
+                res.status(400).send({success: false, message: 'You already subscribed to this info'});
+            }
+            else {
+                var newSubscribtion = new WebNotification ({
+                    infoID:     infoID,
+                    userID:     userID,
+                    playerID:   Controller.sanitizeString(req.body.playerID)
+                });
+
+                newSubscribtion.save(function(err, resp) {
+                    if(err) {
+                        console.log('Error when saving new subscription:');
+                        console.log(err);
+                        res.status(500).send(err);
+                    }
+                    else {
+                        res.send({success: true, message: 'subscription validated'});
+                    }
+                });
+            }
+        });
+    }
+
+})
+
+
+//Remove subscription of info for the current user
+//==============================================
+
+.delete('/infos/:id/unsubscribe', function(req, res, next) {
+
+    //Check ID
+    if( !(Controller.isObjectIDValid(req.params.id)) ||
+        !(Controller.isObjectIDValid(req.decoded.userID)) ) {
+
+        res.status(400).send({success: false, message: 'Invalid ID'});
+    }
+    else {
+        var userID      = req.decoded.userID;
+        var infoID      = req.params.id;
+
+        WebNotification.findOne({infoID: infoID}).remove(function(err, result) {
+            if(err) {
+                console.log('Error when trying to unsubscribe:');
+                console.log(err);
+                res.status(500).send(err);
+            }
+            else if(result) {
+                res.status(200).send({success: true, message: 'Unsubscribed'});
+            }
+            else {
+                res.status(404).send({success: false, message: 'No subscription found'});
             }
         });
     }
@@ -840,7 +952,8 @@ router
                 var vote;
                 var isVoteExist = false;
                 // We search if the user already added a vote
-                for (var i = 0; i < info.votes.length; i++) {
+                var i = info.votes.length -1;
+                while (i >= 0) {
                     vote = info.votes[i];
                     if(vote.userID === userID) {
                         isVoteExist = true;
@@ -854,10 +967,11 @@ router
                             res.status(200).send({success: true, message: 'Vote updated !'});
                             var io = req.app.get('socketio');
                             io.emit('voteUpdated', {'ID': infoID, 'voteCount': info.voteCount});
-                        }); 
+                        });
+                        i = -1; 
                     }
-                    if(isVoteExist) break;
-                } // END FOR
+                    i--;
+                } // END WHILE
 
                 // If no vote found, we add a new one
                 if(!isVoteExist) {
@@ -1078,6 +1192,7 @@ router
         });
     }
 })
+
 
 
 // ERRORS
