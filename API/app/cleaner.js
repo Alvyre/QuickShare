@@ -10,15 +10,16 @@ module.exports = {
 	deleteOldInfo() {
 
 		var now = moment().utc().format();
-
-		Info.find({expirydate: {$lt: now} }, function(err, infos) {
+		var self = this;
+		
+			Info.find({expirydate: {$lt: now} }, function(err, infos) {
 			async.each(infos, function(info, callback) {
 				info.remove(function(err, result) {
 					if(err) {
 						console.log('Error when trying to delete old infos');
 						return;
 					}
-					this.CleanNotifications(result._id);
+					self.CleanNotifications(result._id);
 				});
 			});
 			console.log('/***** Cleaning Done *****/');

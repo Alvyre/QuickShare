@@ -95,7 +95,7 @@ io.on('connection', function(socket) {
 // ==============================================
 
 cron.schedule('30 * * * *', function(){
-	console.log('//////// Start Cleaning.. ////////');
+	console.log('/***** Start Cleaning.. *****/');
 	Cleaner.deleteOldInfo();
 });
 
