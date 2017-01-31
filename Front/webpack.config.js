@@ -4,16 +4,9 @@ var path = require('path');
 var webpack = require('webpack');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
-module.exports = {
-  entry: {
-    main: './src/main.js',
-    vendor: ['jquery', 'moment', 'bootstrap']
-  },
-  output: {
-    path: path.resolve(__dirname, './dist'),
-    publicPath: '/dist/',
-    filename: 'build.js'
-  },
+// Common Configuration
+
+var config = {
   plugins:[
     new webpack.ProvidePlugin({  
       jQuery: 'jquery',
@@ -21,7 +14,7 @@ module.exports = {
       jquery: 'jquery'
     }),
     new ExtractTextPlugin("style.css"),
-    new webpack.optimize.CommonsChunkPlugin({ name: 'vendor', filename: 'vendor.bundle.js' })
+    new webpack.optimize.CommonsChunkPlugin({ name: 'vendor', filename: "vendor.bundle.js" })
   ],
   module: {
     rules: [
@@ -52,9 +45,9 @@ module.exports = {
 };
 
 if (process.env.NODE_ENV === 'production') {
-  module.exports.devtool = '#source-map';
+  config.devtool = '#source-map';
   // http://vue-loader.vuejs.org/en/workflow/production.html
-  module.exports.plugins = (module.exports.plugins || []).concat([
+  config.plugins = (config.plugins || []).concat([
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: '"production"'
@@ -70,3 +63,21 @@ if (process.env.NODE_ENV === 'production') {
     })
   ]);
 }
+
+
+// Build Configuration
+
+var mainConfig = Object.assign({}, config, {
+  name: 'main',
+  entry: { 
+    main: "./src/main.js",
+    vendor: ['jquery', 'moment', 'bootstrap']
+  },
+  output: {
+    path: path.resolve(__dirname, './dist'),
+    publicPath: '/dist/',
+    filename: 'build.js'
+  }
+});
+
+module.exports = [mainConfig];

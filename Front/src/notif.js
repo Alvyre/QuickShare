@@ -41,6 +41,7 @@ export default {
     self.push(function() {
       self.getUserId().then(function(callback) {
       console.log("OneSignal User ID:", callback);
+      Cookie.setCookie('playerID', callback);
       //callback = userId;
       });
     });

@@ -1016,10 +1016,10 @@ export default {
 
 			//Retrieve the OneSignal ID
 			let callbackID;
-			OneSignal.getUserID(callbackID);
+			OneSignal.getUserID();
 
 			let payload = {
-				playerID: callbackID
+				playerID: Cookie.getCookie('playerID')
 			}
 			let infoID = this.infoData._id;
 

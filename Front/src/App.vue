@@ -101,6 +101,7 @@
       }
       OneSignal.init();
       OneSignal.register();
+      OneSignal.getUserID();
     }
   }
 </script>
