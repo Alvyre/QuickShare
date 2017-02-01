@@ -60,9 +60,9 @@
   //Imports
   //==========================================================
   
-    import Store from './store'
+    import Store  from './store'
     import Cookie from './cookie-handler';
-    import OneSignal from './notif';
+    import Config from './config';
 
   //Vue.js
   //==========================================================
@@ -93,15 +93,33 @@
           Store.commit('logout');
           this.$router.push('/');
         }
-      }
+      },
     },
     mounted () {
       if(Cookie.getCookie('Connected') == 'true') {
         Store.commit('login');
       }
-      OneSignal.init();
-      OneSignal.register();
-      OneSignal.getUserID();
+
+      var Onesignal = window.Onesignal || [];
+      OneSignal.push(["init", {
+        appId: Config.notifAppId,
+        autoRegister: false,
+          notifyButton: {
+            enable: false
+        }
+      }]);
+
+      OneSignal.push(function() {
+        OneSignal.isPushNotificationsEnabled().then(function(isEnabled) {
+          if (!isEnabled){
+            OneSignal.push(function() {
+              OneSignal.registerForPushNotifications({
+                modalPrompt: true
+              });
+            });
+          }
+        });
+      });
     }
   }
 </script>

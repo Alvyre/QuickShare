@@ -5,8 +5,11 @@
 			<!-- Display Information -->
 				<div class="panel" :class="setInfoClass()">
 					<div class="panel-heading">
-						<a v-on:click.stop.prevent="subscribeInfo()" v-show="!hasSubscribed"><i class="fa fa-bell-o pull-right notif" style="line-height: 21px;" aria-hidden="true"></i></a>
-						<a v-on:click.stop.prevent="unsubscribeInfo()" v-show="hasSubscribed"><i class="fa fa-bell-slash-o pull-right notif" style="line-height: 21px;" aria-hidden="true"></i></a>
+						<span v-if='isPushSupport'>
+							<a v-on:click.stop.prevent="subscribeInfo()" v-show="!hasSubscribed"><i class="fa fa-bell-o pull-right notif" style="line-height: 21px;" aria-hidden="true"></i></a>
+							<a v-on:click.stop.prevent="unsubscribeInfo()" v-show="hasSubscribed"><i class="fa fa-bell-slash-o pull-right notif" style="line-height: 21px;" aria-hidden="true"></i></a>							
+						</span>
+
 						<span>{{infoData.title}}</span>
 					</div>
 					<div class="panel-body">
@@ -230,8 +233,7 @@
 import Store from '../store';
 import Cookie from '../cookie-handler';
 import Config from '../config';
-import Flatpickr from 'vue-flatpickr/vue-flatpickr-material_blue.vue'
-import OneSignal from '../notif';
+import Flatpickr from 'vue-flatpickr/vue-flatpickr-material_blue.vue';
 
 var moment = require('moment');
 moment().format();
@@ -360,7 +362,8 @@ export default {
 				content: '',
 				date: moment().format()
 			},
-			hasSubscribed: false
+			hasSubscribed: false,
+			isPushSupport: true
 		}
 	},
 	components: {
@@ -969,72 +972,125 @@ export default {
 			}
 		},
 		hasSubscribedInfo() {
+			var vue = this;
+			var OneSignal = window.OneSignal || [];
+			OneSignal.push(function() {
+				OneSignal.isPushNotificationsEnabled().then(function(isEnabled) {
+				    if (isEnabled){
+				      	console.log("Push notifications are enabled!");
+				      	var isMobile = /Mobi/.test(navigator.userAgent);
 
-			if(!OneSignal.isPushEnabled()) {
-				OneSignal.register();
-			}
+				      	//Request options (CORS, token)
+						var options = {
+							headers: {
+								'x-access-token': Cookie.getCookie('token')
+							},
+							credentials: true
+						};
+						let infoID = vue.infoData._id;
 
-			//Request options (CORS, token)
-			var options = {
-				headers: {
-					'x-access-token': Cookie.getCookie('token')
-				},
-				credentials: true
-			};
+						//REQUEST FOR MOBILE DEVICE
+				      	if(isMobile) {
+							vue.$http.get(Config.urlAPI +'/api/infos/'+infoID +'/subscription/mobile', options).then((response) => {
+								if(response.data.success) {
+									vue.hasSubscribed = true;
+								}
+								else {
+									vue.hasSubscribed = false;
+								}
+							}, (response) => {
+								console.log(response);
+								vue.hasSubscribed = false;
+							});
+				      	}
+				      	//REQUEST FOR COMPUTER DEVICE
+				      	else {
+							vue.$http.get(Config.urlAPI +'/api/infos/'+infoID +'/subscription/computer', options).then((response) => {
+								if(response.data.success) {
+									vue.hasSubscribed = true;
+								}
+								else {
+									vue.hasSubscribed = false;
+								}
+							}, (response) => {
+								console.log(response);
+								vue.hasSubscribed = false;
+							});
+				      	}
+					}
+				    else {
 
-			let infoID = this.infoData._id;
-
-			this.$http.get(Config.urlAPI +'/api/infos/'+infoID +'/subscription', options).then((response) => {
-				if(response.data.success) {
-					this.hasSubscribed = true;
-				}
-				else {
-					this.hasSubscribed = false;
-				}
-			}, (response) => {
-				console.log(response);
-				this.hasSubscribed = false;
+				      	console.log("Push notifications are not enabled yet.");
+				      	OneSignal.push(function() {
+				      		OneSignal.registerForPushNotifications({
+							    modalPrompt: true
+							  });
+				      	});
+				    }
+				});
 			});
 		},
 		subscribeInfo() {
+			var vue = this;
+			var OneSignal = window.OneSignal || [];
+			OneSignal.push(function() {
+				OneSignal.isPushNotificationsEnabled().then(function(isEnabled) {
+			  		if (isEnabled){
+			  			console.log("Push notifications are enabled! we can try to subscribe");
+			  			var isMobile = /Mobi/.test(navigator.userAgent) ? 'mobile': 'computer';
+						
+						//Request options (CORS, token)
+						var options = {
+							headers: {
+								'x-access-token': Cookie.getCookie('token')
+							},
+							credentials: true
+						};
+						let infoID = vue.infoData._id;
 
-			if(this.hasSubscribed != false || OneSignal.isPushEnabled() === false) {
-				
-				console.log('Cannot subscribe, user refused WebNotifications');
-				this.errorCode = 409;
-				this.errorMsg = "You declined Web Push notifications, you can\'t subscribe.";
-				return;
-			}
+						
 
-			//Request options (CORS, token)
-			var options = {
-				headers: {
-					'x-access-token': Cookie.getCookie('token')
-				},
-				credentials: true
-			};
+						OneSignal.push(function() {
 
-			//Retrieve the OneSignal ID
-			let callbackID;
-			OneSignal.getUserID();
+						 	OneSignal.getUserId().then(function(userId) {
+						    	console.log("OneSignal User ID:", userId);
 
-			let payload = {
-				playerID: Cookie.getCookie('playerID')
-			}
-			let infoID = this.infoData._id;
+						    	if(userId !== null) {
+						    		var payload = {
+										playerID: userId,
+										device: isMobile
+									};
 
+								//POST request subscription
+								vue.$http.post(Config.urlAPI +'/api/infos/' +infoID +'/subscribe', payload, options).then((response) => {
+									if(response.data.success) {
+										vue.hasSubscribed = true;
+									}
+									else {
+										vue.hasSubscribed = false;
+									}
+								}, (response) => {
+									console.log(response);
+									vue.hasSubscribed = false;
+								});
 
-			//POST request subscription
-			this.$http.post(Config.urlAPI +'/api/infos/' +infoID +'/subscribe', payload , options).then((response) => {
-				if(response.data.success) {
-					this.hasSubscribed = true;
-				}
-				else {
-					this.hasSubscribed = false;
-				}
-			}, (response) => {
-				console.log(response);
-				this.hasSubscribed = false;
+						    	}
+						    	else {
+						    		return;
+						    	}
+						  	});
+						});
+					}
+					// PUSH NOT ENABLED
+					else {
+						console.log("Push notifications are not enabled yet.");
+				      	OneSignal.push(function() {
+				      		OneSignal.registerForPushNotifications({
+							    modalPrompt: true
+							  });
+				      	});
+					}
+				});
 			});
 		},
 		unsubscribeInfo() {
@@ -1048,15 +1104,39 @@ export default {
 
 			let infoID = this.infoData._id;
 
-			this.$http.delete(Config.urlAPI +'/api/infos/' +infoID +'/unsubscribe', options).then((response) => {
-				if(response.data.success) {
-					this.hasSubscribed = false;
-				}
-				
-			})
+			var isMobile = /Mobi/.test(navigator.userAgent);
+
+			if(isMobile) {
+				this.$http.delete(Config.urlAPI +'/api/infos/' +infoID +'/unsubscribe/computer', options).then((response) => {
+					if(response.data.success) {
+						this.hasSubscribed = false;
+					}
+				});
+			}
+			else {
+				this.$http.delete(Config.urlAPI +'/api/infos/' +infoID +'/unsubscribe/mobile', options).then((response) => {
+					if(response.data.success) {
+						this.hasSubscribed = false;
+					}
+				});
+			}
+
+
 		}
 	},
 	computed: {
+		isPushSupported() {
+			var OneSignal = window.OneSignal || [];
+			var vue = this;
+			OneSignal.push(function() {
+			  	var isPushSupported = OneSignal.isPushNotificationsSupported();
+			  	if (isPushSupported) {
+			    	vue.isPushSupport = true;
+			  	} else {
+			    	vue.isPushSupport = false;			  
+			    }
+			});
+		},
 		isConnected () {
 		    return Store.state.isConnected;
 		},

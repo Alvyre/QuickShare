@@ -13,7 +13,8 @@ var Schema = mongoose.Schema;
 var schema = new Schema({
 	infoID 		: { type: String, required: true, default: ''},
 	userID		: { type: String, required: true, default: ''},
-	playerID	: { type: String, required: true, default: ''}
+	playerID	: { type: String, required: true, default: ''},
+	device 		: { type: String, required: true, default: ''}
 });
 
 // Methods

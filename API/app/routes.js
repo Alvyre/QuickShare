@@ -813,7 +813,7 @@ router
 //Check if the current user has subscribed to the info
 //=============================================
 
-.get('/infos/:id/subscription', function(req, res, next) {
+.get('/infos/:id/subscription/:device', function(req, res, next) {
 
     //Check ID
     if( !(Controller.isObjectIDValid(req.params.id)) ||
@@ -824,8 +824,9 @@ router
     else {
         var userID      = req.decoded.userID;
         var infoID      = req.params.id;
+        var device      = req.params.device;
 
-        WebNotification.findOne({infoID: infoID, userID: userID}, function(err, notif) {
+        WebNotification.findOne({infoID: infoID, userID: userID, device: device}, function(err, notif) {
             if(err) {
                 console.log('Error when getting WebNotification from infoID:' +infoID);
                 console.log(err);
@@ -856,9 +857,10 @@ router
     else {
         var userID      = req.decoded.userID;
         var infoID      = req.params.id;
+        var device      = Controller.sanitizeString(req.body.device);
 
         //Search if the user is already subscribed
-        WebNotification.findOne({infoID: infoID, userID: userID}, function(err, webNotif) {
+        WebNotification.findOne({infoID: infoID, userID: userID, device: device}, function(err, webNotif) {
             if(err) {
                 console.log('Error when trying to retrieve webnotification for info' +infoID);
                 console.log(err);
@@ -871,7 +873,8 @@ router
                 var newSubscribtion = new WebNotification ({
                     infoID:     infoID,
                     userID:     userID,
-                    playerID:   Controller.sanitizeString(req.body.playerID)
+                    playerID:   Controller.sanitizeString(req.body.playerID),
+                    device:     Controller.sanitizeString(req.body.device)
                 });
 
                 newSubscribtion.save(function(err, resp) {
@@ -894,7 +897,7 @@ router
 //Remove subscription of info for the current user
 //==============================================
 
-.delete('/infos/:id/unsubscribe', function(req, res, next) {
+.delete('/infos/:id/unsubscribe/:device', function(req, res, next) {
 
     //Check ID
     if( !(Controller.isObjectIDValid(req.params.id)) ||
@@ -905,8 +908,9 @@ router
     else {
         var userID      = req.decoded.userID;
         var infoID      = req.params.id;
+        var device      = req.params.device;
 
-        WebNotification.findOne({infoID: infoID}).remove(function(err, result) {
+        WebNotification.findOne({infoID: infoID, device: device}).remove(function(err, result) {
             if(err) {
                 console.log('Error when trying to unsubscribe:');
                 console.log(err);
