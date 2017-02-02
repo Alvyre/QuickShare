@@ -3,17 +3,19 @@
 // Getting packages
 //=======================================================
 
-var express         = require('express');
-var router          = express.Router();
-var config          = require('../config/config');
-var moment		    = require('moment');
-var Promise		    = require('bluebird');
-var Info 		    = require('./models/Info');
-var User		    = require('./models/User');
-var Controller      = require('./controller.js');
-var bcrypt          = require('bcrypt');
-var jwt             = require('jsonwebtoken');
-var reCAPTCHA       = require('recaptcha2');
+var express             = require('express');
+var router              = express.Router();
+var config              = require('../config/config');
+var moment		        = require('moment');
+var Promise		        = require('bluebird');
+var Info 		        = require('./models/Info');
+var User		        = require('./models/User');
+var WebNotification     = require('./models/WebNotification');
+var Controller          = require('./controller.js');
+var Cleaner              = require('./cleaner');
+var bcrypt              = require('bcrypt');
+var jwt                 = require('jsonwebtoken');
+var reCAPTCHA           = require('recaptcha2');
 
 //Set the hash salt for encrypt
 const saltRounds = 10;
@@ -229,7 +231,6 @@ router
         });
     }
     else {
-
         //if there is no token : return error
         return res.status(403).send({
             success: false,
@@ -259,10 +260,10 @@ router
         }
         var timeFromNow = tempBirthDate.diff(moment());
         var timeFromBirth = tempExpiryDate.diff(tempBirthDate);
-        if( timeFromNow < 0 || timeFromNow > config.infoTTL * 86400000) {                    // 86400000 = 24h
+        if( timeFromNow < 0 || timeFromNow > config.infoTTL * 86400000) {                   // 86400000 = 24h
             res.status(400).send({success: false, message: 'Invalid birthdate'});
         }
-        else if( timeFromBirth < 0 || timeFromBirth > 86400000) {           // 24 in ms
+        else if( timeFromBirth < 0 || timeFromBirth > 86400000) {                           // 24 in ms
             res.status(400).send({success: false, message: 'Invalid expirydate'});
         }
         else {
@@ -390,9 +391,29 @@ router
                             console.log('Error when updating info: '+err);
                             res.status(500).send({success: false, message: 'Error when updating info'});
                         }
-                        var io = req.app.get('socketio');
-                        io.emit('updateInfo', info);
-                        res.status(200).send({success: true, message: 'Info updated'});
+                        else {
+                            var io = req.app.get('socketio');
+                            io.emit('updateInfo', info);
+                            res.status(200).send({success: true, message: 'Info updated'});
+                        
+                            // Notifications
+                            WebNotification.find({infoID: info._id}, "-infoID -userID", function(err, subUsers) {
+                                if(err) {
+                                    console.log('Error when trying to get SubUsers from info ID: '+info._id);
+                                }
+                                else {
+                                    if(subUsers.length !== 0 && subUsers !== undefined) {
+                                        
+                                        var message = {
+                                            content: "The info '" +info.title +"' just has been edited.",
+                                            url: "info/" +info._id 
+                                        };
+
+                                        WebNotification.pushMessage(subUsers, message);  
+                                    }
+                                }
+                            });
+                        }
                     }); 
                    }
                    else {
@@ -432,6 +453,7 @@ router
                     res.status(200).json({success: true, message: 'Info removed'});
                     var io = req.app.get('socketio');
                     io.emit('deleteInfo', info);
+                    Cleaner.cleanNotifications(info._id);
                 }
                 else {
                     res.status(404).send({success: false, message: 'There is no info with this ID or you are to authorized to delete it'});
@@ -482,11 +504,15 @@ router
                             }
                             else {
                                 var isUserAlreadyIn = false;
-                                for (var i = event.userList.length - 1; i >= 0; i--) {
+                                var i = event.userList.length - 1;
+                                while (i >= 0) {
                                     if(event.userList[i].ID === userID) {
                                         isUserAlreadyIn = true;
                                         res.status(409).send({success: false, message: 'User already in the event'});
+                                        //break while
+                                        i = -1;
                                     }
+                                    i--;
                                 }
                                 if(!isUserAlreadyIn) {
                                     event.userList.push({ID: userID, username: username});
@@ -547,7 +573,8 @@ router
                 // If info is an event
                 if(event.category === 'Event') {
                     var isUserIn = false;
-                    for (var i = event.userList.length - 1; i >= 0; i--) {
+                    var i = event.userList.length - 1;
+                    while (i >= 0) {
                         if(event.userList[i].ID === userID) {
                             isUserIn = true;
                             event.userList.pull();
@@ -560,7 +587,10 @@ router
                                 var io = req.app.get('socketio');
                                 io.emit('leaveEvent', {'ID': event._id, 'userID': userID});
                             });
+                            //Break the while
+                            i = -1;
                         }
+                        i--;
                     }
                     if(!isUserIn) {
                         res.status(404).send({success: false, message: 'user not found in the event'});
@@ -618,7 +648,23 @@ router
                             res.status(200).send({success: true, message: 'Comment added!'});
                             var io = req.app.get('socketio');
                             io.emit('newComment', {infoID: info._id, content: newComment});
-                        }
+
+                            WebNotification.find({infoID: info._id}, "-infoID -userID", function(err, subUsers) {
+                                if(err) {
+                                    console.log('Error when trying to get SubUsers from info ID: '+info._id);
+                                }
+                                else {
+                                    if(subUsers.length !== 0 && subUsers !== undefined) {
+                                        
+                                        var message = {
+                                            content: "Someone added a new comment on '" +info.title +"'",
+                                            url: "info/" +info._id 
+                                        };
+                                        WebNotification.pushMessage(subUsers, message);  
+                                    }
+                                }
+                            });
+                        } // end else
                     });
                 }
                 // Accept Comments is set to false
@@ -656,7 +702,8 @@ router
             // If info found
             if(info) {
                 var isFound = false;
-                for (var i = info.comments.length - 1; i >= 0; i--) {
+                var i = info.comments.length - 1;
+                while (i >= 0) {
                     //Comment found
                     if(info.comments[i]._id == req.params.commentID) {
                         isFound = true;
@@ -679,7 +726,10 @@ router
                         else {
                             res.status(403).send({success: false, message: 'Permission denied: You are not the owner'});
                         }
+                        //break loop
+                        i = -1;
                     }
+                    i--;
                 }
                 //Comment not found
                 if(!isFound) {
@@ -717,7 +767,8 @@ router
             // If info found
             if(info) {
                 var isFound = false;
-                for (var i = info.comments.length - 1; i >= 0; i--) {
+                var i = info.comments.length - 1;
+                while (i >= 0) {
                     //Comment found
                     if(info.comments[i]._id == req.params.commentID) {
                         isFound = true;
@@ -740,7 +791,10 @@ router
                         else {
                             res.status(403).send({success: false, message: 'Permission denied: You are not the owner'});
                         }
+                        //break loop;
+                        i = -1;
                     }
+                    i--;
                 }
                 //Comment not found
                 if(!isFound) {
@@ -750,6 +804,123 @@ router
             // No info found
             else {
                 res.status(404).send({success: false, message: 'No info found'});
+            }
+        });
+    }
+})
+
+
+//Check if the current user has subscribed to the info
+//=============================================
+
+.get('/infos/:id/subscription/:device', function(req, res, next) {
+
+    //Check ID
+    if( !(Controller.isObjectIDValid(req.params.id)) ||
+        !(Controller.isObjectIDValid(req.decoded.userID)) ) {
+
+        res.status(400).send({success: false, message: 'Invalid ID'});
+    }
+    else {
+        var userID      = req.decoded.userID;
+        var infoID      = req.params.id;
+        var device      = req.params.device;
+
+        WebNotification.findOne({infoID: infoID, userID: userID, device: device}, function(err, notif) {
+            if(err) {
+                console.log('Error when getting WebNotification from infoID:' +infoID);
+                console.log(err);
+                res.status(500).send(err);
+            }
+            else if(notif) {
+                res.status(200).send({success: true, notif});
+            }
+            else {
+                res.status(200).send({success: false, message: 'Not subscribed'});
+            }
+        });
+    }
+})
+
+
+//Subscribe current user to the info
+//==============================================
+
+.post('/infos/:id/subscribe', function(req, res, next) {
+
+    //Check ID
+    if( !(Controller.isObjectIDValid(req.params.id)) ||
+        !(Controller.isObjectIDValid(req.decoded.userID)) ) {
+
+        res.status(400).send({success: false, message: 'Invalid ID'});
+    }
+    else {
+        var userID      = req.decoded.userID;
+        var infoID      = req.params.id;
+        var device      = Controller.sanitizeString(req.body.device);
+
+        //Search if the user is already subscribed
+        WebNotification.findOne({infoID: infoID, userID: userID, device: device}, function(err, webNotif) {
+            if(err) {
+                console.log('Error when trying to retrieve webnotification for info' +infoID);
+                console.log(err);
+                res.status(500).send(err);
+            }
+            else if(webNotif) {
+                res.status(400).send({success: false, message: 'You already subscribed to this info'});
+            }
+            else {
+                var newSubscribtion = new WebNotification ({
+                    infoID:     infoID,
+                    userID:     userID,
+                    playerID:   Controller.sanitizeString(req.body.playerID),
+                    device:     Controller.sanitizeString(req.body.device)
+                });
+
+                newSubscribtion.save(function(err, resp) {
+                    if(err) {
+                        console.log('Error when saving new subscription:');
+                        console.log(err);
+                        res.status(500).send(err);
+                    }
+                    else {
+                        res.send({success: true, message: 'subscription validated'});
+                    }
+                });
+            }
+        });
+    }
+
+})
+
+
+//Remove subscription of info for the current user
+//==============================================
+
+.delete('/infos/:id/unsubscribe/:device', function(req, res, next) {
+
+    //Check ID
+    if( !(Controller.isObjectIDValid(req.params.id)) ||
+        !(Controller.isObjectIDValid(req.decoded.userID)) ) {
+
+        res.status(400).send({success: false, message: 'Invalid ID'});
+    }
+    else {
+        var userID      = req.decoded.userID;
+        var infoID      = req.params.id;
+        var device      = req.params.device;
+
+        WebNotification.findOne({infoID: infoID, device: device}).remove(function(err, result) {
+            if(err) {
+                console.log('Error when trying to unsubscribe:');
+                console.log(err);
+                res.status(500).send(err);
+            }
+            else if(result) {
+                res.status(200).send({success: true, message: 'Unsubscribed'});
+            }
+            else {
+                res.status(404).send({success: false, message: 'No subscription found'});
             }
         });
     }
@@ -785,7 +956,8 @@ router
                 var vote;
                 var isVoteExist = false;
                 // We search if the user already added a vote
-                for (var i = 0; i < info.votes.length; i++) {
+                var i = info.votes.length -1;
+                while (i >= 0) {
                     vote = info.votes[i];
                     if(vote.userID === userID) {
                         isVoteExist = true;
@@ -799,10 +971,11 @@ router
                             res.status(200).send({success: true, message: 'Vote updated !'});
                             var io = req.app.get('socketio');
                             io.emit('voteUpdated', {'ID': infoID, 'voteCount': info.voteCount});
-                        }); 
+                        });
+                        i = -1; 
                     }
-                    if(isVoteExist) break;
-                } // END FOR
+                    i--;
+                } // END WHILE
 
                 // If no vote found, we add a new one
                 if(!isVoteExist) {
@@ -1023,6 +1196,7 @@ router
         });
     }
 })
+
 
 
 // ERRORS

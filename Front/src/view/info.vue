@@ -5,6 +5,11 @@
 			<!-- Display Information -->
 				<div class="panel" :class="setInfoClass()">
 					<div class="panel-heading">
+						<span v-if='isPushSupport'>
+							<a v-on:click.stop.prevent="subscribeInfo()" v-show="!hasSubscribed"><i class="fa fa-bell-o pull-right notif" style="line-height: 21px;" aria-hidden="true"></i></a>
+							<a v-on:click.stop.prevent="unsubscribeInfo()" v-show="hasSubscribed"><i class="fa fa-bell-slash-o pull-right notif" style="line-height: 21px;" aria-hidden="true"></i></a>							
+						</span>
+
 						<span>{{infoData.title}}</span>
 					</div>
 					<div class="panel-body">
@@ -51,7 +56,7 @@
 						</div>
 						<div class="clearfix"><br/></div>
 						<div class="row">
-							<div class="col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3">
+							<div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3">
 								
 								<button type="button" class="btn btn-large btn-block btn-success" v-if="infoData.category == 'Event' && !isEventJoined" :class="isEventFull" v-on:click.prevent.stop="joinEvent(infoData, $event)">Join Event</button>
 								<button type="button" class="btn btn-large btn-block btn-danger" v-if="infoData.category == 'Event' && isEventJoined" v-on:click.prevent.stop="leaveEvent(infoData, $event)" :class="disableLeave" id="leaveBtn">Leave Event</button>
@@ -228,7 +233,8 @@
 import Store from '../store';
 import Cookie from '../cookie-handler';
 import Config from '../config';
-import Flatpickr from 'vue-flatpickr/vue-flatpickr-material_blue.vue'
+import Flatpickr from 'vue-flatpickr/vue-flatpickr-material_blue.vue';
+
 var moment = require('moment');
 moment().format();
 
@@ -315,6 +321,8 @@ export default {
 					if(this.infoData.comments[i]._id == comment.content._id) {
 						this.infoData.comments[i].title = comment.content.title;
 						this.infoData.comments[i].content= comment.content.content;
+						this.infoData.comments[i].content.date = moment(this.infoData.comments[i].content.date).format();
+						// to test
 					}
 				}
 			}
@@ -351,8 +359,11 @@ export default {
 			},
 			newComment: {
 				title: '',
-				content: ''
-			}
+				content: '',
+				date: moment().format()
+			},
+			hasSubscribed: false,
+			isPushSupport: true
 		}
 	},
 	components: {
@@ -403,6 +414,9 @@ export default {
 					this.options.defaultDate = moment(this.infoData.expirydate).format();
 					this.editedArticle.expirydate = moment(this.infoData.expirydate).format();
 					this.options.maxDate = moment(this.infoData.birthdate).add(1, 'd').format();
+
+					//Check the subscription state
+					this.hasSubscribedInfo();
 				}
 
 			}, (response) => {
@@ -956,9 +970,173 @@ export default {
 					this.infoData.comments.splice(i,1);
 				}
 			}
+		},
+		hasSubscribedInfo() {
+			var vue = this;
+			var OneSignal = window.OneSignal || [];
+			OneSignal.push(function() {
+				OneSignal.isPushNotificationsEnabled().then(function(isEnabled) {
+				    if (isEnabled){
+				      	console.log("Push notifications are enabled!");
+				      	var isMobile = /Mobi/.test(navigator.userAgent);
+
+				      	//Request options (CORS, token)
+						var options = {
+							headers: {
+								'x-access-token': Cookie.getCookie('token')
+							},
+							credentials: true
+						};
+						let infoID = vue.infoData._id;
+
+						//REQUEST FOR MOBILE DEVICE
+				      	if(isMobile) {
+							vue.$http.get(Config.urlAPI +'/api/infos/'+infoID +'/subscription/mobile', options).then((response) => {
+								if(response.data.success) {
+									vue.hasSubscribed = true;
+								}
+								else {
+									vue.hasSubscribed = false;
+								}
+							}, (response) => {
+								console.log(response);
+								vue.hasSubscribed = false;
+							});
+				      	}
+				      	//REQUEST FOR COMPUTER DEVICE
+				      	else {
+							vue.$http.get(Config.urlAPI +'/api/infos/'+infoID +'/subscription/computer', options).then((response) => {
+								if(response.data.success) {
+									vue.hasSubscribed = true;
+								}
+								else {
+									vue.hasSubscribed = false;
+								}
+							}, (response) => {
+								console.log(response);
+								vue.hasSubscribed = false;
+							});
+				      	}
+					}
+				    else {
+
+				      	console.log("Push notifications are not enabled yet.");
+				      	OneSignal.push(function() {
+				      		OneSignal.registerForPushNotifications({
+							    modalPrompt: true
+							  });
+				      	});
+				    }
+				});
+			});
+		},
+		subscribeInfo() {
+			var vue = this;
+			var OneSignal = window.OneSignal || [];
+			OneSignal.push(function() {
+				OneSignal.isPushNotificationsEnabled().then(function(isEnabled) {
+			  		if (isEnabled){
+			  			console.log("Push notifications are enabled! we can try to subscribe");
+			  			var isMobile = /Mobi/.test(navigator.userAgent) ? 'mobile': 'computer';
+						
+						//Request options (CORS, token)
+						var options = {
+							headers: {
+								'x-access-token': Cookie.getCookie('token')
+							},
+							credentials: true
+						};
+						let infoID = vue.infoData._id;
+
+						
+
+						OneSignal.push(function() {
+
+						 	OneSignal.getUserId().then(function(userId) {
+						    	console.log("OneSignal User ID:", userId);
+
+						    	if(userId !== null) {
+						    		var payload = {
+										playerID: userId,
+										device: isMobile
+									};
+
+								//POST request subscription
+								vue.$http.post(Config.urlAPI +'/api/infos/' +infoID +'/subscribe', payload, options).then((response) => {
+									if(response.data.success) {
+										vue.hasSubscribed = true;
+									}
+									else {
+										vue.hasSubscribed = false;
+									}
+								}, (response) => {
+									console.log(response);
+									vue.hasSubscribed = false;
+								});
+
+						    	}
+						    	else {
+						    		return;
+						    	}
+						  	});
+						});
+					}
+					// PUSH NOT ENABLED
+					else {
+						console.log("Push notifications are not enabled yet.");
+				      	OneSignal.push(function() {
+				      		OneSignal.registerForPushNotifications({
+							    modalPrompt: true
+							  });
+				      	});
+					}
+				});
+			});
+		},
+		unsubscribeInfo() {
+			//Request options (CORS, token)
+			var options = {
+				headers: {
+					'x-access-token': Cookie.getCookie('token')
+				},
+				credentials: true
+			};
+
+			let infoID = this.infoData._id;
+
+			var isMobile = /Mobi/.test(navigator.userAgent);
+
+			if(isMobile) {
+				this.$http.delete(Config.urlAPI +'/api/infos/' +infoID +'/unsubscribe/mobile', options).then((response) => {
+					if(response.data.success) {
+						this.hasSubscribed = false;
+					}
+				});
+			}
+			else {
+				this.$http.delete(Config.urlAPI +'/api/infos/' +infoID +'/unsubscribe/computer', options).then((response) => {
+					if(response.data.success) {
+						this.hasSubscribed = false;
+					}
+				});
+			}
+
+
 		}
 	},
 	computed: {
+		isPushSupported() {
+			var OneSignal = window.OneSignal || [];
+			var vue = this;
+			OneSignal.push(function() {
+			  	var isPushSupported = OneSignal.isPushNotificationsSupported();
+			  	if (isPushSupported) {
+			    	vue.isPushSupport = true;
+			  	} else {
+			    	vue.isPushSupport = false;			  
+			    }
+			});
+		},
 		isConnected () {
 		    return Store.state.isConnected;
 		},
@@ -1055,5 +1233,8 @@ export default {
 		box-shadow ease-in-out .15s;
 		transition:border-color ease-in-out .15s;
 		text-align: left;
+	}
+	.notif {
+		line-height: 21px;
 	}
 </style>

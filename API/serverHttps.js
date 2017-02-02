@@ -88,14 +88,14 @@ app.use('*', function(req, res) {
 // ==============================================
 
 io.on('connection', function(socket) {
-	console.log('a user connected: ', socket);
+	console.log('a user connected');
 });
 
 // CRON DELETE OLD INFOS Every 30 min
 // ==============================================
 
 cron.schedule('30 * * * *', function(){
-	console.log('//////// Start Cleaning.. ////////');
+	console.log('/***** Start Cleaning.. *****/');
 	Cleaner.deleteOldInfo();
 });
 
