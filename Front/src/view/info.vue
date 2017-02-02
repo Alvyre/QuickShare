@@ -301,6 +301,7 @@ export default {
 		newComment (comment) {
 			if(this.infoData._id == comment.infoID) {
 				console.log('socket:newComment');
+				comment.content.date = moment(comment.content.date).format();
 				this.infoData.comments.push(comment.content);
 			}
 		},

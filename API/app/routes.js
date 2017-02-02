@@ -636,7 +636,7 @@ router
                         title:      Controller.sanitizeString(req.body.title),
                         content:    Controller.sanitizeString(req.body.content),
                         userID:     req.decoded.userID,
-                        username:   req.decoded.username 
+                        username:   req.decoded.username
                     };
                     info.comments.push(newComment);
                     Info.update({_id: info._id}, info, function(err) {
@@ -646,6 +646,7 @@ router
                         }
                         else {
                             res.status(200).send({success: true, message: 'Comment added!'});
+                            newComment._id = info.comments[info.comments.length-1]._id;
                             var io = req.app.get('socketio');
                             io.emit('newComment', {infoID: info._id, content: newComment});
 
