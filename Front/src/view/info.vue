@@ -1107,14 +1107,14 @@ export default {
 			var isMobile = /Mobi/.test(navigator.userAgent);
 
 			if(isMobile) {
-				this.$http.delete(Config.urlAPI +'/api/infos/' +infoID +'/unsubscribe/computer', options).then((response) => {
+				this.$http.delete(Config.urlAPI +'/api/infos/' +infoID +'/unsubscribe/mobile', options).then((response) => {
 					if(response.data.success) {
 						this.hasSubscribed = false;
 					}
 				});
 			}
 			else {
-				this.$http.delete(Config.urlAPI +'/api/infos/' +infoID +'/unsubscribe/mobile', options).then((response) => {
+				this.$http.delete(Config.urlAPI +'/api/infos/' +infoID +'/unsubscribe/computer', options).then((response) => {
 					if(response.data.success) {
 						this.hasSubscribed = false;
 					}
