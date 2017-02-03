@@ -53,7 +53,7 @@
 										<div class="row">
 										  <div class="col-xs-6 col-md-3 info panel-success" v-for="info in userInfos">
 										  <router-link v-bind:to="getRoute(info._id)">
-											      <button type="button" class="btn btn-block" :class="setClass(info)"><strong>{{info.category}}</strong><br>{{info.title}}<br><em>read more..</em></button>
+											      <button type="button" class="btn btn-block" :class="setClass(info)"><strong v-html="info.category"></strong><br><span v-html="info.title"></span><br><em>read more..</em></button>
 										  </router-link>
 										  </div>
 										</div>
@@ -110,11 +110,8 @@
 		methods: {
 			getUserInfos () {
 
-				//Request options (COORS, token)
+				//Request options (COORS)
 				var options = {
-					headers: {
-						'x-access-token': Cookie.getCookie('token')
-					},
 					credentials: true
 				};
 				
@@ -153,7 +150,7 @@
 		    			//Token invalid
 		    			if(response.status == 403) {
 		    				this.errorMsg = 'Unknown/Expired token, please try to login again';
-							Cookie.deleteCookie('token');
+							Cookie.deleteCookie('x-access-token');
           					Cookie.deleteCookie('Connected');
           					Cookie.deleteCookie('userID');
           					Store.commit('logout');
@@ -170,8 +167,13 @@
 		    		Store.commit('loadingOff');
 
 		    		//Token invalid
-		    		if(response.status == 403)
-		    			this.errorMsg = 'Unknown token, please try to login again'
+		    			if(response.status == 403) {
+		    				this.errorMsg = 'Unknown/Expired token, please try to login again';
+							Cookie.deleteCookie('x-access-token');
+          					Cookie.deleteCookie('Connected');
+          					Cookie.deleteCookie('userID');
+          					Store.commit('logout');
+		    			}
 		    		this.errorCode = response.status;
 		  		});
 			},
@@ -187,11 +189,8 @@
 						isNewVisible:   this.checkboxMail != this.userData.isEmailVisible
 				};
 
-				//Request options (COORS, token)
+				//Request options (COORS)
 				var options = {
-					headers: {
-						'x-access-token': Cookie.getCookie('token')
-					},
 					credentials: true
 				};
 				
@@ -246,11 +245,8 @@
 				var choice = confirm('/!\\ WARNING: this action is definitive, Are you sure? /!\\ ');
 				if(choice) {
 
-					//Request options (COORS, token)
+					//Request options (CORS)
 					var options = {
-					headers: {
-						'x-access-token': Cookie.getCookie('token')
-					},
 					credentials: true
 					};
 
@@ -271,7 +267,6 @@
 		    				this.successMsg = response.data.message;
 		    				//logout
 		    				Store.commit('logout');
-		    				Cookie.deleteCookie('token');
           					Cookie.deleteCookie('Connected');
 
           					//redirect to homepage

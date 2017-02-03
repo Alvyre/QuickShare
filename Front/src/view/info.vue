@@ -394,11 +394,8 @@ export default {
 				return;
 			}
 
-			//Request options (CORS, token)
+			//Request options (CORS)
 			var options = {
-				headers: {
-					'x-access-token': Cookie.getCookie('token')
-				},
 				credentials: true
 			};
 			//Get the info ID from the URL
@@ -439,7 +436,7 @@ export default {
 				//If Token invalid
 				if(response.status == 403) {
 					this.errorMsg = 'Unknown/Expired token, please try to login again';
-					Cookie.deleteCookie('token');
+					Cookie.deleteCookie('x-access-token');
 					Cookie.deleteCookie('Connected');
 					Cookie.deleteCookie('userID');
 					Store.commit('logout');
@@ -472,11 +469,8 @@ export default {
 			//Avoid the method to be called if no click and not an event 
 			if(!click || event.category != 'Event') return;
 			
-			//Request options (CORS, token)
+			//Request options (CORS)
 			var options = {
-				headers: {
-					'x-access-token': Cookie.getCookie('token')
-				},
 				credentials: true
 			};
 
@@ -516,11 +510,8 @@ export default {
 				return;
 			}
 
-			//Request options (CORS, Token)
+			//Request options (CORS)
 			var options = {
-				headers: {
-					'x-access-token': Cookie.getCookie('token')
-				},
 				credentials: true
 			};
 
@@ -571,11 +562,8 @@ export default {
 			
 			if(choice) {
 				
-				//Request options (CORS, Token)
+				//Request options (CORS)
 				var options = {
-					headers: {
-						'x-access-token': Cookie.getCookie('token')
-					},
 					credentials: true
 				};
 
@@ -615,11 +603,8 @@ export default {
 			//If user disconnected: return
 			if(!this.checkEditedInfo() ) return;
 
-			//Request options (CORS, token)
+			//Request options (CORS)
 			var options = {
-				headers: {
-					'x-access-token': Cookie.getCookie('token')
-				},
 				credentials: true
 			};
 
@@ -667,11 +652,8 @@ export default {
 			//If user disconnected, return
 			if(!this.isConnected) return;
 			
-			//Request options (CORS, Token)
+			//Request options (CORS)
 			var options = {
-				headers: {
-					'x-access-token': Cookie.getCookie('token')
-				},
 				credentials: true
 			};
 
@@ -720,11 +702,8 @@ export default {
 			//If the user is disconnected, return
 			if(!this.isConnected) return;
 			
-			//Request options (CORS, token)
+			//Request options (CORS)
 			var options = {
-				headers: {
-					'x-access-token': Cookie.getCookie('token')
-				},
 				credentials: true
 			};
 
@@ -865,11 +844,8 @@ export default {
 				return;
 			}
 
-			//Request options (CORS, token)
+			//Request options (CORS)
 			var options = {
-				headers: {
-					'x-access-token': Cookie.getCookie('token')
-				},
 				credentials: true
 			};
 
@@ -936,11 +912,8 @@ export default {
 
 			button.toggleClass('hidden');
 
-			//Request options (CORS, token)
+			//Request options (CORS)
 			var options = {
-				headers: {
-					'x-access-token': Cookie.getCookie('token')
-				},
 				credentials: true
 			};
 
@@ -958,11 +931,8 @@ export default {
 
 			//Delete request on the API
 
-			//Request options (CORS, token)
+			//Request options (CORS)
 			var options = {
-				headers: {
-					'x-access-token': Cookie.getCookie('token')
-				},
 				credentials: true
 			};
 
@@ -991,11 +961,8 @@ export default {
 				      	console.log("Push notifications are enabled!");
 				      	var isMobile = /Mobi/.test(navigator.userAgent);
 
-				      	//Request options (CORS, token)
+				      	//Request options (CORS)
 						var options = {
-							headers: {
-								'x-access-token': Cookie.getCookie('token')
-							},
 							credentials: true
 						};
 						let infoID = vue.infoData._id;
@@ -1050,11 +1017,8 @@ export default {
 			  			console.log("Push notifications are enabled! we can try to subscribe");
 			  			var isMobile = /Mobi/.test(navigator.userAgent) ? 'mobile': 'computer';
 						
-						//Request options (CORS, token)
+						//Request options (CORS)
 						var options = {
-							headers: {
-								'x-access-token': Cookie.getCookie('token')
-							},
 							credentials: true
 						};
 						let infoID = vue.infoData._id;
@@ -1105,11 +1069,8 @@ export default {
 			});
 		},
 		unsubscribeInfo() {
-			//Request options (CORS, token)
+			//Request options (CORS)
 			var options = {
-				headers: {
-					'x-access-token': Cookie.getCookie('token')
-				},
 				credentials: true
 			};
 

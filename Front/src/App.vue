@@ -78,7 +78,6 @@
     computed: {
       isConnected () {
         return Store.state.isConnected;
-        //return  (Cookie.getCookie('Connected') == 'true');
       },
       loading () {
         return Store.state.loading;
@@ -87,7 +86,7 @@
     methods: {
     	logout (event) {
         if(event){
-          Cookie.deleteCookie('token');
+          Cookie.deleteCookie('x-access-token');
           Cookie.deleteCookie('Connected');
           Cookie.deleteCookie('userID');
           Store.commit('logout');

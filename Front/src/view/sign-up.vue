@@ -99,9 +99,16 @@
 
 						//Vue reference for the routing redirection
 						var vue = this;
-					
+						
+						//Request options (CORS)
+						var options = {
+							headers: {
+							},
+							credentials: true
+						};
+
 					  	//API request  to register (POST)
-					  	this.$http.post(Config.urlAPI +'/api/user/register', payload).then((response) => {
+					  	this.$http.post(Config.urlAPI +'/api/user/register', payload, options).then((response) => {
 
 					    //If success
 					    if(response.status === 200) {

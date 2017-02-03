@@ -12,7 +12,7 @@ var Info 		        = require('./models/Info');
 var User		        = require('./models/User');
 var WebNotification     = require('./models/WebNotification');
 var Controller          = require('./controller.js');
-var Cleaner              = require('./cleaner');
+var Cleaner             = require('./cleaner');
 var bcrypt              = require('bcrypt');
 var jwt                 = require('jsonwebtoken');
 var reCAPTCHA           = require('recaptcha2');
@@ -160,10 +160,11 @@ router
                                         issuer: 'API-auth',
                                         audience: 'web-frontend'
                                     });
-                                    res.cookie('tokenHttp', token, {
+                                    res.cookie('x-access-token', token, {
                                         path: '/',
                                         domain: config.domain,
-                                        httpOnly: true, 
+                                        httpOnly: true,
+                                        secure: true,
                                         maxAge: 10800000 // 3H
                                     }).status(200).json({
                                         success: true,
@@ -214,7 +215,7 @@ router
 .use(function(req, res, next) {
 
     //check header or url params or post params for token
-    var token = req.headers['x-access-token'];
+    var token = req.cookies['x-access-token'];
     //decode token
     if(token !== undefined) {
 

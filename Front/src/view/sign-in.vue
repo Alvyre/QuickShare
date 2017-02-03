@@ -74,6 +74,13 @@
 				}
 				else {
 					
+				//Request options (CORS)
+				var options = {
+					headers: {
+					},
+					credentials: true
+				};
+
 					//Set the payload to set
 					var payload = {
 					username: 		this.inputName,
@@ -85,14 +92,13 @@
 					var vue = this;
 
 				  	//API request to login (POST)
-				  	this.$http.post(Config.urlAPI +'/api/user/login', payload).then((response) => {
+				  	this.$http.post(Config.urlAPI +'/api/user/login', payload, options).then((response) => {
 
 					    //If success
 					    if(response.status === 200) {
 					    	this.successMsg = response.data.message;
 					    	
 					    	//Set cookies and logged state
-					    	Cookie.setCookie('token', response.data.JWT);
 					    	Cookie.setCookie('Connected', 'true');
 					    	Cookie.setCookie('userID', response.data.idUser);
 					    	Store.commit('login');

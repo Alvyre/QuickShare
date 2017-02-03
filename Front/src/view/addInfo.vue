@@ -199,9 +199,6 @@ export default {
 
 			//Request Options (CORS, Token etc..)
 			var options = {
-				headers: {
-					'x-access-token': Cookie.getCookie('token')
-				},
 				credentials: true
 			};
 

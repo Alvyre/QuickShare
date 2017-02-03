@@ -436,11 +436,8 @@
 				//If user disconnected stop the function
 				if(!this.isConnected) return;
 				
-				//Request options (COORS, Token)
+				//Request options (CORS)
 				var options = {
-					headers: {
-						'x-access-token': Cookie.getCookie('token')
-					},
 					credentials: true
 				};
 
@@ -487,11 +484,8 @@
 				//If user disconnected stop the function
 				if(!this.isConnected) return;
 
-				//Request options (COORS, Token)
+				//Request options (CORS)
 				var options = {
-					headers: {
-						'x-access-token': Cookie.getCookie('token')
-					},
 					credentials: true
 				};
 

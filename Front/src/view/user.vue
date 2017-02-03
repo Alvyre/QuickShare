@@ -23,7 +23,7 @@
 							<div class="row">
 								<div class="col-xs-6 col-md-3 info panel-success" v-for="info in infos">
 									<router-link v-bind:to="getRoute(info._id)">
-										<button type="button" class="btn btn-block" :class="setClass(info)"><strong>{{info.category}}</strong><br>{{info.title}}<br><em>read more..</em></button>
+										<button type="button" class="btn btn-block" :class="setClass(info)"><strong v-html="info.category"></strong><br><span v-html="info.title"></span><br><em>read more..</em></button>
 									</router-link>
 								</div>
 							</div>
@@ -73,11 +73,8 @@
 					return;
 				}
 
-				//Request options (COORS, token)
+				//Request options (CORS)
 				var options = {
-					headers: {
-						'x-access-token': Cookie.getCookie('token')
-					},
 					credentials: true
 				};
 
@@ -113,7 +110,7 @@
 			    			//If invalid token
 			    			if(response.status == 403) {
 			    				this.errorMsg = 'Unknown/Expired token, please try to login again';
-								Cookie.deleteCookie('token');
+								Cookie.deleteCookie('x-access-token');
 	          					Cookie.deleteCookie('Connected');
 	          					Cookie.deleteCookie('userID');
 	          					Store.commit('logout');
@@ -138,7 +135,7 @@
 					//If invalid token
 					if(response.status == 403) {
 						this.errorMsg = 'Unknown/Expired token, please try to login again';
-						Cookie.deleteCookie('token');
+						Cookie.deleteCookie('x-access-token');
 						Cookie.deleteCookie('Connected');
 						Cookie.deleteCookie('userID');
 						Store.commit('logout');

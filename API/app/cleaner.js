@@ -19,13 +19,13 @@ module.exports = {
 						console.log('Error when trying to delete old infos');
 						return;
 					}
-					self.CleanNotifications(result._id);
+					self.cleanNotifications(result._id);
 				});
 			});
 			console.log('/***** Cleaning Done *****/');
 		});
 	},
-	CleanNotifications (infoID) {
+	cleanNotifications (infoID) {
 		WebNotification.remove({infoID: infoID}, function(err) {
 			if(err) {
 				console.log('Error when trying to delete Webnotification subscription');
