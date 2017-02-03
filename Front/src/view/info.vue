@@ -10,20 +10,20 @@
 							<a v-on:click.stop.prevent="unsubscribeInfo()" v-show="hasSubscribed"><i class="fa fa-bell-slash-o pull-right notif" style="line-height: 21px;" aria-hidden="true"></i></a>							
 						</span>
 
-						<span>{{infoData.title}}</span>
+						<span v-html="infoData.title"></span>
 					</div>
 					<div class="panel-body">
 						<div class="row">
 							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> :</div>
-							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{infoData.category}}</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11" v-html="infoData.category"></div>
 						</div>
 						<div class="row">
 							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> :</div>
-							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{infoData.description}}</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11" v-html="infoData.description"></div>
 						</div>
 						<div class="row">
 							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> :</div>
-							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{infoData.location}}<span v-if='infoData.addInfo'>,</span> {{infoData.addInfo}}</div>
+							<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11"><span v-html="infoData.location"></span><span v-if='infoData.addInfo'>, </span><span v-html="infoData.addInfo"></span></div>
 						</div>
 						<div class="row" v-if="infoData.category == 'Event'">
 							<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> :</div>
@@ -100,12 +100,12 @@
 							<a href="" class="" v-on:click.prevent.stop="editComment(comment)"><span class="glyphicon glyphicon-edit" v-if="isCommentOwner(comment)" aria-hidden="true"></span></a>
 							<a href="" class="red" v-on:click.stop.prevent="deleteComment(comment)"><span class="glyphicon glyphicon-remove" aria-hidden="true" v-if="isCommentOwner(comment)"></span></a>
 						</div>
-						<span class="panel-title" data-url="/internal/person/firstname" style="margin-left:32.16px;">{{ comment.title }}</span>
+						<span class="panel-title" data-url="/internal/person/firstname" style="margin-left:32.16px;" v-html="comment.title"></span>
 						<input type="text" name="" v-if="isCommentOwner" class="hidden">
 					</div>
 					<div class="panel-body">
 						<div class="comment-content">
-							<span class="pull-left">{{ comment.content }}</span>	
+							<span class="pull-left" v-html="comment.content"></span>	
 						</div>
 						<div class="clearfix"></div>
 						<a class="btn btn-primary hidden" style="margin: 10px 0 0 0" href="#" role="button" v-on:click="applyEditedComment(comment)">Apply changes</a>
@@ -180,16 +180,16 @@
 
 					<div class="form-group">
 						<label for="title">Title</label>
-						<input type="text" class="form-control" id="title" v-bind:placeholder="infoData.title" v-model="editedArticle.title">
+						<input type="text" class="form-control" id="title" v-bind:placeholder="infoData.title | decodeHTML" v-model="editedArticle.title">
 					</div>
 					<div class="form-group">
 						<label for="description">Description</label>
-						<textarea type="text" class="form-control" id="description" v-bind:placeholder="infoData.description" v-model="editedArticle.description"></textarea>
+						<textarea type="text" class="form-control" id="description" v-bind:placeholder="infoData.description | decodeHTML" v-model="editedArticle.description"></textarea>
 					</div>
 					<div class="form-group">
 						<label for="location">Location</label>
-						<input type="text" class="form-control" id="location" v-bind:placeholder="infoData.location" v-model="editedArticle.location">
-						<input type="text" class="form-control" name="addInfo" v-bind:placeholder="infoData.addInfo" v-model="editedArticle.addInfo">
+						<input type="text" class="form-control" id="location" v-bind:placeholder="infoData.location | decodeHTML" v-model="editedArticle.location">
+						<input type="text" class="form-control" name="addInfo" v-bind:placeholder="infoData.addInfo | decodeHTML" v-model="editedArticle.addInfo">
 					</div>
 					<div class="form-group" v-if="infoData.category == 'Event'">
 						<div class="checkbox checkbox-inline">
@@ -237,6 +237,16 @@ import Flatpickr from 'vue-flatpickr/vue-flatpickr-material_blue.vue';
 
 var moment = require('moment');
 moment().format();
+
+
+//FUNCTIONS Helpers
+
+function decodeHTML(encodedString) {
+	var textArea = document.createElement('textarea');
+    textArea.innerHTML = encodedString;
+    return textArea.value;
+
+}
 
 // Vue 
 //==================================
@@ -615,14 +625,14 @@ export default {
 
 			//Payload to send
 			var payload = {
-				title:  		(this.editedArticle.title 			|| this.infoData.title),
-				description: 	(this.editedArticle.description 	|| this.infoData.description),
-				location: 		(this.editedArticle.location 		|| this.infoData.location),
-				addInfo: 		(this.editedArticle.addInfo			|| this.infoData.addInfo),
+				title:  		(this.editedArticle.title 			|| decodeHTML(this.infoData.title)),
+				description: 	(this.editedArticle.description 	|| decodeHTML(this.infoData.description)),
+				location: 		(this.editedArticle.location 		|| decodeHTML(this.infoData.location)),
+				addInfo: 		(this.editedArticle.addInfo			|| decodeHTML(this.infoData.addInfo)),
 				acceptOverload:  this.editedArticle.acceptOverload,
-				userLimit: 		(this.editedArticle.userLimit 		|| this.infoData.userLimit),
+				userLimit: 		(this.editedArticle.userLimit 		|| decodeHTML(this.infoData.userLimit)),
 				birthdate: 		this.infoData.birthdate,
-				expirydate: 	(this.editedArticle.expirydate 		|| this.infoData.expirydate)
+				expirydate: 	(this.editedArticle.expirydate 		|| decodeHTML(this.infoData.expirydate))
 			};
 			payload.acceptOverload ? payload.userLimit = '' : '';
 			
@@ -1199,6 +1209,9 @@ export default {
 			if(days <10) days = '0'+days;
 
 			return days +':' +hours +':' +minutes +':' +seconds;
+		},
+		decodeHTML (encodedString) {
+			return decodeHTML(encodedString);
 		}
 	}
 }

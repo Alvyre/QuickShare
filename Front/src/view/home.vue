@@ -83,16 +83,16 @@
 						<!-- INFO -->
 						<div class="panel panel-info" :class="infoActive" v-if='info.category == "Info"'>
 							<div class="panel-heading">
-								<span>{{info.title}}</span>
+								<span v-html="info.title"></span>
 							</div>
 							<div class="panel-body">
 								<div class="row">
 									<div v-if="info.description" class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-console" aria-hidden="true"></span> :</div>
-									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.description}}</div> 
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11" v-html="info.description"></div> 
 								</div>
 								<div class="row">
 									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> :</div>
-									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.location}}<span v-show="info.addInfo">,</span>{{info.addInfo}}</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11"><span v-html="info.location"></span><span v-show="info.addInfo">, </span><span v-html="info.addInfo"></span></div>
 								</div>
 								<div class="row">
 									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> :</div>
@@ -129,16 +129,16 @@
 						<div class="panel panel-warning" :class="helpActive" v-if='info.category == "Help"'>
 
 							<div class="panel-heading">
-								<span>{{info.title}}</span>
+								<span v-html="info.title"></span>
 							</div>
 							<div class="panel-body">
 								<div class="row">
 									<div v-if="info.description" class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-console" aria-hidden="true"></span> :</div>
-									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11 col-centered text-center">{{info.description}}</div> 
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11 col-centered text-center" v-html="info.description"></div> 
 								</div>
 								<div class="row">
 									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> :</div>
-									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.location}}<span v-show="info.addInfo">,</span>{{info.addInfo}}</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11"><span v-html="info.location"></span><span v-show="info.addInfo">, </span><span v-html="info.addInfo"></span></div>
 								</div>
 								<div class="row">
 									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> :</div>
@@ -175,16 +175,16 @@
 						<div class="panel panel-success" :class="eventActive" v-if='info.category == "Event"'>
 
 							<div class="panel-heading">
-								<span>{{info.title}}</span>
+								<span v-html="info.title"></span>
 							</div>
 							<div class="panel-body">
 								<div class="row">
 									<div v-if="info.description" class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-console" aria-hidden="true"></span> :</div>
-									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11 col-centered text-center">{{info.description}}</div> 
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11 col-centered text-center" v-html="info.description"></div> 
 								</div>
 								<div class="row">
 									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> :</div>
-									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11">{{info.location}}<span v-show="info.addInfo">,</span>{{info.addInfo}}</div>
+									<div class="col-xs-9 col-sm-11 col-md-11 col-lg-11"><span v-html="info.location"></span><span v-show="info.addInfo">, </span><span v-html="info.addInfo"></span></div>
 								</div>
 								<div class="row">
 									<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> :</div>
