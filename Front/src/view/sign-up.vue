@@ -5,7 +5,7 @@
 				<div class="col-xs-12 col-sm-12 col-centered">
 					<div class="alert alert-success text-center" v-show="successMsg">
 						<strong>{{successMsg}}</strong><br>
-						<p class="text-center"><em><small>You will be redirected in 3 secs...<br> Click <router-link to="/sign-in">here</router-link> to go to the login page.</small></em></p>
+						<p class="text-center"><em><small>You will be redirected in 3 secs...<br> Click <router-link to="/sign-in" v-on:click.native="clearTimeout()">here</router-link> to go to the login page.</small></em></p>
 					</div>
 					<form action="" method="POST" role="form" v-on:submit.prevent.stop="signUp()" v-show="!successMsg">
 						<legend>Sign Up</legend>
@@ -72,76 +72,81 @@
 				inputPas: '',
 				inputMail: '',
 				checkboxMail: false,
-				grecaptcha: {}
+				grecaptcha: {},
+				timeoutID: ''
 			}
 		},
 		mounted () {
 			//Render g-recaptcha  explicitly
-			this.grecaptcha = grecaptcha.render($('.g-recaptcha')[0], {sitekey: '6LeKFAwUAAAAAL1miQAbHCzWG9eM1dS6JpjRovmN', theme: 'dark'});
+			this.grecaptcha = grecaptcha.render($('.g-recaptcha')[0], {sitekey: Config.recaptchaPublicKey, theme: 'dark'});
 		},
 		methods: {
 			signUp () {
 
-					var gResponse = grecaptcha.getResponse(this.grecaptcha);
-					if(gResponse.length == 0) {
-						this.errorMsg = 'G-recaptcha is not verified !';
-					}
-					else {
-						
-						//Set the payload
-						var payload = {
-						username: 		this.inputName,
-						password: 		this.inputPas,
-						mail: 	  		this.inputMail,
-						isEmailVisile: 	this.checkboxMail,
-						gRecaptchaResponse: gResponse
-						};
+				var gResponse = grecaptcha.getResponse(this.grecaptcha);
+				if(gResponse.length == 0) {
+					this.errorMsg = 'G-recaptcha is not verified !';
+				}
+				else {
+					
+					//Set the payload
+					var payload = {
+					username: 		this.inputName,
+					password: 		this.inputPas,
+					mail: 	  		this.inputMail,
+					isEmailVisile: 	this.checkboxMail,
+					gRecaptchaResponse: gResponse
+					};
 
-						//Vue reference for the routing redirection
-						var vue = this;
-						
-						//Request options (CORS)
-						var options = {
-							headers: {
-							},
-							credentials: true
-						};
+					//Vue reference for the routing redirection
+					var vue = this;
+					
+					//Request options (CORS)
+					var options = {
+						headers: {
+						},
+						credentials: true
+					};
 
-					  	//API request  to register (POST)
-					  	this.$http.post(Config.urlAPI +'/api/user/register', payload, options).then((response) => {
+				  	//API request  to register (POST)
+				  	this.$http.post(Config.urlAPI +'/api/user/register', payload, options).then((response) => {
 
-					    //If success
-					    if(response.status === 200) {
-					    	this.successMsg = response.data.message;
+				    //If success
+				    if(response.status === 200) {
+				    	this.successMsg = response.data.message;
 
-					    	//redirect to homepage
-					    	window.setTimeout(function(){
-							    vue.$router.push('/sign-in');
-							    }, 3000); // 3 secs
-					    }
-					    //If data error
-					    else {
-					    	this.errorMsg = response.data.message;
-					    }
+				    	//redirect to homepage
+				    	this.timeoutID = window.setTimeout(function(){
+						    vue.$router.push('/sign-in');
+						    }, 3000); // 3 secs
+				    	this.$store.commit('setTimer', this.timeoutID);
+				    }
+				    //If data error
+				    else {
+				    	this.errorMsg = response.data.message;
+				    }
 
-					  	}, (response) => {
-					    
-					    //If Request error
-					    this.errorCode = response.status;
-					    this.errorMsg = response.data.message;
+				  	}, (response) => {
+				    
+				    //If Request error
+				    this.errorCode = response.status;
+				    this.errorMsg = response.data.message;
 
-					    //Reset the captcha
-					   	grecaptcha.reset(this.grecaptcha);
-				  		});
-				  	}
+				    //Reset the captcha
+				   	grecaptcha.reset(this.grecaptcha);
+			  		});
+			  	}
+			},
+			clearTimeout() {
+				window.clearTimeout(this.timeoutID);
 			}
 		},
 		computed: {
 			isConnected () {
-		        return Store.state.isConnected;
+		        return this.$store.state.isConnected;
 		    },
 		    loading () {
-		        return Store.state.loading;
+		        return this.$store.state.loading;
 		    },
 			//Check the name (between 3 - 20 char)
 			checkName () {

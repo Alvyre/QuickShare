@@ -4,7 +4,7 @@
 				<div class="col-xs-12 col-sm-12 col-centered">
 					<div class="alert alert-success text-center" v-show="successMsg">
 						<strong>{{successMsg}}</strong>
-						<p class="text-center"><em><small>You will be redirected in 3 secs...<br> Click <router-link to="/">here</router-link> to go to the home page.</small></em></p>
+						<p class="text-center"><em><small>You will be redirected in 3 secs...<br> Click <router-link to="/" v-on:click.native="clearTimeout()">here</router-link> to go to the home page.</small></em></p>
 					</div>
 					<form action="" method="POST" role="form" v-on:submit.prevent.stop="signIn()" v-show="!successMsg">
 						<legend>Sign-in</legend>
@@ -40,7 +40,6 @@
 // Imports 
 //==================================
 
-	import Store from '../store';
 	import Cookie from '../cookie-handler';
 	import Config from '../config';
 
@@ -56,13 +55,14 @@
 				successMsg: '',
 				inputName: '',
 				inputPas: '',
-				grecaptcha: {}
+				grecaptcha: {},
+				timeoutID: ''
 			}
 		},
 		mounted () {
 
 			//Render explicitly the g-recaptcha to avoid bug when auto refresh or navigation
-			this.grecaptcha = grecaptcha.render($('.g-recaptcha')[0], {sitekey: '6LeKFAwUAAAAAL1miQAbHCzWG9eM1dS6JpjRovmN', theme: 'dark'});
+			this.grecaptcha = grecaptcha.render($('.g-recaptcha')[0], {sitekey: Config.recaptchaPublicKey, theme: 'dark'});
 		},
 		methods: {
 			signIn () {
@@ -101,12 +101,13 @@
 					    	//Set cookies and logged state
 					    	Cookie.setCookie('Connected', 'true');
 					    	Cookie.setCookie('userID', response.data.idUser);
-					    	Store.commit('login');
+					    	this.$store.commit('login');
 
 					    	//Redirection to homepage in 3secs
-					    	window.setTimeout(function(){
+					    	this.timeoutID = window.setTimeout(function(){
 							    vue.$router.push('/');
 							    }, 3000);
+					    	this.$store.commit('setTimer', this.timeoutID);
 					    }
 
 					    //If data error
@@ -123,14 +124,17 @@
 				   	grecaptcha.reset(this.grecaptcha);
 			  		});
 				}
+			},
+			clearTimeout () {
+				window.clearTimeout(this.timeoutID);
 			}
 		},
 		computed: {
 			isConnected () {
-		        return Store.state.isConnected;
+		        return this.$store.state.isConnected;
 		    },
 		    loading () {
-		        return Store.state.loading;
+		        return this.$store.state.loading;
 		    },
 		    
 			//Check the name (between 3 & 20 characters, no color detection for 0 char)

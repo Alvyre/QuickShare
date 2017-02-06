@@ -232,7 +232,6 @@
 // IMPORT
 //=======================================
 
-	import Store from '../store';
 	import Cookie from '../cookie-handler';
 	import Config from '../config';
 
@@ -360,14 +359,14 @@
 		mounted () {
 			// Get info and set loading display
 			this.fetchInfos();
-			Store.commit('loadingOn');
+			this.$store.commit('loadingOn');
 		},
 		components: {
 			isConnected () {
-		        return Store.state.isConnected;
+		        return this.$store.state.isConnected;
 		    },
 		    loading () {
-		        return Store.state.loading;
+		        return this.$store.state.loading;
 		    }
 		},
 		methods: {
@@ -383,7 +382,7 @@
 
 					//If Success
 					this.infos = response.data;
-					Store.commit('loadingOff');
+					this.$store.commit('loadingOff');
 
 				}, (response) => {
 					//If Error
@@ -635,10 +634,10 @@
 		},
 		computed: {
 			loading () {
-				return Store.state.loading;
+				return this.$store.state.loading;
 			},
 			isConnected() {
-				return Store.state.isConnected;
+				return this.$store.state.isConnected;
 				//return Cookie.getCookie('Connected') == 'true';
 			},
 

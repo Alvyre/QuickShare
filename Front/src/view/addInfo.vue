@@ -110,7 +110,6 @@
 // Import
 //=======================================
 
-import Store from '../store';
 import Cookie from '../cookie-handler';
 import Flatpickr from 'vue-flatpickr/vue-flatpickr-material_blue.vue';
 import Config from '../config';
@@ -316,10 +315,10 @@ export default {
 	},
 	computed: {
 		isConnected () {
-		        return Store.state.isConnected;
+		        return this.$store.state.isConnected;
 		},
 		loading () {
-		        return Store.state.loading;
+		        return this.$store.state.loading;
 		},
 		//Set the CSS class for the title
 		classTitle () {

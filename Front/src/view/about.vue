@@ -58,10 +58,10 @@
 		methods: {},
 		computed: {
 			isConnected () {
-		        return Store.state.isConnected;
+		        return this.$store.state.isConnected;
 		    },
 		    loading () {
-		        return Store.state.loading;
+		        return this.$store.state.loading;
 		    }
 		}
 	}

@@ -230,7 +230,6 @@
 //IMPORTS
 //==================================
 
-import Store from '../store';
 import Cookie from '../cookie-handler';
 import Config from '../config';
 import Flatpickr from 'vue-flatpickr/vue-flatpickr-material_blue.vue';
@@ -382,7 +381,7 @@ export default {
 	},
 	mounted () {
 		//Get info and set loading screen
-		Store.commit('loadingOn');
+		this.$store.commit('loadingOn');
 		this.fetchInfoData();
 	},
 	methods : {
@@ -405,7 +404,7 @@ export default {
 			this.$http.get(Config.urlAPI +'/api/infos/id/'+idInfo, options).then((response) => {
 
 				//If success request
-				Store.commit('loadingOff');
+				this.$store.commit('loadingOff');
 
 				//If error (data error)
 				if(response.status != 200) {
@@ -431,7 +430,7 @@ export default {
 				//If error (request error)
 				console.log('Error:', response);
 				this.errorMsg = response.data.message;
-				Store.commit('loadingOff');
+				this.$store.commit('loadingOff');
 
 				//If Token invalid
 				if(response.status == 403) {
@@ -439,7 +438,7 @@ export default {
 					Cookie.deleteCookie('x-access-token');
 					Cookie.deleteCookie('Connected');
 					Cookie.deleteCookie('userID');
-					Store.commit('logout');
+					this.$store.commit('logout');
 				}
 				if(response.status == 400) {
 					this.$router.push('/');
@@ -1110,10 +1109,10 @@ export default {
 			});
 		},
 		isConnected () {
-		    return Store.state.isConnected;
+		    return this.$store.state.isConnected;
 		},
 		loading () {
-		    return Store.state.loading;
+		    return this.$store.state.loading;
 		},
 		updateVoteCount () {
 			return this.infoData.voteCount;

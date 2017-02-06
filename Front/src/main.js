@@ -7,6 +7,7 @@ import Vuex from 'vuex';
 import VueSocketio from 'vue-socket.io';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Config from './config';
+import store from './store';
 
 Vue.use(VueRouter);
 Vue.use(VueResource);
@@ -66,6 +67,7 @@ const router = new VueRouter({
 
 new Vue({
   el: '#app',
+  store,
   router: router,
   render: h => h(require('./App.vue'))
 });

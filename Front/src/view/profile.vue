@@ -80,7 +80,6 @@
 //==================================
 
 	import Cookie from '../cookie-handler';
-	import Store  from '../store';
 	import Config from '../config';
 
 // Vue 
@@ -104,7 +103,7 @@
 		},
 		mounted () {
 			//Get the user infos and set the loading animation
-			Store.commit('loadingOn');
+			this.$store.commit('loadingOn');
 			this.getUserInfos();
 		},
 		methods: {
@@ -133,7 +132,7 @@
 		    			
 		    			//If success
 		    			this.userInfos = response.data;
-		    			Store.commit('loadingOff');
+		    			this.$store.commit('loadingOff');
 		    			
 		    			//If data error
 		    			if(response.status != 200) {
@@ -145,7 +144,7 @@
 		    			//If request error
 		    			console.log('Error:', response);
 		    			this.errorMsg = response.message;
-		    			Store.commit('loadingOff');
+		    			this.$store.commit('loadingOff');
 
 		    			//Token invalid
 		    			if(response.status == 403) {
@@ -153,7 +152,7 @@
 							Cookie.deleteCookie('x-access-token');
           					Cookie.deleteCookie('Connected');
           					Cookie.deleteCookie('userID');
-          					Store.commit('logout');
+          					this.$store.commit('logout');
 		    			}
 		    			this.errorCode = response.status;
 		    		});
@@ -164,7 +163,7 @@
 		  			//If request error
 		    		console.log('Error:', response);
 		    		this.errorMsg = response.message;
-		    		Store.commit('loadingOff');
+		    		this.$store.commit('loadingOff');
 
 		    		//Token invalid
 		    			if(response.status == 403) {
@@ -172,7 +171,7 @@
 							Cookie.deleteCookie('x-access-token');
           					Cookie.deleteCookie('Connected');
           					Cookie.deleteCookie('userID');
-          					Store.commit('logout');
+          					this.$store.commit('logout');
 		    			}
 		    		this.errorCode = response.status;
 		  		});
@@ -266,7 +265,7 @@
 		    			else {
 		    				this.successMsg = response.data.message;
 		    				//logout
-		    				Store.commit('logout');
+		    				this.$store.commit('logout');
           					Cookie.deleteCookie('Connected');
 
           					//redirect to homepage
@@ -285,10 +284,10 @@
 		},
 		computed: {
 			isConnected () {
-		        return Store.state.isConnected;
+		        return this.$store.state.isConnected;
 		    },
 		    loading () {
-		        return Store.state.loading;
+		        return this.$store.state.loading;
 		    },
 			checkPwd () {
 				return ( this.inputPas.length > 0 &&

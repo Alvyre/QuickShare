@@ -40,7 +40,6 @@
 	//IMPORTS
 	//==========================
 
-	import Store from '../store';
 	import Cookie from '../cookie-handler';
 	import Config from '../config';
 
@@ -61,7 +60,7 @@
 		mounted () {
 
 			//Get user info and set the loading animation
-			Store.commit('loadingOn');
+			$.commit('loadingOn');
 			this.fetchUserProfile();
 		},
 		methods: {
@@ -93,7 +92,7 @@
 			    			
 			    			//If success
 			    			this.infos = response.data;
-			    			Store.commit('loadingOff');
+			    			this.$store.commit('loadingOff');
 			    			
 			    			//If data error
 			    			if(response.status != 200) {
@@ -105,7 +104,7 @@
 			    			//If request error
 			    			console.log('Error:', response);
 			    			this.errorMsg = response.message;
-			    			Store.commit('loadingOff');
+			    			this.$store.commit('loadingOff');
 
 			    			//If invalid token
 			    			if(response.status == 403) {
@@ -113,7 +112,7 @@
 								Cookie.deleteCookie('x-access-token');
 	          					Cookie.deleteCookie('Connected');
 	          					Cookie.deleteCookie('userID');
-	          					Store.commit('logout');
+	          					this.$store.commit('logout');
 			    			}
 			    			this.errorCode = response.status;
 			    		});
@@ -130,7 +129,7 @@
 					//If request error
 					console.log('Error:', response);
 					this.errorMsg = response.data.message;
-					Store.commit('loadingOff');
+					this.$store.commit('loadingOff');
 
 					//If invalid token
 					if(response.status == 403) {
@@ -138,7 +137,7 @@
 						Cookie.deleteCookie('x-access-token');
 						Cookie.deleteCookie('Connected');
 						Cookie.deleteCookie('userID');
-						Store.commit('logout');
+						this.$store.commit('logout');
 					}
 					this.errorCode = response.status
 				});
@@ -168,10 +167,10 @@
 		},
 		computed: {
 			isConnected () {
-				return Store.state.isConnected;
+				return this.$store.state.isConnected;
 			},
 			loading () {
-				return Store.state.loading;
+				return this.$store.state.loading;
 			}
 		}
 	}

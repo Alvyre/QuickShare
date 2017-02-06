@@ -13,10 +13,10 @@
       </div>
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav navbar-right">
-          <li><router-link to="/"><span class="glyphicon glyphicon-home" aria-hidden="true"></span>  Home</router-link></li>
-          <li v-if="isConnected"><router-link to="/profile"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> My profile</router-link></li>
-          <li><router-link to="/about"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>  About</router-link></li>
-          <li><router-link to="/contact"><span class="glyphicon glyphicon-send" aria-hidden="true"></span>  Contact</router-link></li>
+          <li><router-link to="/" v-on:click.native="clearTimeout()"><span class="glyphicon glyphicon-home" aria-hidden="true"></span>  Home</router-link></li>
+          <li v-if="isConnected"><router-link to="/profile" v-on:click.native="clearTimeout()"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> My profile</router-link></li>
+          <li><router-link to="/about" v-on:click.native="clearTimeout()"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>  About</router-link></li>
+          <li><router-link to="/contact" v-on:click.native="clearTimeout()"><span class="glyphicon glyphicon-send" aria-hidden="true"></span>  Contact</router-link></li>
           <li v-show="isConnected"><a href="" v-on:click.stop.prevent.self="logout($event)"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>  Logout</a></li>
           <li v-show="!isConnected"><router-link to="/sign-in"><span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>  Login</router-link></li>
           <li v-show='!isConnected'><router-link to="/sign-up"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>  Sign up</router-link></li>
@@ -60,7 +60,6 @@
   //Imports
   //==========================================================
   
-    import Store  from './store'
     import Cookie from './cookie-handler';
     import Config from './config';
 
@@ -77,10 +76,10 @@
     },
     computed: {
       isConnected () {
-        return Store.state.isConnected;
+        return this.$store.state.isConnected;
       },
       loading () {
-        return Store.state.loading;
+        return this.$store.state.loading;
       }
     },
     methods: {
@@ -89,14 +88,17 @@
           Cookie.deleteCookie('x-access-token');
           Cookie.deleteCookie('Connected');
           Cookie.deleteCookie('userID');
-          Store.commit('logout');
+          this.$store.commit('logout');
           this.$router.push('/');
         }
       },
+      clearTimeout () {
+          this.$store.commit('clearTimer');
+      }
     },
     mounted () {
       if(Cookie.getCookie('Connected') == 'true') {
-        Store.commit('login');
+        this.$store.commit('login');
       }
 
       var Onesignal = window.Onesignal || [];
