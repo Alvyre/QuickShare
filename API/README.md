@@ -1,6 +1,6 @@
-[![License](https://img.shields.io/badge/License-GPL3.0-blue.svg)](https://github.com/Arctic76/Sharing-System/blob/master/LICENSE) [ ![Node](https://img.shields.io/badge/Node-4.6.0-blue.svg)](https://nodejs.org/en/) [ ![Express](https://img.shields.io/badge/Express.js-4.13.4-blue.svg)](http://expressjs.com/) [ ![JWT] (https://img.shields.io/badge/JWT-7.1.9-blue.svg)](https://jwt.io/)
+<center>[![License](https://img.shields.io/badge/License-GPL3.0-blue.svg)](https://github.com/Arctic76/Sharing-System/blob/master/LICENSE) [ ![Node](https://img.shields.io/badge/Node-7.4.0-blue.svg)](https://nodejs.org/en/) [ ![Express](https://img.shields.io/badge/Express.js-4.13.4-blue.svg)](http://expressjs.com/) [ ![JWT] (https://img.shields.io/badge/JWT-7.1.9-blue.svg)](https://jwt.io/)[ ![Web Push](https://img.shields.io/badge/Web%20Push%20Notification-OneSignal-blue.svg)](https://onesignal.com/) <br/><br/>![build](https://img.shields.io/badge/build-passing-brightgreen.svg)</center>
 
-**Shar'info**
+**QuickShare**
 =============
 
 (Node.js / Express.js / Vue.js / MongoDB)
@@ -34,11 +34,13 @@ Then, you have to create a config folder and a config file inside with the follo
             domain: <your_domain_for_setCookie>,
             whitelist: [<Array of authorized domains],
             infoTTL: <value>,                            // in days
+            notifAPIKey: <OneSignal Key>,
+            notifAppID: <OneSignal APPID>,
             //Only for HTTPS server
             ca: 'PATH/example_com.ca-bundle',
             key: 'PATH/example_com.key',
             cert: 'PATH/example_com.crt'
-	};
+    };
 
 then you can serve an HTTP or HTTPS server with:
 

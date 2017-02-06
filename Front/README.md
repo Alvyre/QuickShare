@@ -1,7 +1,7 @@
-[![License](https://img.shields.io/badge/License-GPL3.0-blue.svg)](https://github.com/Arctic76/Sharing-System/blob/master/LICENSE) [ ![Node](https://img.shields.io/badge/Node-4.6.0-blue.svg)](https://nodejs.org/en/) [ ![Vue](https://img.shields.io/badge/Vue.js-2.0.1-blue.svg)](https://vuejs.org/) [ ![VueX](https://img.shields.io/badge/VueX-2.0.0-blue.svg)](https://vuex.vuejs.org/en/intro.html) [ ![Vue-router](https://img.shields.io/badge/Vue_router-2.0.1-blue.svg)](https://router.vuejs.org/en/) [ ![Vue-ressource](https://img.shields.io/badge/Vue_resource-1.0.3-blue.svg)](https://github.com/pagekit/vue-resource)
+<center>[![License](https://img.shields.io/badge/License-GPL3.0-blue.svg)](https://github.com/Arctic76/Sharing-System/blob/master/LICENSE) [ ![Node](https://img.shields.io/badge/Node-7.4.0-blue.svg)](https://nodejs.org/en/) [ ![Vue](https://img.shields.io/badge/Vue.js-2.0.5-blue.svg)](https://vuejs.org/) [ ![Web Push](https://img.shields.io/badge/Web%20Push%20Notification-OneSignal-blue.svg)](https://onesignal.com/) <br/><br/>![build](https://img.shields.io/badge/build-passing-brightgreen.svg)</center>
 
 
-**Shar'info**
+**QuickShare**
 =============
 
 (Node.js / Express.js / Vue.js / MongoDB)
@@ -31,7 +31,9 @@ Then, you have to create a config.js file into the /src folder:
 	domain: '.<your_domain>',
 	urlAPI: '<your_API_URL>', 	// without the /api/...
 	contactEmail: <your_@Mail>,
-	infoTTL: <value> 					//in days 
+	infoTTL: <value> 					//in days
+	notifAppId: <OneSignal API KEY>,
+	recaptchaPublicKey: <key>
 	};
 
 NOTE : If your front-end is served on HTTPS you must provide HTTPS API URL.
