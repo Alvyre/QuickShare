@@ -50,7 +50,7 @@
 						<!-- Location -->
 						<div class="form-group" :class="classLocation">
 							<label for="location">Location*</label>
-							<input type="text" name="location" class="form-control" v-model="newInfo.location" placeholder="Input a location" ariadescribed-by="infoLocation" required="required">
+							<input type="text" name="location" id='location' class="form-control" v-model="newInfo.location" placeholder="Input a location" ariadescribed-by="infoLocation" required="required">
 							<div id="infoLocation" class="help-block" v-show="!displayHelpLocation">Please type a location with at least 3 characters.</div>
 						</div>
 
@@ -164,6 +164,16 @@ export default {
 		//Redirect to the homepage if not connected
 		if(Cookie.getCookie('Connected') != 'true') {
 			this.$router.push('/');
+		}
+		else {
+			//Get the location
+			let url = decodeURIComponent(document.URL);
+			let location = (url.split('/'))[4];
+			if(location !== '' && location !== undefined) {
+				this.newInfo.location = location;
+				$('#location').attr('disabled', true);
+				$('#location').val(location);
+			}
 		}
 	},
 	components: {

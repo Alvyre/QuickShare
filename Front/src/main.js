@@ -29,7 +29,12 @@ const router = new VueRouter({
 		},
 		{
 			name:'addInfo',
-			path: '/newinfo',
+			path: '/newinfo/',
+			component: require('./view/addInfo.vue')
+		},	
+		{
+			name:'addInfoLocalized',
+			path: '/newinfo/:location',
 			component: require('./view/addInfo.vue')
 		},
 		{
@@ -61,6 +66,11 @@ const router = new VueRouter({
 			name: 'contact',
 			path: '/contact',
 			component: require('./view/contact.vue')
+		},
+		{
+			name: '404',
+			path: '/*',
+			component: require('./view/home.vue')
 		}
 	]
 });
