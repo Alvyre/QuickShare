@@ -406,7 +406,7 @@ router
                                     if(subUsers.length !== 0 && subUsers !== undefined) {
                                         
                                         var message = {
-                                            content: "The info '" +info.title +"' just has been edited.",
+                                            content: "The info '" +Controller.decodeHTML(info.title) +"' just has been edited.",
                                             url: "info/" +info._id 
                                         };
 
@@ -659,7 +659,7 @@ router
                                     if(subUsers.length !== 0 && subUsers !== undefined) {
                                         
                                         var message = {
-                                            content: "Someone added a new comment on '" +info.title +"'",
+                                            content: "Someone added a new comment on '" +Controller.decodeHTML(info.title) +"'",
                                             url: "info/" +info._id 
                                         };
                                         WebNotification.pushMessage(subUsers, message);  
