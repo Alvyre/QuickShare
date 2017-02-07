@@ -265,6 +265,17 @@
 		    			else {
 		    				this.successMsg = response.data.message;
 		    				//logout
+		    				
+		    				//Request options (CORS)
+					        var options = {
+					            credentials: true
+					        };
+
+					        this.$http.delete(Config.urlAPI + '/api/user/disconnect', options).then( (response) => {
+					            console.log(response.data.message);  
+					        }, (response) => {
+
+					        });
 		    				this.$store.commit('logout');
           					Cookie.deleteCookie('Connected');
 

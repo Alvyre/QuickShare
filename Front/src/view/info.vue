@@ -435,7 +435,16 @@ export default {
 				//If Token invalid
 				if(response.status == 403) {
 					this.errorMsg = 'Unknown/Expired token, please try to login again';
-					Cookie.deleteCookie('x-access-token');
+					var options = {
+			            credentials: true
+			        };
+
+			        this.$http.delete(Config.urlAPI + '/api/user/disconnect', options).then( (response) => {
+			            console.log(response.data.message);  
+			        }, (response) => {
+
+			        });
+
 					Cookie.deleteCookie('Connected');
 					Cookie.deleteCookie('userID');
 					this.$store.commit('logout');

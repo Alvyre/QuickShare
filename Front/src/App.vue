@@ -38,8 +38,8 @@
       </div>    
     </footer>
   </div>
-   <br>
- </div>
+  <br>
+</div>
 </template>
 
 <script>
@@ -60,12 +60,12 @@
   //Imports
   //==========================================================
   
-    import Cookie from './cookie-handler';
-    import Config from './config';
+  import Cookie from './cookie-handler';
+  import Config from './config';
 
   //Vue.js
   //==========================================================
-    
+  
   export default {
     name: 'app',
     data () {
@@ -85,7 +85,18 @@
     methods: {
     	logout (event) {
         if(event){
-          Cookie.deleteCookie('x-access-token');
+
+          //Request options (CORS)
+          var options = {
+            credentials: true
+          };
+
+          this.$http.delete(Config.urlAPI + '/api/user/disconnect', options).then( (response) => {
+            console.log(response.data.message);  
+          }, (response) => {
+
+          });
+          
           Cookie.deleteCookie('Connected');
           Cookie.deleteCookie('userID');
           this.$store.commit('logout');
@@ -93,7 +104,7 @@
         }
       },
       clearTimeout () {
-          this.$store.commit('clearTimer');
+        this.$store.commit('clearTimer');
       }
     },
     mounted () {
@@ -105,8 +116,8 @@
       OneSignal.push(["init", {
         appId: Config.notifAppId,
         autoRegister: false,
-          notifyButton: {
-            enable: false
+        notifyButton: {
+          enable: false
         }
       }]);
 
@@ -129,31 +140,31 @@
   /* JAPANESE STYLE */
 
   .alert, .badge, .breadcrumb, .btn, .form-control, .input-gruop, .label, .lead, .list-group, .nav-pills, .nav-tabs, .navbar, .no-thank-yu, .pager, .pagination, .panel-heading, .panel-title, .popover, .tooltip {
-      font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,sans-serif;
+    font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,sans-serif;
   }
 
 
   body {
-      font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,"游ゴシック",YuGothic,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,sans-serif;
-      font-size: 16px;
-      line-height: 1.42857;
+    font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,"游ゴシック",YuGothic,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,sans-serif;
+    font-size: 16px;
+    line-height: 1.42857;
   }
   p {
-      margin: 0 0 11px;
+    margin: 0 0 11px;
   }
 
   .h2, h2 {
-      font-size: 28px;
+    font-size: 28px;
   }
   .h1, .h2, .h3, h1, h2, h3 {
-      margin-top: 22px;
-      margin-bottom: 11px;
+    margin-top: 22px;
+    margin-bottom: 11px;
   }
   .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
-      font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,sans-serif;
-      font-weight: 300;
-      line-height: 1.2;
-      color: inherit;
+    font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,sans-serif;
+    font-weight: 300;
+    line-height: 1.2;
+    color: inherit;
   }
 
   /* END JAPANESE STYLE */
@@ -195,7 +206,7 @@
     left: 50%;
   }
   #footer-vue{
-  margin-top: 20px;
+    margin-top: 20px;
   }
 
   /* fix nav bug */

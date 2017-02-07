@@ -109,11 +109,23 @@
 			    			//If invalid token
 			    			if(response.status == 403) {
 			    				this.errorMsg = 'Unknown/Expired token, please try to login again';
-								Cookie.deleteCookie('x-access-token');
+								
+						        //Request options (CORS)
+						        var options = {
+						            credentials: true
+						        };
+
+						        this.$http.delete(Config.urlAPI + '/api/user/disconnect', options).then( (response) => {
+						            console.log(response.data.message);  
+						        }, (response) => {
+
+						        });
+
 	          					Cookie.deleteCookie('Connected');
 	          					Cookie.deleteCookie('userID');
 	          					this.$store.commit('logout');
 			    			}
+
 			    			this.errorCode = response.status;
 			    		});
 			    		//END API REQUEST ACTIVE INFO
@@ -134,7 +146,16 @@
 					//If invalid token
 					if(response.status == 403) {
 						this.errorMsg = 'Unknown/Expired token, please try to login again';
-						Cookie.deleteCookie('x-access-token');
+						 //Request options (CORS)
+				        var options = {
+				            credentials: true
+				        };
+
+				        this.$http.delete(Config.urlAPI + '/api/user/disconnect', options).then( (response) => {
+				            console.log(response.data.message);  
+				        }, (response) => {
+
+				        });
 						Cookie.deleteCookie('Connected');
 						Cookie.deleteCookie('userID');
 						this.$store.commit('logout');

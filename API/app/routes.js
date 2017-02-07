@@ -160,11 +160,12 @@ router
                                         issuer: 'API-auth',
                                         audience: 'web-frontend'
                                     });
-                                    res.cookie('x-access-token', token, {
+                                    res.cookie('access_token', token, {
                                         path: '/',
                                         domain: config.domain,
                                         httpOnly: true,
                                         secure: true,
+                                        signed: true,
                                         maxAge: 10800000 // 3H
                                     }).status(200).json({
                                         success: true,
@@ -215,27 +216,36 @@ router
 .use(function(req, res, next) {
 
     //check header or url params or post params for token
-    var token = req.cookies['x-access-token'];
-    //decode token
-    if(token !== undefined) {
+    var cookieParser = req.app.get('cookieParser');
+    var token = req.signedCookies.access_token;
+    //var token = cookieParser.signedCookie(req.signedCookies['access_token'], config.cookieSecret);
 
+    //decode token
+    if(token === undefined) {
+        //if there is no token : return error
+        return res.status(403).send({
+            success: false,
+            message: 'No token provided.'
+        });
+    }
+    else if( token === false) {
+        //if there token invalid : return error
+        return res.clearCookie('access_token').status(403).send({
+            success: false,
+            message: 'Signature not recognized.'
+        });
+    }
+    else {
         //verifies secret and checks expiry
         jwt.verify(token, config.secret, function(err, decoded) {
             if(err) {
-                return res.status(403).json({ success: false, message: 'Failed to authenticate token'});
+                return res.clearCookie('access_token').status(403).json({ success: false, message: 'Failed to authenticate token'});
             }
             else {
                 //if everything good save to request for use in other Routes
                 req.decoded = decoded;
                 next();
             }
-        });
-    }
-    else {
-        //if there is no token : return error
-        return res.status(403).send({
-            success: false,
-            message: 'No token provided.'
         });
     }
 })
@@ -1023,6 +1033,14 @@ router
             res.status(404).json({success: false, message: 'No users found'});
         }
     });
+})
+
+
+// Disconnect (Delete Cookie)
+//=============================================
+
+.delete('/user/disconnect', function(req, res, next) {
+    res.clearCookie('access_token', {path: '/', secure: true, httpOnly: true, signed: true, domain: config.domain}).status(200).send({success: true, message: 'Disconnected'});
 })
 
 
