@@ -2,11 +2,6 @@
 logs
 *.log
 npm-debug.log*
-log
-logs
-
-#Login folder
-logins
 
 # Runtime data
 pids
@@ -44,5 +39,5 @@ jspm_packages
 # Config directory
 config
 
-# PSD files
-*.psd
+# Txt files
+*.txt
