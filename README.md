@@ -6,12 +6,9 @@
 (Node.js / Express.js / Vue.js / MongoDB)
 -----------------------------------------
 
-**WORK IN PROGRESS**
-This project is currently in WIP so all the features may not work.
-
 **Concept:**
 
-*Find a way to share quickly and simply an information between users in a given area, in real time.*
+*Research project to improve communication between people and sharing information quickly in a given area. Using a Node.JS API and a Vue.js Front.*
 
 **Installation:**
 
