@@ -18,7 +18,7 @@
 					When you arrive on the default page, which is the homepage, you can see all the current information. To interact with other students, create information or join events you have to create an account. You can register by navigate into "Sign-up" in the menu.</p>
 					<p>When you're logged, you can vote up/down information, "up" if you find them usefull, and "down" if you find them useless. This feature allows us to select and show pertinent information for the whole community !</p>
 					<p>You can also watch closer information by clicking on it. You will arrive on a detailed page of the information you selected. If it is an event, you will be able to join or leave it. If you are the owner (creator), you will be able to manage and modify it.</p>
-					<p>If you look closely you will find a <i class="fa fa-bell-o pull-right notif" style="line-height: 21px;" aria-hidden="true"></i> on the top right corner of the title. You can subscribe to the information by clicking on it (you have to accept notifications before).</p>
+					<p>If you look closely you will find a <i class="fa fa-bell-o" style="line-height: 21px;" aria-hidden="true"></i> on the top right corner of the title. You can subscribe to the information by clicking on it (you have to accept notifications before).</p>
 					<p>You can modify your personal information in your profile page. You can also delete your account, but be carefull! This action is definitive!</p>
 					<p>To add an info, just click on the "add info" button, and fill-up the form. When you finished, just submit and it's done!</p><br>
 					<h4><u>I found a bug, how can I report it?</u></h4>

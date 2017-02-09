@@ -60,7 +60,7 @@
 		mounted () {
 
 			//Get user info and set the loading animation
-			$.commit('loadingOn');
+			this.$store.commit('loadingOn');
 			this.fetchUserProfile();
 		},
 		methods: {
