@@ -278,7 +278,7 @@ export default {
 		//Triggered when an info is deleted on the server
 		deleteInfo (info) {
 			console.log('socket:deleteinfo');
-			if(this.infoData._id == info._id && this.infoData.userID != Cookie.getCookie('userID')) {
+			if(this.infoData._id == info._id && this.infoData.userID !== Cookie.getCookie('userID')) {
 				alert('Sorry, this info just has beed deleted, you will be redirected');
 				this.$router.push('/');
 			}
